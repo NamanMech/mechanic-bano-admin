@@ -1,6 +1,4 @@
-// src/components/Branding.jsx
-
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const backendURL = 'https://mechanic-bano-backend.vercel.app';
@@ -11,77 +9,82 @@ export default function Branding() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await axios.get(`${backendURL}/api/config`);
+        setWebsiteName(res.data.websiteName);
+        setLogoURL(res.data.logoURL);
+      } catch (error) {
+        console.error('Fetch Config Error:', error);
+        alert('Failed to load configuration');
+      } finally {
+        setLoading(false); // ✅ Loading state hata do chahe success ya fail ho
+      }
+    };
+
     fetchConfig();
   }, []);
 
-  const fetchConfig = async () => {
-    try {
-      const res = await axios.get(`${backendURL}/api/config`);
-      setWebsiteName(res.data.websiteName);
-      setLogoURL(res.data.logoURL);
-      setLoading(false);
-    } catch (error) {
-      console.error('Failed to load configuration', error);
-      alert('Failed to load configuration');
-    }
-  };
-
   const updateSiteName = async () => {
     try {
-      await axios.put(`${backendURL}/api/config`, { websiteName });
+      await axios.put(`${backendURL}/api/config`, { websiteName, logoURL });
       alert('Site name updated successfully');
-      fetchConfig();
     } catch (error) {
-      console.error('Failed to update site name', error);
+      console.error('Update Site Name Error:', error);
       alert('Failed to update site name');
     }
   };
 
   const updateLogo = async () => {
     try {
-      await axios.put(`${backendURL}/api/config`, { logoURL });
+      await axios.put(`${backendURL}/api/config`, { websiteName, logoURL });
       alert('Logo updated successfully');
-      fetchConfig();
     } catch (error) {
-      console.error('Failed to update logo', error);
+      console.error('Update Logo Error:', error);
       alert('Failed to update logo');
     }
   };
 
-  if (loading) return <h2>Loading...</h2>;
+  if (loading) {
+    return <h2>Loading...</h2>;
+  }
 
   return (
-    <div className="branding">
-      <h2>Update Branding</h2>
+    <div className="p-4">
+      <h1 className="text-xl mb-4">Site Branding</h1>
 
-      <div>
+      <div className="mb-4">
+        <label className="block mb-1">Website Name:</label>
         <input
           type="text"
-          placeholder="Website Name"
           value={websiteName}
           onChange={(e) => setWebsiteName(e.target.value)}
+          className="border p-2 w-full"
         />
-        <button onClick={updateSiteName}>Update Site Name</button>
+        <button onClick={updateSiteName} className="mt-2 p-2 bg-blue-500 text-white rounded">
+          Update Site Name
+        </button>
       </div>
 
-      <div style={{ marginTop: '20px' }}>
+      <div className="mb-4">
+        <label className="block mb-1">Logo URL:</label>
         <input
           type="text"
-          placeholder="Logo URL"
           value={logoURL}
           onChange={(e) => setLogoURL(e.target.value)}
+          className="border p-2 w-full"
         />
-        <button onClick={updateLogo}>Update Logo</button>
+        <button onClick={updateLogo} className="mt-2 p-2 bg-green-500 text-white rounded">
+          Update Logo
+        </button>
       </div>
 
-      <div style={{ marginTop: '20px' }}>
-        <h3>Preview</h3>
-        {logoURL && (
-          <img
-            src={logoURL}
-            alt="Website Logo"
-            style={{ width: '150px', marginTop: '10px' }}
-          />
+      <div className="mt-4">
+        <h2>Current Logo:</h2>
+        {logoURL ? (
+          <img src={logoURL} alt="Logo" className="mt-2" style={{ maxWidth: '200px' }} />
+        ) : (
+          <p>No logo available</p>
         )}
       </div>
     </div>
