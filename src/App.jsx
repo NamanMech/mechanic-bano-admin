@@ -25,22 +25,22 @@ function App() {
   };
 
   const handleUpdateConfig = async () => {
-    // 👇 Check karne ke liye alerts
-    alert(`Backend URL: ${backendURL}`);
-    alert(`Website Name: ${websiteName}`);
-    alert(`Logo URL: ${logoURL}`);
+  try {
+    const res = await axios.put(`${backendURL}/api/config`, { websiteName, logoURL }, {
+      headers: { 'Content-Type': 'application/json' }
+    });
 
-    try {
-      await axios.put(`${backendURL}/api/config`, { websiteName, logoURL }, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+    if (res.data.success) {
       alert('Configuration updated successfully');
-    } catch (error) {
-      console.error('Update Config Error:', error);
-      alert('Failed to update configuration');
+    } else {
+      alert('Failed to update configuration: ' + res.data.message);
     }
-  };
-
+  } catch (error) {
+    console.error('Update Config Error:', error);
+    alert('Failed to update configuration');
+  }
+};
+  
   return (
     <div className="App">
       <h1>Admin Panel - {websiteName}</h1>
