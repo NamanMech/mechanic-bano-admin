@@ -1,5 +1,3 @@
-// src/App.jsx
-
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './App.css';
@@ -9,7 +7,8 @@ const backendURL = 'https://mechanic-bano-backend.vercel.app';
 function App() {
   const [websiteName, setWebsiteName] = useState('');
   const [logoURL, setLogoURL] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [newWebsiteName, setNewWebsiteName] = useState('');
+  const [newLogoURL, setNewLogoURL] = useState('');
 
   useEffect(() => {
     fetchConfig();
@@ -20,20 +19,21 @@ function App() {
       const res = await axios.get(`${backendURL}/api/config`);
       setWebsiteName(res.data.websiteName);
       setLogoURL(res.data.logoURL);
-      setLoading(false);
+      setNewWebsiteName(res.data.websiteName);
+      setNewLogoURL(res.data.logoURL);
     } catch (error) {
       console.error('Fetch Config Error:', error);
-      alert('Failed to fetch configuration');
-      setLoading(false);
     }
   };
 
   const handleUpdateConfig = async () => {
     try {
-      await axios.put(`${backendURL}/api/config`, { websiteName, logoURL }, {
-        headers: { 'Content-Type': 'application/json' }
+      await axios.put(`${backendURL}/api/config`, {
+        websiteName: newWebsiteName,
+        logoURL: newLogoURL,
       });
       alert('Configuration updated successfully');
+      fetchConfig();
     } catch (error) {
       console.error('Update Config Error:', error);
       alert('Failed to update configuration');
@@ -44,28 +44,27 @@ function App() {
     <div className="App">
       <h1>Admin Panel</h1>
 
-      {loading ? <p>Loading...</p> : (
-        <>
-          {logoURL && <img src={logoURL} alt="Logo" style={{ width: '150px', marginBottom: '20px' }} />}
-          <div style={{ marginBottom: '20px' }}>
-            <input
-              type="text"
-              placeholder="Website Name"
-              value={websiteName}
-              onChange={(e) => setWebsiteName(e.target.value)}
-              style={{ marginRight: '10px' }}
-            />
-            <input
-              type="text"
-              placeholder="Logo URL"
-              value={logoURL}
-              onChange={(e) => setLogoURL(e.target.value)}
-              style={{ marginRight: '10px' }}
-            />
-            <button onClick={handleUpdateConfig}>Update Config</button>
-          </div>
-        </>
-      )}
+      {logoURL && <img src={logoURL} alt="Website Logo" style={{ width: '150px', marginBottom: '20px' }} />}
+      <h2>Website Name: {websiteName}</h2>
+
+      <div style={{ marginTop: '30px' }}>
+        <h2>Update Website Branding</h2>
+        <input
+          type="text"
+          placeholder="Website Name"
+          value={newWebsiteName}
+          onChange={(e) => setNewWebsiteName(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Logo URL"
+          value={newLogoURL}
+          onChange={(e) => setNewLogoURL(e.target.value)}
+          required
+        />
+        <button onClick={handleUpdateConfig}>Update Branding</button>
+      </div>
     </div>
   );
 }
