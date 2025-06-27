@@ -1,12 +1,12 @@
-// src/Branding.jsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const backendURL = 'https://mechanic-bano-backend.vercel.app';
 
 function Branding() {
-  const [websiteName, setWebsiteName] = useState('Mechanic Bano');
+  const [websiteName, setWebsiteName] = useState('');
   const [logoURL, setLogoURL] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchConfig();
@@ -17,8 +17,10 @@ function Branding() {
       const res = await axios.get(`${backendURL}/api/config`);
       setWebsiteName(res.data.websiteName);
       setLogoURL(res.data.logoURL);
+      setLoading(false);
     } catch (error) {
       console.error('Fetch Config Error:', error);
+      alert('Failed to load configuration');
     }
   };
 
@@ -28,24 +30,28 @@ function Branding() {
         headers: { 'Content-Type': 'application/json' }
       });
       alert('Configuration updated successfully');
-      fetchConfig(); // Refresh UI
+      fetchConfig();
     } catch (error) {
       console.error('Update Config Error:', error);
       alert('Failed to update configuration');
     }
   };
 
+  if (loading) return <h3>Loading...</h3>;
+
   return (
     <div style={{ textAlign: 'center' }}>
       <h1>Admin Panel - {websiteName}</h1>
 
-      {logoURL && (
+      {logoURL ? (
         <img
           src={logoURL}
           alt="Website Logo"
           style={{ width: '150px', marginBottom: '20px' }}
-          onError={(e) => { e.target.src = ''; }} // agar image error ho to hata do
+          onError={(e) => { e.target.style.display = 'none'; alert('Logo failed to load'); }}
         />
+      ) : (
+        <p>No Logo Found</p>
       )}
 
       <div>
