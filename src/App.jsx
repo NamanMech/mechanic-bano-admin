@@ -1,5 +1,5 @@
 // src/App.jsx
-import Branding from './Branding';
+import Branding from './pages/Branding';
 import './App.css';
 
 function App() {
