@@ -1,11 +1,11 @@
-// src/components/Branding.jsx
+// src/pages/Branding.jsx
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const backendURL = 'https://mechanic-bano-backend.vercel.app';
 
-export default function Branding() {
+function Branding() {
   const [websiteName, setWebsiteName] = useState('');
   const [logoURL, setLogoURL] = useState('');
   const [loading, setLoading] = useState(true);
@@ -27,11 +27,9 @@ export default function Branding() {
     }
   };
 
-  const handleUpdateSiteName = async () => {
+  const updateSiteName = async () => {
     try {
-      await axios.put(`${backendURL}/api/config`, { websiteName, logoURL }, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      await axios.put(`${backendURL}/api/config`, { websiteName });
       alert('Site name updated successfully');
     } catch (error) {
       console.error('Update Site Name Error:', error);
@@ -39,11 +37,9 @@ export default function Branding() {
     }
   };
 
-  const handleUpdateLogo = async () => {
+  const updateLogo = async () => {
     try {
-      await axios.put(`${backendURL}/api/config`, { websiteName, logoURL }, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      await axios.put(`${backendURL}/api/config`, { logoURL });
       alert('Logo updated successfully');
     } catch (error) {
       console.error('Update Logo Error:', error);
@@ -51,11 +47,13 @@ export default function Branding() {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
-    <div>
-      <h2>Website Branding</h2>
+    <div className="branding">
+      <h2>Update Branding</h2>
 
       <div>
         <label>Website Name:</label>
@@ -64,7 +62,7 @@ export default function Branding() {
           value={websiteName}
           onChange={(e) => setWebsiteName(e.target.value)}
         />
-        <button onClick={handleUpdateSiteName}>Update Site Name</button>
+        <button onClick={updateSiteName}>Update Site Name</button>
       </div>
 
       <div style={{ marginTop: '20px' }}>
@@ -74,7 +72,7 @@ export default function Branding() {
           value={logoURL}
           onChange={(e) => setLogoURL(e.target.value)}
         />
-        <button onClick={handleUpdateLogo}>Update Logo</button>
+        <button onClick={updateLogo}>Update Logo</button>
       </div>
 
       {logoURL && (
@@ -85,3 +83,5 @@ export default function Branding() {
     </div>
   );
 }
+
+export default Branding;
