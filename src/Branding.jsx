@@ -14,13 +14,21 @@ function Branding() {
 
   const fetchConfig = async () => {
     try {
-      const res = await axios.get(`${backendURL}/api/config`);
-      setWebsiteName(res.data.websiteName);
-      setLogoURL(res.data.logoURL);
-      setLoading(false);
+      const res = await axios.get(`${backendURL}/api/config`, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (res && res.data) {
+        setWebsiteName(res.data.websiteName);
+        setLogoURL(res.data.logoURL);
+        setLoading(false);
+      } else {
+        alert('No data found');
+        setLoading(false);
+      }
     } catch (error) {
       console.error('Fetch Config Error:', error);
       alert('Failed to load configuration');
+      setLoading(false);
     }
   };
 
