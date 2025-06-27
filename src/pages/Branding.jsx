@@ -1,11 +1,11 @@
-// src/pages/Branding.jsx
+// src/components/Branding.jsx
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const backendURL = 'https://mechanic-bano-backend.vercel.app';
 
-function Branding() {
+export default function Branding() {
   const [websiteName, setWebsiteName] = useState('');
   const [logoURL, setLogoURL] = useState('');
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ function Branding() {
     }
   };
 
-  const updateSiteName = async () => {
+  const handleUpdateSiteName = async () => {
     try {
       await axios.put(`${backendURL}/api/config`, { websiteName, logoURL }, {
         headers: { 'Content-Type': 'application/json' }
@@ -39,7 +39,7 @@ function Branding() {
     }
   };
 
-  const updateLogo = async () => {
+  const handleUpdateLogo = async () => {
     try {
       await axios.put(`${backendURL}/api/config`, { websiteName, logoURL }, {
         headers: { 'Content-Type': 'application/json' }
@@ -51,40 +51,37 @@ function Branding() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="branding-page">
-      <h1>Update Site Branding</h1>
+    <div>
+      <h2>Website Branding</h2>
 
-      <div style={{ marginBottom: '20px' }}>
-        <h2>Site Name</h2>
+      <div>
+        <label>Website Name:</label>
         <input
           type="text"
-          placeholder="Website Name"
           value={websiteName}
           onChange={(e) => setWebsiteName(e.target.value)}
         />
-        <button onClick={updateSiteName}>Update Site Name</button>
+        <button onClick={handleUpdateSiteName}>Update Site Name</button>
       </div>
 
-      <div style={{ marginBottom: '20px' }}>
-        <h2>Website Logo</h2>
+      <div style={{ marginTop: '20px' }}>
+        <label>Logo URL:</label>
         <input
           type="text"
-          placeholder="Logo URL"
           value={logoURL}
           onChange={(e) => setLogoURL(e.target.value)}
         />
-        <button onClick={updateLogo}>Update Logo</button>
+        <button onClick={handleUpdateLogo}>Update Logo</button>
       </div>
 
-      <div>
-        <h3>Preview:</h3>
-        {logoURL && <img src={logoURL} alt="Website Logo" style={{ width: '150px' }} />}
-      </div>
+      {logoURL && (
+        <div style={{ marginTop: '20px' }}>
+          <img src={logoURL} alt="Website Logo" style={{ width: '150px' }} />
+        </div>
+      )}
     </div>
   );
 }
-
-export default Branding;
