@@ -20,18 +20,23 @@ function Branding() {
     }
   };
 
-  // Site Name Update - Using Axios with CORS
+  // Site Name Update - Using Fetch
 const handleUpdateSiteName = async () => {
   alert(`Updating site name: ${websiteName}`);
 
   try {
-    await axios.put(`${backendURL}/api/config`, { websiteName }, {
+    const response = await fetch(`${backendURL}/api/config`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      mode: 'cors' // Added CORS mode
+      body: JSON.stringify({ websiteName })
     });
 
-    alert('Site name updated successfully');
-    fetchConfig();
+    if (response.ok) {
+      alert('Site name updated successfully');
+      fetchConfig();
+    } else {
+      alert('Failed to update site name');
+    }
   } catch (error) {
     alert('Failed to update site name');
     console.error('Error:', error);
