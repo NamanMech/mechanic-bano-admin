@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const backendURL = 'https://mechanic-bano-backend.vercel.app';
+const githubLogoURL = 'https://raw.githubusercontent.com/NamanMech/mechanic-bano-admin/main/src/assets/logo.png';
 
 function Branding() {
   const [websiteName, setWebsiteName] = useState('');
+  const [logoURL, setLogoURL] = useState(githubLogoURL);
 
   useEffect(() => {
     fetchConfig();
@@ -16,42 +18,34 @@ function Branding() {
       setWebsiteName(res.data.websiteName);
     } catch (error) {
       alert('Failed to load configuration');
-      console.error('Fetch Config Error:', error);
     }
   };
 
-  // Site Name Update - Using Fetch
-const handleUpdateSiteName = async () => {
-  alert(`Updating site name: ${websiteName}`);
-
-  try {
-    const response = await fetch(`${backendURL}/api/config`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ websiteName })
-    });
-
-    if (response.ok) {
+  const handleUpdateSiteName = async () => {
+    alert(`Updating site name: ${websiteName}`);
+    try {
+      await axios.post(`${backendURL}/api/config/update-site-name`, { websiteName }, {
+        headers: { 'Content-Type': 'application/json' }
+      });
       alert('Site name updated successfully');
-      fetchConfig();
-    } else {
+    } catch (error) {
       alert('Failed to update site name');
     }
-  } catch (error) {
-    alert('Failed to update site name');
-    console.error('Error:', error);
-  }
-};
+  };
 
   return (
     <div>
-      <h2>Site Branding</h2>
-
-      <div>
-        <label>Site Name:</label>
-        <input type="text" value={websiteName} onChange={(e) => setWebsiteName(e.target.value)} />
-        <button onClick={handleUpdateSiteName}>Update Site Name</button>
+      <h2>Website Branding</h2>
+      <div style={{ marginBottom: '20px' }}>
+        <img src={logoURL} alt="Website Logo" style={{ width: '150px' }} />
       </div>
+      <input
+        type="text"
+        placeholder="Website Name"
+        value={websiteName}
+        onChange={(e) => setWebsiteName(e.target.value)}
+      />
+      <button onClick={handleUpdateSiteName}>Update Site Name</button>
     </div>
   );
 }
