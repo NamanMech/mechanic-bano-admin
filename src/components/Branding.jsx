@@ -13,10 +13,11 @@ const Branding = () => {
   const fetchConfig = async () => {
     try {
       const res = await axios.get(`${backendURL}/api/config`);
+      console.log('Fetched Config:', res.data); // Yeh lagao dekhne ke liye kya aa raha hai
       setWebsiteName(res.data.websiteName);
       setLoading(false);
     } catch (error) {
-      console.error('Fetch Config Error:', error);
+      console.error('Fetch Error:', error);
       alert('Failed to load configuration');
       setLoading(false);
     }
@@ -25,13 +26,9 @@ const Branding = () => {
   const updateSiteName = async () => {
     alert(`Updating site name: ${websiteName}`);
     try {
-      const res = await axios.put(`${backendURL}/api/config/update-site-name`, { websiteName });
-      if (res.status === 200) {
-        alert('Site name updated successfully');
-        fetchConfig(); // Refresh the data
-      } else {
-        alert('Failed to update site name');
-      }
+      await axios.put(`${backendURL}/api/config/update-site-name`, { websiteName });
+      alert('Site name updated successfully');
+      fetchConfig(); // Site name update hone ke baad fresh data reload karo
     } catch (error) {
       console.error('Update Error:', error);
       alert('Failed to update site name');
