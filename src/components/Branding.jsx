@@ -16,6 +16,7 @@ const Branding = () => {
       setWebsiteName(res.data.websiteName);
       setLoading(false);
     } catch (error) {
+      console.error('Fetch Config Error:', error);
       alert('Failed to load configuration');
       setLoading(false);
     }
@@ -24,8 +25,13 @@ const Branding = () => {
   const updateSiteName = async () => {
     alert(`Updating site name: ${websiteName}`);
     try {
-      await axios.put(`${backendURL}/api/config/update-site-name`, { websiteName });
-      alert('Site name updated successfully');
+      const res = await axios.put(`${backendURL}/api/config/update-site-name`, { websiteName });
+      if (res.status === 200) {
+        alert('Site name updated successfully');
+        fetchConfig(); // Refresh the data
+      } else {
+        alert('Failed to update site name');
+      }
     } catch (error) {
       console.error('Update Error:', error);
       alert('Failed to update site name');
