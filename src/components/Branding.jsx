@@ -1,12 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const backendURL = 'https://mechanic-bano-backend.vercel.app';
-const githubLogoURL = 'https://raw.githubusercontent.com/NamanMech/mechanic-bano-admin/main/src/assets/logo.png';
-
-function Branding() {
+const Branding = () => {
+  const backendURL = 'https://mechanic-bano-backend.vercel.app';
   const [websiteName, setWebsiteName] = useState('');
-  const [logoURL, setLogoURL] = useState(githubLogoURL);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchConfig();
@@ -16,38 +14,38 @@ function Branding() {
     try {
       const res = await axios.get(`${backendURL}/api/config`);
       setWebsiteName(res.data.websiteName);
+      setLoading(false);
     } catch (error) {
       alert('Failed to load configuration');
+      setLoading(false);
     }
   };
 
-  const handleUpdateSiteName = async () => {
+  const updateSiteName = async () => {
     alert(`Updating site name: ${websiteName}`);
     try {
-      await axios.post(`${backendURL}/api/config/update-site-name`, { websiteName }, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      await axios.put(`${backendURL}/api/config/update-site-name`, { websiteName });
       alert('Site name updated successfully');
     } catch (error) {
+      console.error('Update Error:', error);
       alert('Failed to update site name');
     }
   };
 
+  if (loading) return <div>Loading...</div>;
+
   return (
-    <div>
-      <h2>Website Branding</h2>
-      <div style={{ marginBottom: '20px' }}>
-        <img src={logoURL} alt="Website Logo" style={{ width: '150px' }} />
-      </div>
+    <div className="branding-container">
+      <h2>Update Site Name</h2>
       <input
         type="text"
-        placeholder="Website Name"
         value={websiteName}
         onChange={(e) => setWebsiteName(e.target.value)}
+        placeholder="Enter Site Name"
       />
-      <button onClick={handleUpdateSiteName}>Update Site Name</button>
+      <button onClick={updateSiteName}>Update Site Name</button>
     </div>
   );
-}
+};
 
 export default Branding;
