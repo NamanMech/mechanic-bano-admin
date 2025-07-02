@@ -5,6 +5,7 @@ import Home from './pages/Home.jsx';
 import YouTubeVideoManagement from './pages/YouTubeVideoManagement.jsx';
 import PDFManagement from './pages/PDFManagement.jsx';
 import WelcomeNoteManagement from './pages/WelcomeNoteManagement.jsx';
+import SiteNameManagement from './SiteNameManagement';
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/videos" element={<YouTubeVideoManagement />} />
           <Route path="/pdfs" element={<PDFManagement />} />
           <Route path="/welcome-note" element={<WelcomeNoteManagement />} />
+          <Route path="/sitename" element={<SiteNameManagement />} />
         </Routes>
       </div>
     </Router>
