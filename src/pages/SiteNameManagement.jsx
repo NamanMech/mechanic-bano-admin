@@ -9,7 +9,7 @@ export default function SiteNameManagement() {
     try {
       const response = await axios.get(import.meta.env.VITE_API_URL + 'sitename');
       if (response.data && response.data.name) {
-        setSiteName(response.data.name);
+        setSiteName(response.data.name); // ✅ Correct here
       }
     } catch (error) {
       alert('Error fetching site name');
