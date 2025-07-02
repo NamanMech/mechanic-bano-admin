@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-export default function PDFManagement() {
+export default function YouTubePDFManagement() {
   const [pdfs, setPdfs] = useState([]);
   const [title, setTitle] = useState('');
   const [link, setLink] = useState('');
+  const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
-  const [editingPDF, setEditingPDF] = useState(null); // Edit Mode
+  const [editingPdf, setEditingPdf] = useState(null);
+
+  const extractGoogleDriveId = (url) => {
+    const regex = /\/d\/([a-zA-Z0-9_-]{33,})/;
+    const match = url.match(regex);
+    if (match && match[1]) {
+      return match[1];
+    }
+    return '';
+  };
 
   const fetchPdfs = async () => {
     try {
@@ -21,42 +31,46 @@ export default function PDFManagement() {
     fetchPdfs();
   }, []);
 
-  const convertGoogleDriveLink = (url) => {
-    if (url.includes('drive.google.com')) {
-      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      if (match && match[1]) {
-        return `https://drive.google.com/file/d/${match[1]}/preview`;
-      }
-    }
-    return url;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const cleanedLink = convertGoogleDriveLink(link);
+    const driveId = extractGoogleDriveId(link);
+    if (!driveId) {
+      alert('Invalid Google Drive link');
+      setLoading(false);
+      return;
+    }
+
+    const embedLink = `https://drive.google.com/file/d/${driveId}/preview`;
+    const originalLink = link;
 
     try {
-      if (editingPDF) {
+      if (editingPdf) {
         // Update PDF
-        await axios.put(import.meta.env.VITE_API_URL + `pdf?id=${editingPDF._id}`, {
+        await axios.put(import.meta.env.VITE_API_URL + `pdf?id=${editingPdf._id}`, {
           title,
-          link: cleanedLink
+          embedLink,
+          originalLink,
+          category
         });
         alert('PDF updated successfully');
-        setEditingPDF(null);
+        setEditingPdf(null);
       } else {
-        // Add New PDF
+        // Add new PDF
         await axios.post(import.meta.env.VITE_API_URL + 'pdf', {
           title,
-          link: cleanedLink
+          embedLink,
+          originalLink,
+          category
         });
         alert('PDF added successfully');
       }
 
+      // Reset form and refresh list
       setTitle('');
       setLink('');
+      setCategory('free');
       fetchPdfs();
     } catch (error) {
       alert('Error saving PDF');
@@ -79,15 +93,17 @@ export default function PDFManagement() {
   };
 
   const handleEdit = (pdf) => {
-    setEditingPDF(pdf);
+    setEditingPdf(pdf);
     setTitle(pdf.title);
-    setLink(pdf.link);
+    setLink(pdf.originalLink);
+    setCategory(pdf.category);
   };
 
   const handleCancelEdit = () => {
-    setEditingPDF(null);
+    setEditingPdf(null);
     setTitle('');
     setLink('');
+    setCategory('free');
   };
 
   return (
@@ -105,15 +121,19 @@ export default function PDFManagement() {
         />
         <input
           type="text"
-          placeholder="Google Drive Share Link"
+          placeholder="Google Drive Link"
           value={link}
           onChange={(e) => setLink(e.target.value)}
           required
         />
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option value="free">Free</option>
+          <option value="premium">Premium</option>
+        </select>
         <button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : editingPDF ? 'Update PDF' : 'Save'}
+          {loading ? 'Saving...' : editingPdf ? 'Update PDF' : 'Save'}
         </button>
-        {editingPDF && <button onClick={handleCancelEdit}>Cancel Edit</button>}
+        {editingPdf && <button onClick={handleCancelEdit}>Cancel Edit</button>}
       </form>
 
       {/* List PDFs */}
@@ -126,15 +146,16 @@ export default function PDFManagement() {
             <li key={pdf._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
               <h3>{pdf.title}</h3>
               <iframe
-                src={pdf.link}
-                width="100%"
-                height="400px"
+                src={pdf.embedLink}
+                width="300"
+                height="200"
+                title={pdf.title}
                 frameBorder="0"
+                allow="autoplay"
               ></iframe>
-              <div style={{ marginTop: '10px' }}>
-                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>Edit</button>
-                <button onClick={() => handleDelete(pdf._id)}>Delete</button>
-              </div>
+              <p>Category: {pdf.category}</p>
+              <button onClick={() => handleEdit(pdf)}>Edit</button>
+              <button onClick={() => handleDelete(pdf._id)}>Delete</button>
             </li>
           ))}
         </ul>
