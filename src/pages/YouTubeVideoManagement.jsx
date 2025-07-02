@@ -44,33 +44,30 @@ export default function YouTubeVideoManagement() {
       return;
     }
 
-    const embedLink = `https://www.youtube.com/embed/${videoId}`;
+    const cleanedLink = `https://www.youtube.com/embed/${videoId}`;
 
     try {
       if (editingVideo) {
-        // Update video
         await axios.put(import.meta.env.VITE_API_URL + `youtube?id=${editingVideo._id}`, {
           title,
           description,
-          embedLink,
+          embedLink: cleanedLink,
           originalLink: link,
           category
         });
         alert('Video updated successfully');
         setEditingVideo(null);
       } else {
-        // Add new video
         await axios.post(import.meta.env.VITE_API_URL + 'youtube', {
           title,
           description,
-          embedLink,
+          embedLink: cleanedLink,
           originalLink: link,
           category
         });
         alert('Video added successfully');
       }
 
-      // Reset form and refresh list
       setTitle('');
       setDescription('');
       setLink('');
@@ -113,23 +110,24 @@ export default function YouTubeVideoManagement() {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>YouTube Video Management</h1>
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>YouTube Video Management</h1>
 
-      {/* Add/Update Video Form */}
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', marginBottom: '40px' }}>
         <input
           type="text"
           placeholder="Video Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
+          style={{ padding: '8px' }}
         />
         <textarea
           placeholder="Video Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
+          style={{ padding: '8px', minHeight: '80px' }}
         />
         <input
           type="text"
@@ -137,29 +135,47 @@ export default function YouTubeVideoManagement() {
           value={link}
           onChange={(e) => setLink(e.target.value)}
           required
+          style={{ padding: '8px' }}
         />
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          style={{ padding: '8px' }}
+        >
           <option value="free">Free</option>
           <option value="premium">Premium</option>
         </select>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : editingVideo ? 'Update Video' : 'Save'}
-        </button>
-        {editingVideo && <button onClick={handleCancelEdit}>Cancel Edit</button>}
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{ padding: '10px 20px', background: '#007bff', color: 'white', border: 'none' }}
+          >
+            {loading ? 'Saving...' : editingVideo ? 'Update Video' : 'Save'}
+          </button>
+          {editingVideo && (
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              style={{ padding: '10px 20px', background: 'gray', color: 'white', border: 'none' }}
+            >
+              Cancel Edit
+            </button>
+          )}
+        </div>
       </form>
 
-      {/* List Videos */}
-      <h2 style={{ marginTop: '40px' }}>Uploaded Videos</h2>
+      <h2 style={{ marginBottom: '20px' }}>Uploaded Videos</h2>
       {videos.length === 0 ? (
         <p>No videos uploaded yet.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {videos.map((video) => (
-            <li key={video._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
+            <li key={video._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
               <h3>{video.title}</h3>
               <iframe
-                width="300"
-                height="200"
+                width="100%"
+                height="315"
                 src={video.embedLink}
                 title={video.title}
                 frameBorder="0"
@@ -167,8 +183,20 @@ export default function YouTubeVideoManagement() {
               ></iframe>
               <p>{video.description}</p>
               <p>Category: {video.category}</p>
-              <button onClick={() => handleEdit(video)}>Edit</button>
-              <button onClick={() => handleDelete(video._id)}>Delete</button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={() => handleEdit(video)}
+                  style={{ padding: '6px 12px', background: '#ffc107', color: 'white', border: 'none' }}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(video._id)}
+                  style={{ padding: '6px 12px', background: '#dc3545', color: 'white', border: 'none' }}
+                >
+                  Delete
+                </button>
+              </div>
             </li>
           ))}
         </ul>
