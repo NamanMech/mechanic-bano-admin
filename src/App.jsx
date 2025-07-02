@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-import Home from './Home.jsx';
-import YouTubeVideoManagement from './YouTubeVideoManagement.jsx';
-import PDFManagement from './PDFManagement.jsx';
-import WelcomeNoteManagement from './WelcomeNoteManagement.jsx';
+import Home from './pages/Home.jsx';
+import YouTubeVideoManagement from './pages/YouTubeVideoManagement.jsx';
+import PDFManagement from './pages/PDFManagement.jsx';
+import WelcomeNoteManagement from './pages/WelcomeNoteManagement.jsx';
 
 export default function App() {
   return (
