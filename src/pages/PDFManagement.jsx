@@ -1,4 +1,3 @@
-// src/pages/PDFManagement.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -7,6 +6,7 @@ export default function PDFManagement() {
   const [title, setTitle] = useState('');
   const [link, setLink] = useState('');
   const [loading, setLoading] = useState(false);
+  const [editingPDF, setEditingPDF] = useState(null); // Edit Mode
 
   const fetchPdfs = async () => {
     try {
@@ -38,11 +38,23 @@ export default function PDFManagement() {
     const cleanedLink = convertGoogleDriveLink(link);
 
     try {
-      await axios.post(import.meta.env.VITE_API_URL + 'pdf', {
-        title,
-        link: cleanedLink
-      });
-      alert('PDF added successfully');
+      if (editingPDF) {
+        // Update PDF
+        await axios.put(import.meta.env.VITE_API_URL + `pdf?id=${editingPDF._id}`, {
+          title,
+          link: cleanedLink
+        });
+        alert('PDF updated successfully');
+        setEditingPDF(null);
+      } else {
+        // Add New PDF
+        await axios.post(import.meta.env.VITE_API_URL + 'pdf', {
+          title,
+          link: cleanedLink
+        });
+        alert('PDF added successfully');
+      }
+
       setTitle('');
       setLink('');
       fetchPdfs();
@@ -66,11 +78,23 @@ export default function PDFManagement() {
     }
   };
 
+  const handleEdit = (pdf) => {
+    setEditingPDF(pdf);
+    setTitle(pdf.title);
+    setLink(pdf.link);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPDF(null);
+    setTitle('');
+    setLink('');
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>PDF Management</h1>
 
-      {/* Add PDF Form */}
+      {/* Add/Update PDF Form */}
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
         <input
           type="text"
@@ -87,8 +111,9 @@ export default function PDFManagement() {
           required
         />
         <button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : 'Save'}
+          {loading ? 'Saving...' : editingPDF ? 'Update PDF' : 'Save'}
         </button>
+        {editingPDF && <button onClick={handleCancelEdit}>Cancel Edit</button>}
       </form>
 
       {/* List PDFs */}
@@ -106,7 +131,10 @@ export default function PDFManagement() {
                 height="400px"
                 frameBorder="0"
               ></iframe>
-              <button onClick={() => handleDelete(pdf._id)}>Delete</button>
+              <div style={{ marginTop: '10px' }}>
+                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>Edit</button>
+                <button onClick={() => handleDelete(pdf._id)}>Delete</button>
+              </div>
             </li>
           ))}
         </ul>
