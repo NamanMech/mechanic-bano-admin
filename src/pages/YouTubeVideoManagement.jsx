@@ -8,7 +8,7 @@ export default function YouTubeVideoManagement() {
   const [link, setLink] = useState('');
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
-  const [editingVideo, setEditingVideo] = useState(null); // For Edit Mode
+  const [editingVideo, setEditingVideo] = useState(null);
 
   const extractVideoId = (url) => {
     let videoId = '';
@@ -44,7 +44,7 @@ export default function YouTubeVideoManagement() {
       return;
     }
 
-    const cleanedLink = `https://www.youtube.com/embed/${videoId}`;
+    const embedLink = `https://www.youtube.com/embed/${videoId}`;
 
     try {
       if (editingVideo) {
@@ -52,7 +52,8 @@ export default function YouTubeVideoManagement() {
         await axios.put(import.meta.env.VITE_API_URL + `youtube?id=${editingVideo._id}`, {
           title,
           description,
-          link: cleanedLink,
+          embedLink,
+          originalLink: link,
           category
         });
         alert('Video updated successfully');
@@ -62,7 +63,8 @@ export default function YouTubeVideoManagement() {
         await axios.post(import.meta.env.VITE_API_URL + 'youtube', {
           title,
           description,
-          link: cleanedLink,
+          embedLink,
+          originalLink: link,
           category
         });
         alert('Video added successfully');
@@ -98,7 +100,7 @@ export default function YouTubeVideoManagement() {
     setEditingVideo(video);
     setTitle(video.title);
     setDescription(video.description);
-    setLink(video.link);
+    setLink(video.originalLink);
     setCategory(video.category);
   };
 
@@ -158,7 +160,7 @@ export default function YouTubeVideoManagement() {
               <iframe
                 width="300"
                 height="200"
-                src={video.link}
+                src={video.embedLink}
                 title={video.title}
                 frameBorder="0"
                 allowFullScreen
