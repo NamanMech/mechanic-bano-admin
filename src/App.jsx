@@ -5,7 +5,7 @@ import Home from './pages/Home.jsx';
 import YouTubeVideoManagement from './pages/YouTubeVideoManagement.jsx';
 import PDFManagement from './pages/PDFManagement.jsx';
 import WelcomeNoteManagement from './pages/WelcomeNoteManagement.jsx';
-import SiteNameManagement from './SiteNameManagement';
+import SiteNameManagement from './pages/SiteNameManagement';
 
 export default function App() {
   return (
