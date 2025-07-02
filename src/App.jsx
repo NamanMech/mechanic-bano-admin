@@ -1,27 +1,30 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import YouTubeVideoManagement from './YouTubeVideoManagement';
-import YouTubePDFManagement from './YouTubePDFManagement';
-import WelcomeNoteManagement from './WelcomeNoteManagement';
+
+import Home from './Home.jsx';
+import YouTubeVideoManagement from './YouTubeVideoManagement.jsx';
+import PDFManagement from './PDFManagement.jsx';
+import WelcomeNoteManagement from './WelcomeNoteManagement.jsx';
 
 export default function App() {
   return (
     <Router>
-      <header style={{ padding: '20px', backgroundColor: '#333', color: 'white' }}>
-        <h1>Mechanic Bano - Admin Panel</h1>
-
-        {/* Navigation */}
-        <nav style={{ marginTop: '10px', display: 'flex', gap: '15px' }}>
-          <Link to="/" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Videos</Link>
-          <Link to="/pdfs" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>PDFs</Link>
-          <Link to="/welcome" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Welcome Note</Link>
+      <header style={{ padding: '20px', backgroundColor: '#007bff', color: 'white' }}>
+        <h1>Mechanic Bano Admin Panel</h1>
+        <nav style={{ marginTop: '10px' }}>
+          <Link to="/" style={{ marginRight: '15px', color: 'white', textDecoration: 'none' }}>Home</Link>
+          <Link to="/videos" style={{ marginRight: '15px', color: 'white', textDecoration: 'none' }}>Manage Videos</Link>
+          <Link to="/pdfs" style={{ marginRight: '15px', color: 'white', textDecoration: 'none' }}>Manage PDFs</Link>
+          <Link to="/welcome-note" style={{ color: 'white', textDecoration: 'none' }}>Manage Welcome Note</Link>
         </nav>
       </header>
 
-      <div style={{ padding: '20px' }}>
+      <div className="container">
         <Routes>
-          <Route path="/" element={<YouTubeVideoManagement />} />
-          <Route path="/pdfs" element={<YouTubePDFManagement />} />
-          <Route path="/welcome" element={<WelcomeNoteManagement />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/videos" element={<YouTubeVideoManagement />} />
+          <Route path="/pdfs" element={<PDFManagement />} />
+          <Route path="/welcome-note" element={<WelcomeNoteManagement />} />
         </Routes>
       </div>
     </Router>
