@@ -118,3 +118,19 @@ ul {
   list-style: none;
   padding: 0;
 }
+
+/* Hide menu by default on small screens and show when open using inline styles */
+
+@media (min-width: 600px) {
+  header nav {
+    display: flex !important; /* force show on desktop */
+    flex-direction: row;
+    justify-content: center;
+    gap: 15px;
+    background-color: #333 !important;
+  }
+
+  header nav a {
+    margin-bottom: 0 !important;
+  }
+}
