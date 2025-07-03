@@ -4,6 +4,7 @@ import YouTubeVideoManagement from './pages/YouTubeVideoManagement';
 import PDFManagement from './pages/PDFManagement';
 import WelcomeNoteManagement from './pages/WelcomeNoteManagement';
 import SiteNameManagement from './pages/SiteNameManagement';
+import LogoManagement from './pages/LogoManagement';
 
 export default function App() {
   return (
@@ -15,7 +16,8 @@ export default function App() {
           <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>
           <Link to="/pdfs" style={{ marginRight: '15px', color: 'white' }}>PDFs</Link>
           <Link to="/welcome" style={{ marginRight: '15px', color: 'white' }}>Welcome Note</Link>
-          <Link to="/sitename" style={{ color: 'white' }}>Site Name</Link>
+          <Link to="/sitename" style={{ marginRight: '15px', color: 'white' }}>Site Name</Link>
+          <Link to="/logo" style={{ color: 'white' }}>Logo</Link>
         </nav>
       </header>
 
@@ -26,6 +28,7 @@ export default function App() {
           <Route path="/pdfs" element={<PDFManagement />} />
           <Route path="/welcome" element={<WelcomeNoteManagement />} />
           <Route path="/sitename" element={<SiteNameManagement />} />
+          <Route path="/logo" element={<LogoManagement />} />
         </Routes>
       </div>
     </Router>
