@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-export default function PageControlManagement({ refreshPages }) {
+export default function PageControlManagement() {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -23,7 +23,6 @@ export default function PageControlManagement({ refreshPages }) {
     try {
       await axios.put(import.meta.env.VITE_API_URL + 'pagecontrol/' + id, { enabled: !currentStatus });
       fetchPages();
-      refreshPages(); // ✅ Immediately refresh Navbar
     } catch (error) {
       alert('Error updating page status');
     } finally {
