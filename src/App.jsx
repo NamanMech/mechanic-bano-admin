@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
@@ -14,7 +15,7 @@ export default function App() {
   const [pageStatus, setPageStatus] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const fetchPageControl = async () => {
+  const fetchPageStatus = async () => {
     try {
       const response = await axios.get(import.meta.env.VITE_API_URL + 'pagecontrol');
       const statusMap = {};
@@ -23,14 +24,14 @@ export default function App() {
       });
       setPageStatus(statusMap);
     } catch (error) {
-      console.error('Error fetching page control');
+      alert('Error fetching page control');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPageControl();
+    fetchPageStatus();
   }, []);
 
   if (loading) {
