@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import YouTubeVideoManagement from './pages/YouTubeVideoManagement';
 import PDFManagement from './pages/PDFManagement';
@@ -7,6 +7,7 @@ import WelcomeNoteManagement from './pages/WelcomeNoteManagement';
 import SiteNameManagement from './pages/SiteNameManagement';
 import LogoManagement from './pages/LogoManagement';
 import PageControlManagement from './pages/PageControlManagement';
+import Navbar from './components/Navbar';
 import axios from 'axios';
 
 export default function App() {
@@ -38,19 +39,7 @@ export default function App() {
 
   return (
     <Router>
-      <header style={{ backgroundColor: '#333', color: 'white', padding: '15px' }}>
-        <h1>Mechanic Bano - Admin Panel</h1>
-        <nav style={{ marginTop: '10px' }}>
-          <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
-          {pageStatus.videos && <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>}
-          {pageStatus.pdfs && <Link to="/pdfs" style={{ marginRight: '15px', color: 'white' }}>PDFs</Link>}
-          {pageStatus.welcome && <Link to="/welcome" style={{ marginRight: '15px', color: 'white' }}>Welcome Note</Link>}
-          {pageStatus.sitename && <Link to="/sitename" style={{ marginRight: '15px', color: 'white' }}>Site Name</Link>}
-          {pageStatus.logo && <Link to="/logo" style={{ marginRight: '15px', color: 'white' }}>Logo</Link>}
-          <Link to="/pagecontrol" style={{ color: 'white' }}>Page Control</Link>
-        </nav>
-      </header>
-
+      <Navbar pageStatus={pageStatus} />
       <div style={{ padding: '20px' }}>
         <Routes>
           <Route path="/" element={<Home />} />
