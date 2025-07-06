@@ -8,7 +8,7 @@ export default function SiteNameManagement() {
 
   const fetchSiteName = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + 'sitename');
+      const response = await axios.get(import.meta.env.VITE_API_URL + 'general?type=sitename');
       if (response.data && response.data.name) {
         setSiteName(response.data.name);
       }
@@ -26,7 +26,7 @@ export default function SiteNameManagement() {
     setLoading(true);
 
     try {
-      await axios.put(import.meta.env.VITE_API_URL + 'sitename', { name: siteName });
+      await axios.put(import.meta.env.VITE_API_URL + 'general?type=sitename', { name: siteName });
       toast.success('Site name updated successfully');
     } catch (error) {
       toast.error('Error updating site name');
