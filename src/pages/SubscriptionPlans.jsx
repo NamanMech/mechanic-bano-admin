@@ -10,7 +10,7 @@ export default function SubscriptionPlans() {
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  const API_URL = 'https://mechanic-bano-backend.vercel.app/api/subscriptionPlans';
+  const API_URL = import.meta.env.VITE_API_URL + 'subscriptionPlans';
 
   const fetchPlans = async () => {
     try {
@@ -86,18 +86,21 @@ export default function SubscriptionPlans() {
           placeholder="Plan Title"
           value={form.title}
           onChange={(e) => setForm({ ...form, title: e.target.value })}
+          required
         />
         <input
           type="number"
           placeholder="Price"
           value={form.price}
           onChange={(e) => setForm({ ...form, price: e.target.value })}
+          required
         />
         <input
           type="number"
           placeholder="Validity (Days)"
           value={form.days}
           onChange={(e) => setForm({ ...form, days: e.target.value })}
+          required
         />
         <input
           type="number"
