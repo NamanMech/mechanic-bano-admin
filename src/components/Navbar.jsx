@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 export default function Navbar({ pageStatus }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const location = useLocation();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   useEffect(() => {
-    // Set initial mobile state on client side
-    setIsMobile(window.innerWidth <= 768);
-
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth <= 768);
       if (window.innerWidth > 768) {
-        setMenuOpen(false); // Close mobile menu on desktop resize
+        setMenuOpen(false); // Close menu when resizing to desktop
       }
     };
 
@@ -79,15 +75,10 @@ export default function Navbar({ pageStatus }) {
               Site Name
             </NavLink>
           )}
-          {/* Logo menu removed as per your code */}
           <NavLink to="/pagecontrol" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
             Page Control
           </NavLink>
-          <NavLink
-            to="/subscription-plans"
-            style={navLinkStyle}
-            onClick={() => isMobile && setMenuOpen(false)}
-          >
+          <NavLink to="/subscription-plans" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
             Subscription Plans
           </NavLink>
           <NavLink to="/users" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
