@@ -21,7 +21,7 @@ export default function PDFManagement() {
 
   const fetchPdfs = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + 'pdf');
+      const response = await axios.get(import.meta.env.VITE_API_URL + 'general?type=pdf');
       setPdfs(response.data);
     } catch (error) {
       alert('Error fetching PDFs');
@@ -48,7 +48,7 @@ export default function PDFManagement() {
 
     try {
       if (editingPdf) {
-        await axios.put(import.meta.env.VITE_API_URL + `pdf?id=${editingPdf._id}`, {
+        await axios.put(import.meta.env.VITE_API_URL + `general?type=pdf&id=${editingPdf._id}`, {
           title,
           embedLink,
           originalLink,
@@ -57,7 +57,7 @@ export default function PDFManagement() {
         alert('PDF updated successfully');
         setEditingPdf(null);
       } else {
-        await axios.post(import.meta.env.VITE_API_URL + 'pdf', {
+        await axios.post(import.meta.env.VITE_API_URL + 'general?type=pdf', {
           title,
           embedLink,
           originalLink,
@@ -82,7 +82,7 @@ export default function PDFManagement() {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(import.meta.env.VITE_API_URL + `pdf?id=${id}`);
+      await axios.delete(import.meta.env.VITE_API_URL + `general?type=pdf&id=${id}`);
       alert('PDF deleted successfully');
       fetchPdfs();
     } catch (error) {
