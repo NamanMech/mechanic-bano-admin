@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function LogoManagement() {
   const [logoUrl, setLogoUrl] = useState('');
@@ -12,7 +13,7 @@ export default function LogoManagement() {
         setLogoUrl(response.data.url);
       }
     } catch (error) {
-      alert('Error fetching logo');
+      toast.error('Error fetching logo');
     }
   };
 
@@ -23,15 +24,15 @@ export default function LogoManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!logoUrl.trim()) {
-      alert('Please enter logo URL');
+      toast.error('Please enter logo URL');
       return;
     }
     setLoading(true);
     try {
       await axios.put(import.meta.env.VITE_API_URL + 'logo', { url: logoUrl });
-      alert('Logo updated successfully');
+      toast.success('Logo updated successfully');
     } catch (error) {
-      alert('Error updating logo');
+      toast.error('Error updating logo');
     } finally {
       setLoading(false);
     }
