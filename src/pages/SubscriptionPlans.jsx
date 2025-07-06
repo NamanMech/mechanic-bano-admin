@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Spinner from '../components/Spinner';
+import Spinner from '../components/Spinner.jsx';
 
 export default function SubscriptionPlans() {
   const [plans, setPlans] = useState([]);
