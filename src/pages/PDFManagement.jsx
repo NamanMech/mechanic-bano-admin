@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
@@ -9,6 +10,8 @@ export default function PDFManagement() {
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const extractGoogleDriveId = (url) => {
     const regex = /\/d\/([a-zA-Z0-9_-]+)/;
     const match = url.match(regex);
@@ -17,10 +20,10 @@ export default function PDFManagement() {
 
   const fetchPdfs = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + 'general?type=pdf');
+      const response = await axios.get(`${API_URL}general?type=pdf`);
       setPdfs(response.data);
     } catch (error) {
-      alert('Error fetching PDFs');
+      toast.error('Error fetching PDFs');
     }
   };
 
@@ -34,7 +37,7 @@ export default function PDFManagement() {
 
     const driveId = extractGoogleDriveId(link);
     if (!driveId) {
-      alert('Invalid Google Drive link');
+      toast.error('Invalid Google Drive link');
       setLoading(false);
       return;
     }
@@ -45,19 +48,19 @@ export default function PDFManagement() {
     try {
       if (editingPdf) {
         await axios.put(
-          `${import.meta.env.VITE_API_URL}general?type=pdf&id=${editingPdf._id}`,
+          `${API_URL}general?type=pdf&id=${editingPdf._id}`,
           { title, embedLink, originalLink, category }
         );
-        alert('PDF updated successfully');
+        toast.success('PDF updated successfully');
         setEditingPdf(null);
       } else {
-        await axios.post(`${import.meta.env.VITE_API_URL}general?type=pdf`, {
+        await axios.post(`${API_URL}general?type=pdf`, {
           title,
           embedLink,
           originalLink,
           category,
         });
-        alert('PDF added successfully');
+        toast.success('PDF added successfully');
       }
 
       setTitle('');
@@ -65,22 +68,21 @@ export default function PDFManagement() {
       setCategory('free');
       fetchPdfs();
     } catch (error) {
-      alert('Error saving PDF');
+      toast.error('Error saving PDF');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this PDF?');
-    if (!confirmDelete) return;
-
-    try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}general?type=pdf&id=${id}`);
-      alert('PDF deleted successfully');
-      fetchPdfs();
-    } catch (error) {
-      alert('Error deleting PDF');
+    if (confirm('Are you sure you want to delete this PDF?')) {
+      try {
+        await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
+        toast.success('PDF deleted successfully');
+        fetchPdfs();
+      } catch (error) {
+        toast.error('Error deleting PDF');
+      }
     }
   };
 
@@ -151,8 +153,10 @@ export default function PDFManagement() {
                 allow="autoplay"
               ></iframe>
               <p>Category: {pdf.category}</p>
-              <button onClick={() => handleEdit(pdf)}>Edit</button>
-              <button onClick={() => handleDelete(pdf._id)}>Delete</button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={() => handleEdit(pdf)}>Edit</button>
+                <button onClick={() => handleDelete(pdf._id)}>Delete</button>
+              </div>
             </li>
           ))}
         </ul>
