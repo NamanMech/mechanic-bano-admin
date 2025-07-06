@@ -14,7 +14,7 @@ export default function SubscriptionPlans() {
 
   const fetchPlans = async () => {
     try {
-      const response = await axios.get(`${API_URL}general?type=plans`);
+      const response = await axios.get(`${API_URL}subscription`);
       setPlans(response.data);
     } catch (error) {
       toast.error('Error fetching plans.');
@@ -35,10 +35,10 @@ export default function SubscriptionPlans() {
 
     try {
       if (editingId) {
-        await axios.put(`${API_URL}general?type=plans&id=${editingId}`, form);
+        await axios.put(`${API_URL}subscription?id=${editingId}`, form);
         toast.success('Plan updated successfully!');
       } else {
-        await axios.post(`${API_URL}general?type=plans`, form);
+        await axios.post(`${API_URL}subscription`, form);
         toast.success('Plan created successfully!');
       }
 
@@ -65,7 +65,7 @@ export default function SubscriptionPlans() {
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this plan?')) {
       try {
-        await axios.delete(`${API_URL}general?type=plans&id=${id}`);
+        await axios.delete(`${API_URL}subscription?id=${id}`);
         toast.success('Plan deleted successfully!');
         fetchPlans();
       } catch (error) {
