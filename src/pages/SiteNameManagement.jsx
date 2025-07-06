@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function SiteNameManagement() {
   const [siteName, setSiteName] = useState('');
@@ -9,10 +10,10 @@ export default function SiteNameManagement() {
     try {
       const response = await axios.get(import.meta.env.VITE_API_URL + 'sitename');
       if (response.data && response.data.name) {
-        setSiteName(response.data.name); // ✅ Correct here
+        setSiteName(response.data.name);
       }
     } catch (error) {
-      alert('Error fetching site name');
+      toast.error('Error fetching site name');
     }
   };
 
@@ -26,9 +27,9 @@ export default function SiteNameManagement() {
 
     try {
       await axios.put(import.meta.env.VITE_API_URL + 'sitename', { name: siteName });
-      alert('Site name updated successfully');
+      toast.success('Site name updated successfully');
     } catch (error) {
-      alert('Error updating site name');
+      toast.error('Error updating site name');
     } finally {
       setLoading(false);
     }
