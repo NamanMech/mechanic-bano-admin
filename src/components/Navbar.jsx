@@ -1,35 +1,33 @@
-// src/components/Navbar.jsx
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 export default function Navbar({ pageStatus }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
-
-  const checkScreenSize = () => {
-    setIsMobile(window.innerWidth <= 768);
-    if (window.innerWidth > 768) {
-      setMenuOpen(false); // Desktop me menu always visible, toggle reset
-    }
-  };
-
   useEffect(() => {
+    // Set initial mobile state on client side
+    setIsMobile(window.innerWidth <= 768);
+
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth > 768) {
+        setMenuOpen(false); // Close mobile menu on desktop resize
+      }
+    };
+
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  const navLinkStyle = (path) => ({
-    color: location.pathname === path ? '#ff9800' : 'white',
+  const navLinkStyle = ({ isActive }) => ({
+    color: isActive ? '#ff9800' : 'white',
     textDecoration: 'none',
     fontWeight: 'bold',
     padding: '8px 12px',
     borderRadius: '5px',
-    backgroundColor: location.pathname === path ? '#555' : 'transparent',
+    backgroundColor: isActive ? '#555' : 'transparent',
     transition: 'background-color 0.3s, color 0.3s',
   });
 
@@ -38,29 +36,63 @@ export default function Navbar({ pageStatus }) {
       <div style={styles.headerContainer}>
         <h1 style={styles.siteName}>Mechanic Bano - Admin Panel</h1>
         {isMobile && (
-          <button onClick={toggleMenu} style={styles.menuButton}>
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={styles.menuButton}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+          >
             ☰
           </button>
         )}
       </div>
 
       {(menuOpen || !isMobile) && (
-        <nav style={{
-          ...styles.navLinks,
-          ...(isMobile
-            ? { flexDirection: 'column', animation: 'slideDown 0.3s ease-in-out' }
-            : { flexDirection: 'row' }
-          )
-        }}>
-          <Link to="/" style={navLinkStyle('/')} onClick={() => isMobile && setMenuOpen(false)}>Home</Link>
-          {pageStatus.videos && <Link to="/videos" style={navLinkStyle('/videos')} onClick={() => isMobile && setMenuOpen(false)}>Videos</Link>}
-          {pageStatus.pdfs && <Link to="/pdfs" style={navLinkStyle('/pdfs')} onClick={() => isMobile && setMenuOpen(false)}>PDFs</Link>}
-          {pageStatus.welcome && <Link to="/welcome" style={navLinkStyle('/welcome')} onClick={() => isMobile && setMenuOpen(false)}>Welcome Note</Link>}
-          {pageStatus.sitename && <Link to="/sitename" style={navLinkStyle('/sitename')} onClick={() => isMobile && setMenuOpen(false)}>Site Name</Link>}
-          {/* Logo menu hata diya */}
-          <Link to="/pagecontrol" style={navLinkStyle('/pagecontrol')} onClick={() => isMobile && setMenuOpen(false)}>Page Control</Link>
-          <Link to="/subscription-plans" style={navLinkStyle('/subscription-plans')} onClick={() => isMobile && setMenuOpen(false)}>Subscription Plans</Link>
-          <Link to="/users" style={navLinkStyle('/users')} onClick={() => isMobile && setMenuOpen(false)}>Users</Link>
+        <nav
+          style={{
+            ...styles.navLinks,
+            ...(isMobile
+              ? { flexDirection: 'column', animation: 'slideDown 0.3s ease-in-out' }
+              : { flexDirection: 'row' }),
+          }}
+        >
+          <NavLink to="/" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+            Home
+          </NavLink>
+          {pageStatus.videos && (
+            <NavLink to="/videos" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+              Videos
+            </NavLink>
+          )}
+          {pageStatus.pdfs && (
+            <NavLink to="/pdfs" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+              PDFs
+            </NavLink>
+          )}
+          {pageStatus.welcome && (
+            <NavLink to="/welcome" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+              Welcome Note
+            </NavLink>
+          )}
+          {pageStatus.sitename && (
+            <NavLink to="/sitename" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+              Site Name
+            </NavLink>
+          )}
+          {/* Logo menu removed as per your code */}
+          <NavLink to="/pagecontrol" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+            Page Control
+          </NavLink>
+          <NavLink
+            to="/subscription-plans"
+            style={navLinkStyle}
+            onClick={() => isMobile && setMenuOpen(false)}
+          >
+            Subscription Plans
+          </NavLink>
+          <NavLink to="/users" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+            Users
+          </NavLink>
         </nav>
       )}
 
