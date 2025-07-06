@@ -1,8 +1,6 @@
 // src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import Home from './pages/Home';
 import YouTubeVideoManagement from './pages/YouTubeVideoManagement';
 import PDFManagement from './pages/PDFManagement';
@@ -11,9 +9,11 @@ import SiteNameManagement from './pages/SiteNameManagement';
 import LogoManagement from './pages/LogoManagement';
 import PageControlManagement from './pages/PageControlManagement';
 import SubscriptionPlans from './pages/SubscriptionPlans';
-import UserManagement from './pages/UserManagement';
 import Navbar from './components/Navbar';
 import axios from 'axios';
+import UserManagement from './pages/UserManagement';
+import { ToastContainer } from 'react-toastify';
+import Spinner from './components/Spinner';
 
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
@@ -28,7 +28,7 @@ export default function App() {
       });
       setPageStatus(statusMap);
     } catch (error) {
-      console.error('Error fetching page control');
+      alert('Error fetching page control');
     } finally {
       setLoading(false);
     }
@@ -38,7 +38,9 @@ export default function App() {
     fetchPageStatus();
   }, []);
 
-  if (loading) return <div className="spinner"></div>;
+  if (loading) {
+    return <Spinner />;
+  }
 
   return (
     <Router>
@@ -56,7 +58,7 @@ export default function App() {
           <Route path="/users" element={<UserManagement />} />
         </Routes>
       </div>
-      <ToastContainer />
+      <ToastContainer position="top-center" autoClose={2000} />
     </Router>
   );
 }
