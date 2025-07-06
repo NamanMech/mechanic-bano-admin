@@ -7,9 +7,11 @@ export default function WelcomeNoteManagement() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const fetchNote = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + 'welcome');
+      const response = await axios.get(API_URL + 'welcome');
       if (response.data) {
         setTitle(response.data.title);
         setMessage(response.data.message);
@@ -28,7 +30,7 @@ export default function WelcomeNoteManagement() {
     setLoading(true);
 
     try {
-      await axios.put(import.meta.env.VITE_API_URL + 'welcome', { title, message });
+      await axios.put(API_URL + 'welcome', { title, message });
       toast.success('Welcome note updated successfully');
     } catch (error) {
       toast.error('Error saving welcome note');
