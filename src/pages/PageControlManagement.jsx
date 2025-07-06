@@ -4,11 +4,11 @@ import { toast } from 'react-toastify';
 
 export default function PageControlManagement() {
   const [pages, setPages] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingId, setLoadingId] = useState(null);
 
   const fetchPages = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + 'pagecontrol');
+      const response = await axios.get(import.meta.env.VITE_API_URL + 'general?type=pagecontrol');
       setPages(response.data);
     } catch (error) {
       toast.error('Error fetching pages');
@@ -20,15 +20,17 @@ export default function PageControlManagement() {
   }, []);
 
   const togglePage = async (id, currentStatus) => {
-    setLoading(true);
+    setLoadingId(id);
     try {
-      await axios.put(import.meta.env.VITE_API_URL + 'pagecontrol/' + id, { enabled: !currentStatus });
+      await axios.put(`${import.meta.env.VITE_API_URL}general?type=pagecontrol&id=${id}`, {
+        enabled: !currentStatus,
+      });
       toast.success('Page status updated successfully');
       fetchPages();
     } catch (error) {
       toast.error('Error updating page status');
     } finally {
-      setLoading(false);
+      setLoadingId(null);
     }
   };
 
@@ -38,8 +40,11 @@ export default function PageControlManagement() {
       {pages.map((page) => (
         <div key={page._id} style={{ marginBottom: '10px' }}>
           <span style={{ marginRight: '10px' }}>{page.page}</span>
-          <button onClick={() => togglePage(page._id, page.enabled)} disabled={loading}>
-            {page.enabled ? 'Disable' : 'Enable'}
+          <button
+            onClick={() => togglePage(page._id, page.enabled)}
+            disabled={loadingId === page._id}
+          >
+            {loadingId === page._id ? 'Updating...' : page.enabled ? 'Disable' : 'Enable'}
           </button>
         </div>
       ))}
