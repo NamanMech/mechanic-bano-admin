@@ -11,8 +11,8 @@ export default function WelcomeNoteManagement() {
 
   const fetchNote = async () => {
     try {
-      const response = await axios.get(API_URL + 'welcome');
-      if (response.data) {
+      const response = await axios.get(`${API_URL}general?type=welcome`);
+      if (response.data && response.data.title && response.data.message) {
         setTitle(response.data.title);
         setMessage(response.data.message);
       }
@@ -30,7 +30,7 @@ export default function WelcomeNoteManagement() {
     setLoading(true);
 
     try {
-      await axios.put(API_URL + 'welcome', { title, message });
+      await axios.put(`${API_URL}general?type=welcome`, { title, message });
       toast.success('Welcome note updated successfully');
     } catch (error) {
       toast.error('Error saving welcome note');
