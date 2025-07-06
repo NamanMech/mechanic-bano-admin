@@ -38,10 +38,11 @@ export default function SiteNameManagement() {
   return (
     <div style={{ padding: '20px' }}>
       <h1>Site Name Management</h1>
+      <p><strong>Current Site Name:</strong> {siteName}</p>
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
         <input
           type="text"
-          placeholder="Enter Site Name"
+          placeholder="Enter New Site Name"
           value={siteName}
           onChange={(e) => setSiteName(e.target.value)}
           required
