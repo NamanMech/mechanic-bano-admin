@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function YouTubeVideoManagement() {
   const [videos, setVideos] = useState([]);
@@ -25,7 +26,7 @@ export default function YouTubeVideoManagement() {
       const response = await axios.get(import.meta.env.VITE_API_URL + 'youtube');
       setVideos(response.data);
     } catch (error) {
-      alert('Error fetching videos');
+      toast.error('Error fetching videos');
     }
   };
 
@@ -39,7 +40,7 @@ export default function YouTubeVideoManagement() {
 
     const videoId = extractVideoId(link);
     if (!videoId) {
-      alert('Invalid YouTube link');
+      toast.error('Invalid YouTube link');
       setLoading(false);
       return;
     }
@@ -55,7 +56,7 @@ export default function YouTubeVideoManagement() {
           originalLink: link,
           category
         });
-        alert('Video updated successfully');
+        toast.success('Video updated successfully');
         setEditingVideo(null);
       } else {
         await axios.post(import.meta.env.VITE_API_URL + 'youtube', {
@@ -65,7 +66,7 @@ export default function YouTubeVideoManagement() {
           originalLink: link,
           category
         });
-        alert('Video added successfully');
+        toast.success('Video added successfully');
       }
 
       setTitle('');
@@ -74,22 +75,21 @@ export default function YouTubeVideoManagement() {
       setCategory('free');
       fetchVideos();
     } catch (error) {
-      alert('Error saving video');
+      toast.error('Error saving video');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    const confirmDelete = confirm('Are you sure you want to delete this video?');
-    if (!confirmDelete) return;
-
-    try {
-      await axios.delete(import.meta.env.VITE_API_URL + `youtube?id=${id}`);
-      alert('Video deleted successfully');
-      fetchVideos();
-    } catch (error) {
-      alert('Error deleting video');
+    if (confirm('Are you sure you want to delete this video?')) {
+      try {
+        await axios.delete(import.meta.env.VITE_API_URL + `youtube?id=${id}`);
+        toast.success('Video deleted successfully');
+        fetchVideos();
+      } catch (error) {
+        toast.error('Error deleting video');
+      }
     }
   };
 
