@@ -42,15 +42,15 @@ export default function Navbar({ pageStatus }) {
         )}
       </div>
 
-      <nav style={{ 
-        ...styles.navLinks, 
-        ...(isMobile 
-          ? { 
-              display: menuOpen ? 'flex' : 'none', 
-              flexDirection: 'column', 
-              animation: menuOpen ? 'slideDown 0.3s ease-in-out' : '' 
-            } 
-          : { display: 'flex', flexDirection: 'row' }) 
+      <nav style={{
+        ...styles.navLinks,
+        ...(isMobile
+          ? {
+            display: menuOpen ? 'flex' : 'none',
+            flexDirection: 'column',
+            animation: menuOpen ? 'slideDown 0.3s ease-in-out' : ''
+          }
+          : { display: 'flex', flexDirection: 'row' })
       }}>
         <Link to="/" style={navLinkStyle('/')} onClick={() => isMobile && setMenuOpen(false)}>Home</Link>
         {pageStatus.videos && <Link to="/videos" style={navLinkStyle('/videos')} onClick={() => isMobile && setMenuOpen(false)}>Videos</Link>}
@@ -59,6 +59,9 @@ export default function Navbar({ pageStatus }) {
         {pageStatus.sitename && <Link to="/sitename" style={navLinkStyle('/sitename')} onClick={() => isMobile && setMenuOpen(false)}>Site Name</Link>}
         {pageStatus.logo && <Link to="/logo" style={navLinkStyle('/logo')} onClick={() => isMobile && setMenuOpen(false)}>Logo</Link>}
         <Link to="/pagecontrol" style={navLinkStyle('/pagecontrol')} onClick={() => isMobile && setMenuOpen(false)}>Page Control</Link>
+
+        {/* ✅ New Subscription Plans Link */}
+        <Link to="/subscription-plans" style={navLinkStyle('/subscription-plans')} onClick={() => isMobile && setMenuOpen(false)}>Subscription Plans</Link>
       </nav>
 
       {/* Mobile animation style */}
