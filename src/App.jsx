@@ -21,7 +21,7 @@ export default function App() {
 
   const fetchPageStatus = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + 'pagecontrol');
+      const response = await axios.get(import.meta.env.VITE_API_URL + 'general?type=pagecontrol');
       const statusMap = {};
       response.data.forEach(item => {
         statusMap[item.page] = item.enabled;
