@@ -57,7 +57,7 @@ export default function Navbar({ pageStatus }) {
           {pageStatus.pdfs && <Link to="/pdfs" style={navLinkStyle('/pdfs')} onClick={() => isMobile && setMenuOpen(false)}>PDFs</Link>}
           {pageStatus.welcome && <Link to="/welcome" style={navLinkStyle('/welcome')} onClick={() => isMobile && setMenuOpen(false)}>Welcome Note</Link>}
           {pageStatus.sitename && <Link to="/sitename" style={navLinkStyle('/sitename')} onClick={() => isMobile && setMenuOpen(false)}>Site Name</Link>}
-          {pageStatus.logo && <Link to="/logo" style={navLinkStyle('/logo')} onClick={() => isMobile && setMenuOpen(false)}>Logo</Link>}
+          {/* Logo menu hata diya */}
           <Link to="/pagecontrol" style={navLinkStyle('/pagecontrol')} onClick={() => isMobile && setMenuOpen(false)}>Page Control</Link>
           <Link to="/subscription-plans" style={navLinkStyle('/subscription-plans')} onClick={() => isMobile && setMenuOpen(false)}>Subscription Plans</Link>
           <Link to="/users" style={navLinkStyle('/users')} onClick={() => isMobile && setMenuOpen(false)}>Users</Link>
