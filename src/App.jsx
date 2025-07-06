@@ -8,6 +8,7 @@ import WelcomeNoteManagement from './pages/WelcomeNoteManagement';
 import SiteNameManagement from './pages/SiteNameManagement';
 import LogoManagement from './pages/LogoManagement';
 import PageControlManagement from './pages/PageControlManagement';
+import SubscriptionPlans from './pages/SubscriptionPlans'; // ✅ Import subscription page
 import Navbar from './components/Navbar';
 import axios from 'axios';
 
@@ -50,6 +51,7 @@ export default function App() {
           {pageStatus.sitename && <Route path="/sitename" element={<SiteNameManagement />} />}
           {pageStatus.logo && <Route path="/logo" element={<LogoManagement />} />}
           <Route path="/pagecontrol" element={<PageControlManagement />} />
+          <Route path="/subscription-plans" element={<SubscriptionPlans />} /> {/* ✅ ADD THIS LINE */}
         </Routes>
       </div>
     </Router>
