@@ -22,7 +22,7 @@ export default function Navbar({ pageStatus }) {
   }, []);
 
   const navLinkStyle = (path) => ({
-    color: location.pathname === path ? '#ff9800' : 'white', // Active link color
+    color: location.pathname === path ? '#ff9800' : 'white',
     textDecoration: 'none',
     fontWeight: 'bold',
     padding: '8px 12px',
@@ -59,12 +59,12 @@ export default function Navbar({ pageStatus }) {
         {pageStatus.sitename && <Link to="/sitename" style={navLinkStyle('/sitename')} onClick={() => isMobile && setMenuOpen(false)}>Site Name</Link>}
         {pageStatus.logo && <Link to="/logo" style={navLinkStyle('/logo')} onClick={() => isMobile && setMenuOpen(false)}>Logo</Link>}
         <Link to="/pagecontrol" style={navLinkStyle('/pagecontrol')} onClick={() => isMobile && setMenuOpen(false)}>Page Control</Link>
-
-        {/* ✅ New Subscription Plans Link */}
         <Link to="/subscription-plans" style={navLinkStyle('/subscription-plans')} onClick={() => isMobile && setMenuOpen(false)}>Subscription Plans</Link>
+
+        {/* ✅ New Users Page Link */}
+        <Link to="/users" style={navLinkStyle('/users')} onClick={() => isMobile && setMenuOpen(false)}>Users</Link>
       </nav>
 
-      {/* Mobile animation style */}
       <style>{`
         @keyframes slideDown {
           from { opacity: 0; transform: translateY(-10px); }
