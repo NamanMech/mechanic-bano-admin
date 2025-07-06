@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner.jsx';
+import { toast } from 'react-toastify';
 
 export default function SubscriptionPlans() {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ title: '', price: '', days: '', discount: '' });
   const [editingId, setEditingId] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const API_URL = 'https://mechanic-bano-backend.vercel.app/api/subscriptionPlans';
 
@@ -15,7 +17,7 @@ export default function SubscriptionPlans() {
       const response = await axios.get(API_URL);
       setPlans(response.data);
     } catch (error) {
-      alert('Error fetching plans.');
+      toast.error('Error fetching plans.');
     } finally {
       setLoading(false);
     }
@@ -27,23 +29,26 @@ export default function SubscriptionPlans() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title || !form.price || !form.days) return alert('Please fill all required fields.');
+    if (!form.title || !form.price || !form.days) return toast.error('Please fill all required fields.');
+
+    setSaving(true);
 
     try {
       if (editingId) {
-        // Update existing plan
         await axios.put(`${API_URL}?id=${editingId}`, form);
-        alert('Plan updated successfully!');
+        toast.success('Plan updated successfully!');
       } else {
-        // Add new plan
         await axios.post(API_URL, form);
-        alert('Plan created successfully!');
+        toast.success('Plan created successfully!');
       }
+
       setForm({ title: '', price: '', days: '', discount: '' });
       setEditingId(null);
       fetchPlans();
     } catch (error) {
-      alert('Error saving plan.');
+      toast.error('Error saving plan.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -61,10 +66,10 @@ export default function SubscriptionPlans() {
     if (confirm('Are you sure you want to delete this plan?')) {
       try {
         await axios.delete(`${API_URL}?id=${id}`);
-        alert('Plan deleted successfully!');
+        toast.success('Plan deleted successfully!');
         fetchPlans();
       } catch (error) {
-        alert('Error deleting plan.');
+        toast.error('Error deleting plan.');
       }
     }
   };
@@ -101,8 +106,8 @@ export default function SubscriptionPlans() {
           onChange={(e) => setForm({ ...form, discount: e.target.value })}
         />
 
-        <button type="submit" className="btn-primary">
-          {editingId ? 'Update Plan' : 'Add Plan'}
+        <button type="submit" className="btn-primary" disabled={saving}>
+          {saving ? 'Saving...' : editingId ? 'Update Plan' : 'Add Plan'}
         </button>
       </form>
 
