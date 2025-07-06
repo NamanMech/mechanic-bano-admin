@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function PageControlManagement() {
   const [pages, setPages] = useState([]);
@@ -10,7 +11,7 @@ export default function PageControlManagement() {
       const response = await axios.get(import.meta.env.VITE_API_URL + 'pagecontrol');
       setPages(response.data);
     } catch (error) {
-      alert('Error fetching pages');
+      toast.error('Error fetching pages');
     }
   };
 
@@ -22,16 +23,17 @@ export default function PageControlManagement() {
     setLoading(true);
     try {
       await axios.put(import.meta.env.VITE_API_URL + 'pagecontrol/' + id, { enabled: !currentStatus });
+      toast.success('Page status updated successfully');
       fetchPages();
     } catch (error) {
-      alert('Error updating page status');
+      toast.error('Error updating page status');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <h1>Page Control Management</h1>
       {pages.map((page) => (
         <div key={page._id} style={{ marginBottom: '10px' }}>
