@@ -13,7 +13,7 @@ import Navbar from './components/Navbar';
 import axios from 'axios';
 import UserManagement from './pages/UserManagement';
 import { ToastContainer } from 'react-toastify';
-import Spinner from './components/Spinner';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
@@ -39,7 +39,7 @@ export default function App() {
   }, []);
 
   if (loading) {
-    return <Spinner />;
+    return <div className="spinner"></div>;
   }
 
   return (
@@ -58,7 +58,7 @@ export default function App() {
           <Route path="/users" element={<UserManagement />} />
         </Routes>
       </div>
-      <ToastContainer position="top-center" autoClose={2000} />
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
     </Router>
   );
 }
