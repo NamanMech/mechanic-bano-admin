@@ -1,4 +1,3 @@
-// src/pages/PDFManagement.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -11,12 +10,9 @@ export default function PDFManagement() {
   const [editingPdf, setEditingPdf] = useState(null);
 
   const extractGoogleDriveId = (url) => {
-    const regex = /\/d\/([a-zA-Z0-9_-]{33,})/;
+    const regex = /\/d\/([a-zA-Z0-9_-]+)/;
     const match = url.match(regex);
-    if (match && match[1]) {
-      return match[1];
-    }
-    return '';
+    return match ? match[1] : '';
   };
 
   const fetchPdfs = async () => {
@@ -48,20 +44,18 @@ export default function PDFManagement() {
 
     try {
       if (editingPdf) {
-        await axios.put(import.meta.env.VITE_API_URL + `general?type=pdf&id=${editingPdf._id}`, {
-          title,
-          embedLink,
-          originalLink,
-          category
-        });
+        await axios.put(
+          `${import.meta.env.VITE_API_URL}general?type=pdf&id=${editingPdf._id}`,
+          { title, embedLink, originalLink, category }
+        );
         alert('PDF updated successfully');
         setEditingPdf(null);
       } else {
-        await axios.post(import.meta.env.VITE_API_URL + 'general?type=pdf', {
+        await axios.post(`${import.meta.env.VITE_API_URL}general?type=pdf`, {
           title,
           embedLink,
           originalLink,
-          category
+          category,
         });
         alert('PDF added successfully');
       }
@@ -78,11 +72,11 @@ export default function PDFManagement() {
   };
 
   const handleDelete = async (id) => {
-    const confirmDelete = confirm('Are you sure you want to delete this PDF?');
+    const confirmDelete = window.confirm('Are you sure you want to delete this PDF?');
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(import.meta.env.VITE_API_URL + `general?type=pdf&id=${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}general?type=pdf&id=${id}`);
       alert('PDF deleted successfully');
       fetchPdfs();
     } catch (error) {
@@ -128,9 +122,13 @@ export default function PDFManagement() {
           <option value="premium">Premium</option>
         </select>
         <button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : editingPdf ? 'Update PDF' : 'Save'}
+          {loading ? (editingPdf ? 'Updating...' : 'Saving...') : editingPdf ? 'Update PDF' : 'Save'}
         </button>
-        {editingPdf && <button type="button" onClick={handleCancelEdit}>Cancel Edit</button>}
+        {editingPdf && (
+          <button type="button" onClick={handleCancelEdit}>
+            Cancel Edit
+          </button>
+        )}
       </form>
 
       <h2 style={{ marginTop: '40px' }}>Uploaded PDFs</h2>
@@ -139,7 +137,10 @@ export default function PDFManagement() {
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {pdfs.map((pdf) => (
-            <li key={pdf._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
+            <li
+              key={pdf._id}
+              style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}
+            >
               <h3>{pdf.title}</h3>
               <iframe
                 src={pdf.embedLink}
