@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner.jsx';
+import { toast } from 'react-toastify';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
 
   const fetchUsers = async () => {
     try {
       const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/users');
       setUsers(response.data);
     } catch (error) {
-      alert('Error fetching users');
+      toast.error('Error fetching users');
     } finally {
       setLoading(false);
     }
@@ -23,24 +25,30 @@ export default function UserManagement() {
 
   const handleDelete = async (email) => {
     if (confirm('Are you sure you want to delete this user?')) {
+      setProcessing(true);
       try {
         await axios.delete(`https://mechanic-bano-backend.vercel.app/api/users?email=${email}`);
-        alert('User deleted successfully');
+        toast.success('User deleted successfully');
         fetchUsers();
       } catch (error) {
-        alert('Error deleting user');
+        toast.error('Error deleting user');
+      } finally {
+        setProcessing(false);
       }
     }
   };
 
   const handleExpire = async (email) => {
     if (confirm('Are you sure you want to expire this subscription?')) {
+      setProcessing(true);
       try {
         await axios.put(`https://mechanic-bano-backend.vercel.app/api/expireSubscription?email=${email}`);
-        alert('Subscription expired successfully');
+        toast.success('Subscription expired successfully');
         fetchUsers();
       } catch (error) {
-        alert('Error expiring subscription');
+        toast.error('Error expiring subscription');
+      } finally {
+        setProcessing(false);
       }
     }
   };
@@ -71,12 +79,21 @@ export default function UserManagement() {
                 <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
                 <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
                 <td>
-                  <button onClick={() => handleDelete(user.email)} className="btn-delete" style={{ marginRight: '5px' }}>
-                    Delete
+                  <button
+                    onClick={() => handleDelete(user.email)}
+                    className="btn-delete"
+                    style={{ marginRight: '5px' }}
+                    disabled={processing}
+                  >
+                    {processing ? 'Processing...' : 'Delete'}
                   </button>
                   {user.isSubscribed && (
-                    <button onClick={() => handleExpire(user.email)} className="btn-edit">
-                      Expire Subscription
+                    <button
+                      onClick={() => handleExpire(user.email)}
+                      className="btn-edit"
+                      disabled={processing}
+                    >
+                      {processing ? 'Processing...' : 'Expire Subscription'}
                     </button>
                   )}
                 </td>
