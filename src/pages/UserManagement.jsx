@@ -8,9 +8,11 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/users');
+      const response = await axios.get(API_URL + 'users');
       setUsers(response.data);
     } catch (error) {
       toast.error('Error fetching users');
@@ -27,7 +29,7 @@ export default function UserManagement() {
     if (confirm('Are you sure you want to delete this user?')) {
       setProcessing(true);
       try {
-        await axios.delete(`https://mechanic-bano-backend.vercel.app/api/users?email=${email}`);
+        await axios.delete(API_URL + `users?email=${email}`);
         toast.success('User deleted successfully');
         fetchUsers();
       } catch (error) {
@@ -42,7 +44,7 @@ export default function UserManagement() {
     if (confirm('Are you sure you want to expire this subscription?')) {
       setProcessing(true);
       try {
-        await axios.put(`https://mechanic-bano-backend.vercel.app/api/expireSubscription?email=${email}`);
+        await axios.put(API_URL + `subscription?type=expire&email=${email}`);
         toast.success('Subscription expired successfully');
         fetchUsers();
       } catch (error) {
