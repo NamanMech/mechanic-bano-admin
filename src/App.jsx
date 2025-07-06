@@ -11,23 +11,25 @@ import SubscriptionPlans from './pages/SubscriptionPlans';
 import Navbar from './components/Navbar';
 import axios from 'axios';
 import UserManagement from './pages/UserManagement';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
   const [loading, setLoading] = useState(true);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const fetchPageStatus = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + 'general?type=pagecontrol');
+      const response = await axios.get(`${API_URL}general?type=pagecontrol`);
       const statusMap = {};
       response.data.forEach(item => {
         statusMap[item.page] = item.enabled;
       });
       setPageStatus(statusMap);
     } catch (error) {
-      alert('Error fetching page control');
+      toast.error('Error fetching page control');
     } finally {
       setLoading(false);
     }
