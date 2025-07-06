@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function YouTubePDFManagement() {
   const [pdfs, setPdfs] = useState([]);
@@ -23,7 +24,7 @@ export default function YouTubePDFManagement() {
       const response = await axios.get(import.meta.env.VITE_API_URL + 'pdf');
       setPdfs(response.data);
     } catch (error) {
-      alert('Error fetching PDFs');
+      toast.error('Error fetching PDFs');
     }
   };
 
@@ -37,7 +38,7 @@ export default function YouTubePDFManagement() {
 
     const driveId = extractGoogleDriveId(link);
     if (!driveId) {
-      alert('Invalid Google Drive link');
+      toast.error('Invalid Google Drive link');
       setLoading(false);
       return;
     }
@@ -47,33 +48,30 @@ export default function YouTubePDFManagement() {
 
     try {
       if (editingPdf) {
-        // Update PDF
         await axios.put(import.meta.env.VITE_API_URL + `pdf?id=${editingPdf._id}`, {
           title,
           embedLink,
           originalLink,
           category
         });
-        alert('PDF updated successfully');
+        toast.success('PDF updated successfully');
         setEditingPdf(null);
       } else {
-        // Add new PDF
         await axios.post(import.meta.env.VITE_API_URL + 'pdf', {
           title,
           embedLink,
           originalLink,
           category
         });
-        alert('PDF added successfully');
+        toast.success('PDF added successfully');
       }
 
-      // Reset form and refresh list
       setTitle('');
       setLink('');
       setCategory('free');
       fetchPdfs();
     } catch (error) {
-      alert('Error saving PDF');
+      toast.error('Error saving PDF');
     } finally {
       setLoading(false);
     }
@@ -85,10 +83,10 @@ export default function YouTubePDFManagement() {
 
     try {
       await axios.delete(import.meta.env.VITE_API_URL + `pdf?id=${id}`);
-      alert('PDF deleted successfully');
+      toast.success('PDF deleted successfully');
       fetchPdfs();
     } catch (error) {
-      alert('Error deleting PDF');
+      toast.error('Error deleting PDF');
     }
   };
 
@@ -110,7 +108,6 @@ export default function YouTubePDFManagement() {
     <div style={{ padding: '20px' }}>
       <h1>PDF Management</h1>
 
-      {/* Add/Update PDF Form */}
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
         <input
           type="text"
@@ -136,7 +133,6 @@ export default function YouTubePDFManagement() {
         {editingPdf && <button onClick={handleCancelEdit}>Cancel Edit</button>}
       </form>
 
-      {/* List PDFs */}
       <h2 style={{ marginTop: '40px' }}>Uploaded PDFs</h2>
       {pdfs.length === 0 ? (
         <p>No PDFs uploaded yet.</p>
