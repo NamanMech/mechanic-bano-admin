@@ -1,6 +1,8 @@
 // src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Home from './pages/Home';
 import YouTubeVideoManagement from './pages/YouTubeVideoManagement';
 import PDFManagement from './pages/PDFManagement';
@@ -8,10 +10,10 @@ import WelcomeNoteManagement from './pages/WelcomeNoteManagement';
 import SiteNameManagement from './pages/SiteNameManagement';
 import LogoManagement from './pages/LogoManagement';
 import PageControlManagement from './pages/PageControlManagement';
-import SubscriptionPlans from './pages/SubscriptionPlans'; // ✅ Import subscription page
+import SubscriptionPlans from './pages/SubscriptionPlans';
+import UserManagement from './pages/UserManagement';
 import Navbar from './components/Navbar';
 import axios from 'axios';
-import UserManagement from './pages/UserManagement';
 
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
@@ -26,7 +28,7 @@ export default function App() {
       });
       setPageStatus(statusMap);
     } catch (error) {
-      alert('Error fetching page control');
+      console.error('Error fetching page control');
     } finally {
       setLoading(false);
     }
@@ -36,9 +38,7 @@ export default function App() {
     fetchPageStatus();
   }, []);
 
-  if (loading) {
-    return <div className="spinner"></div>;
-  }
+  if (loading) return <div className="spinner"></div>;
 
   return (
     <Router>
@@ -52,10 +52,11 @@ export default function App() {
           {pageStatus.sitename && <Route path="/sitename" element={<SiteNameManagement />} />}
           {pageStatus.logo && <Route path="/logo" element={<LogoManagement />} />}
           <Route path="/pagecontrol" element={<PageControlManagement />} />
-          <Route path="/subscription-plans" element={<SubscriptionPlans />} /> {/* ✅ ADD THIS LINE */}
+          <Route path="/subscription-plans" element={<SubscriptionPlans />} />
           <Route path="/users" element={<UserManagement />} />
         </Routes>
       </div>
+      <ToastContainer />
     </Router>
   );
 }
