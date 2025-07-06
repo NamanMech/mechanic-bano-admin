@@ -6,7 +6,6 @@ import YouTubeVideoManagement from './pages/YouTubeVideoManagement';
 import PDFManagement from './pages/PDFManagement';
 import WelcomeNoteManagement from './pages/WelcomeNoteManagement';
 import SiteNameManagement from './pages/SiteNameManagement';
-import LogoManagement from './pages/LogoManagement';
 import PageControlManagement from './pages/PageControlManagement';
 import SubscriptionPlans from './pages/SubscriptionPlans';
 import Navbar from './components/Navbar';
@@ -52,7 +51,6 @@ export default function App() {
           {pageStatus.pdfs && <Route path="/pdfs" element={<PDFManagement />} />}
           {pageStatus.welcome && <Route path="/welcome" element={<WelcomeNoteManagement />} />}
           {pageStatus.sitename && <Route path="/sitename" element={<SiteNameManagement />} />}
-          {pageStatus.logo && <Route path="/logo" element={<LogoManagement />} />}
           <Route path="/pagecontrol" element={<PageControlManagement />} />
           <Route path="/subscription-plans" element={<SubscriptionPlans />} />
           <Route path="/users" element={<UserManagement />} />
