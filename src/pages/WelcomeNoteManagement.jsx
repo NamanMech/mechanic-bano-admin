@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function WelcomeNoteManagement() {
   const [title, setTitle] = useState('');
@@ -14,7 +15,7 @@ export default function WelcomeNoteManagement() {
         setMessage(response.data.message);
       }
     } catch (error) {
-      alert('Error fetching welcome note');
+      toast.error('Error fetching welcome note');
     }
   };
 
@@ -28,9 +29,9 @@ export default function WelcomeNoteManagement() {
 
     try {
       await axios.put(import.meta.env.VITE_API_URL + 'welcome', { title, message });
-      alert('Welcome note updated successfully');
+      toast.success('Welcome note updated successfully');
     } catch (error) {
-      alert('Error saving welcome note');
+      toast.error('Error saving welcome note');
     } finally {
       setLoading(false);
     }
