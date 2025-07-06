@@ -11,6 +11,7 @@ import PageControlManagement from './pages/PageControlManagement';
 import SubscriptionPlans from './pages/SubscriptionPlans'; // ✅ Import subscription page
 import Navbar from './components/Navbar';
 import axios from 'axios';
+import UserManagement from './pages/UserManagement';
 
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
@@ -52,6 +53,7 @@ export default function App() {
           {pageStatus.logo && <Route path="/logo" element={<LogoManagement />} />}
           <Route path="/pagecontrol" element={<PageControlManagement />} />
           <Route path="/subscription-plans" element={<SubscriptionPlans />} /> {/* ✅ ADD THIS LINE */}
+          <Route path="/users" element={<UserManagement />} />
         </Routes>
       </div>
     </Router>
