@@ -11,6 +11,8 @@ export default function YouTubeVideoManagement() {
   const [loading, setLoading] = useState(false);
   const [editingVideo, setEditingVideo] = useState(null);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const extractVideoId = (url) => {
     let videoId = '';
     const youtubeRegex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/;
@@ -23,7 +25,7 @@ export default function YouTubeVideoManagement() {
 
   const fetchVideos = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + 'youtube');
+      const response = await axios.get(API_URL + 'youtube');
       setVideos(response.data);
     } catch (error) {
       toast.error('Error fetching videos');
@@ -49,7 +51,7 @@ export default function YouTubeVideoManagement() {
 
     try {
       if (editingVideo) {
-        await axios.put(import.meta.env.VITE_API_URL + `youtube?id=${editingVideo._id}`, {
+        await axios.put(API_URL + `youtube?id=${editingVideo._id}`, {
           title,
           description,
           embedLink: cleanedLink,
@@ -59,7 +61,7 @@ export default function YouTubeVideoManagement() {
         toast.success('Video updated successfully');
         setEditingVideo(null);
       } else {
-        await axios.post(import.meta.env.VITE_API_URL + 'youtube', {
+        await axios.post(API_URL + 'youtube', {
           title,
           description,
           embedLink: cleanedLink,
@@ -84,7 +86,7 @@ export default function YouTubeVideoManagement() {
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this video?')) {
       try {
-        await axios.delete(import.meta.env.VITE_API_URL + `youtube?id=${id}`);
+        await axios.delete(API_URL + `youtube?id=${id}`);
         toast.success('Video deleted successfully');
         fetchVideos();
       } catch (error) {
