@@ -16,7 +16,11 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   };
 
   const handleClickOutside = (e) => {
-    if (menuRef.current && !menuRef.current.contains(e.target) && !buttonRef.current.contains(e.target)) {
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(e.target) &&
+      !buttonRef.current.contains(e.target)
+    ) {
       setIsOpen(false);
     }
   };
@@ -39,11 +43,8 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
           ref={menuRef}
           className="dropdown-menu"
           style={{
-            position: 'absolute',
-            top: menuPosition.y,
-            left: menuPosition.x,
-            backgroundColor: 'white',
-            color: 'black',
+            top: `${menuPosition.y}px`,
+            left: `${menuPosition.x}px`,
           }}
         >
           <button onClick={() => { onEdit(user); setIsOpen(false); }} disabled={processing}>
