@@ -187,7 +187,7 @@ ul {
   100% { transform: rotate(360deg); }
 }
 
-/* Dropdown Trigger Button */
+/* Dropdown Menu Trigger */
 .dropdown-trigger {
   cursor: pointer;
   background: transparent;
@@ -195,8 +195,9 @@ ul {
   padding: 5px;
 }
 
-/* Fixed Dropdown Menu (Via Portal) */
+/* Fully Fixed Dropdown Menu */
 .dropdown-menu-fixed {
+  position: absolute;
   background-color: white !important;
   color: black !important;
   border: 1px solid #ccc;
@@ -205,16 +206,17 @@ ul {
   display: flex;
   flex-direction: column;
   min-width: 120px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
 }
 
 .dropdown-menu-fixed button {
   width: 100%;
   padding: 10px;
-  background: none;
+  background-color: white !important;
+  color: black !important;
   border: none;
   text-align: left;
   cursor: pointer;
-  color: black !important;
 }
 
 .dropdown-menu-fixed button:hover {
@@ -222,9 +224,17 @@ ul {
   color: black !important;
 }
 
+/* Force all dropdown children to stay white */
+.dropdown-menu-fixed * {
+  background-color: white !important;
+  color: black !important;
+}
+
+/* Mobile Fix */
 @media (max-width: 768px) {
   .dropdown-menu-fixed {
     min-width: 100px;
+    right: auto !important;
   }
 }
 
@@ -297,6 +307,10 @@ ul {
   .custom-table th, .custom-table td {
     min-width: 120px;
     padding: 8px;
+  }
+
+  .dropdown-menu-fixed {
+    min-width: 120px;
   }
 
   .search-bar {
