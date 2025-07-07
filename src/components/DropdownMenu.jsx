@@ -43,49 +43,66 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
       </button>
 
       {isOpen && createPortal(
-        <div
-          ref={menuRef}
-          className="dropdown-menu-fixed"
-          style={{
-            top: `${menuPosition.top}px`,
-            left: `${menuPosition.left}px`,
-            backgroundColor: 'white',
-            color: 'black',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            zIndex: 9999,
-            display: 'flex',
-            flexDirection: 'column',
-            minWidth: '120px',
-            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
-          }}
-        >
-          <button
-            style={{ backgroundColor: 'white', color: 'black', padding: '10px', textAlign: 'left' }}
-            onClick={() => { onEdit(user); setIsOpen(false); }}
-            disabled={processing}
-          >
-            Edit
-          </button>
+        <>
+          {/* Color Lock Style Injected Directly in Portal */}
+          <style>{`
+            .dropdown-menu-fixed {
+              background-color: white !important;
+              color: black !important;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              z-index: 9999;
+              display: flex;
+              flex-direction: column;
+              min-width: 120px;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            }
+            .dropdown-menu-fixed button {
+              background-color: white !important;
+              color: black !important;
+              padding: 10px;
+              border: none;
+              text-align: left;
+              cursor: pointer;
+              width: 100%;
+            }
+            .dropdown-menu-fixed button:hover {
+              background-color: #f2f2f2 !important;
+              color: black !important;
+            }
+          `}</style>
 
-          <button
-            style={{ backgroundColor: 'white', color: 'black', padding: '10px', textAlign: 'left' }}
-            onClick={() => { onDelete(user.email); setIsOpen(false); }}
-            disabled={processing}
+          <div
+            ref={menuRef}
+            className="dropdown-menu-fixed"
+            style={{
+              position: 'absolute',
+              top: `${menuPosition.top}px`,
+              left: `${menuPosition.left}px`
+            }}
           >
-            Delete
-          </button>
-
-          {user.isSubscribed && (
             <button
-              style={{ backgroundColor: 'white', color: 'black', padding: '10px', textAlign: 'left' }}
-              onClick={() => { onExpire(user.email); setIsOpen(false); }}
+              onClick={() => { onEdit(user); setIsOpen(false); }}
               disabled={processing}
             >
-              Expire
+              Edit
             </button>
-          )}
-        </div>,
+            <button
+              onClick={() => { onDelete(user.email); setIsOpen(false); }}
+              disabled={processing}
+            >
+              Delete
+            </button>
+            {user.isSubscribed && (
+              <button
+                onClick={() => { onExpire(user.email); setIsOpen(false); }}
+                disabled={processing}
+              >
+                Expire
+              </button>
+            )}
+          </div>
+        </>,
         document.body
       )}
     </>
