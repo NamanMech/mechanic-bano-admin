@@ -12,28 +12,26 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       setMenuPosition({
-        top: rect.bottom + window.scrollY + 5,
-        left: rect.left + window.scrollX
+        top: rect.bottom + 5,
+        left: rect.left
       });
       setIsOpen((prev) => !prev);
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(e.target) &&
-        !buttonRef.current.contains(e.target)
-      ) {
-        setIsOpen(false);
-      }
-    };
+  const handleClickOutside = (e) => {
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(e.target) &&
+      !buttonRef.current.contains(e.target)
+    ) {
+      setIsOpen(false);
+    }
+  };
 
+  useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
