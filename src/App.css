@@ -1,4 +1,4 @@
-/* App.css - Updated Clean Version */
+/* App.css */
 
 body {
   font-family: 'Arial', sans-serif;
@@ -26,13 +26,14 @@ a:hover {
 
 .container {
   padding: 20px;
+  max-width: 100%;
 }
 
 h1, h2, h3 {
   text-align: center;
 }
 
-form {
+form, .user-form {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -119,25 +120,44 @@ ul {
   padding: 0;
 }
 
-/* Responsive Navbar */
+/* Search Bar */
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  width: 100%;
+}
+
+.search-bar button {
+  width: 100%;
+}
+
 @media (min-width: 600px) {
-  header nav {
-    display: flex !important;
+  .search-bar {
     flex-direction: row;
-    justify-content: center;
-    gap: 15px;
-    background-color: #333 !important;
+    justify-content: space-between;
   }
 
-  header nav a {
-    margin-bottom: 0 !important;
+  .search-bar input {
+    width: auto;
+    flex: 1;
+  }
+
+  .search-bar button {
+    width: auto;
   }
 }
 
+/* Table */
 .custom-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  overflow-x: auto;
 }
 
 .custom-table th, .custom-table td {
@@ -170,7 +190,7 @@ ul {
 .btn-edit {
   background-color: #28a745;
   color: white;
-  margin-right: 10px;
+  margin-right: 5px;
 }
 
 .btn-edit:hover {
@@ -186,6 +206,7 @@ ul {
   background-color: #c82333;
 }
 
+/* Spinner */
 .spinner {
   border: 6px solid #f3f3f3;
   border-top: 6px solid #007bff;
@@ -201,6 +222,7 @@ ul {
   100% { transform: rotate(360deg); }
 }
 
+/* Dropdown Menu */
 .dropdown-trigger {
   cursor: pointer;
   font-size: 20px;
@@ -211,7 +233,6 @@ ul {
 .dropdown-menu {
   position: fixed;
   background-color: white;
-  color: black;
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 5px 0;
@@ -245,48 +266,22 @@ ul {
   background-color: #bbb;
 }
 
-/* Pagination Buttons */
+/* Pagination */
 .pagination {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   gap: 10px;
-  margin-top: 20px;
-}
-
-.pagination button {
-  background-color: #1e88e5;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-}
-
-.pagination button:hover {
-  background-color: #1565c0;
-}
-
-.pagination button:disabled {
-  background-color: gray;
-  cursor: not-allowed;
-}
-
-.action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  justify-content: center;
-}
-
-.pagination-controls {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 15px;
   margin-top: 20px;
 }
 
-@media (max-width: 600px) {
-  .pagination-controls {
-    flex-direction: column;
+.pagination button, .pagination select {
+  padding: 8px 12px;
+}
+
+@media (min-width: 600px) {
+  .pagination {
+    flex-direction: row;
+    justify-content: center;
   }
 }
