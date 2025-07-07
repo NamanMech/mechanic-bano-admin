@@ -16,7 +16,7 @@ export default function UserTable({
         <tr>
           <th>Name</th>
           <th>Email</th>
-          <th>Subscription Status</th>
+          <th>Subscription</th>
           <th>Subscription End</th>
           <th>Actions</th>
         </tr>
@@ -26,7 +26,13 @@ export default function UserTable({
           <tr key={user._id}>
             <td>{user.name}</td>
             <td>{user.email}</td>
-            <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
+            <td>
+              {user.isSubscribed ? (
+                <span className="status-icon active">✔️</span>
+              ) : (
+                <span className="status-icon inactive">❌</span>
+              )}
+            </td>
             <td>
               {user.subscriptionEnd
                 ? new Date(user.subscriptionEnd).toLocaleDateString()
@@ -55,7 +61,7 @@ export default function UserTable({
 
               {menuStates[user.email] && (
                 <div
-                  className="dropdown-menu"
+                  className={`dropdown-menu ${menuStates[user.email] ? 'show' : ''}`}
                   style={{
                     top: menuPositions[user.email]?.y || 0,
                     left: menuPositions[user.email]?.x || 0,
@@ -73,14 +79,12 @@ export default function UserTable({
                   >
                     Delete
                   </button>
-                  {user.isSubscribed && (
-                    <button
-                      onClick={() => handleExpire(user.email)}
-                      disabled={processing}
-                    >
-                      Expire
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleExpire(user.email)}
+                    disabled={processing || !user.isSubscribed}
+                  >
+                    {user.isSubscribed ? 'Expire' : 'Expired'}
+                  </button>
                 </div>
               )}
             </td>
