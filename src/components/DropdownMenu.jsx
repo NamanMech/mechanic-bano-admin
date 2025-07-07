@@ -36,8 +36,8 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
         </svg>
       </button>
 
-      {/* ✅ className me condition lagao */}
-      <div className={`dropdown-menu ${isOpen ? 'show' : ''}`}>
+      {/* Menu display control yaha se hoga */}
+      <div className="dropdown-menu" style={{ display: isOpen ? 'block' : 'none' }}>
         <button
           onClick={() => { onEdit(user); setIsOpen(false); }}
           disabled={processing}
