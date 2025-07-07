@@ -206,7 +206,6 @@ ul {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  position: absolute; /* Ab ye body ke respect me lagega */
 }
 
 .dropdown-menu button {
