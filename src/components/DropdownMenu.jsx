@@ -3,14 +3,14 @@ import { createPortal } from 'react-dom';
 
 export default function DropdownMenu({ user, onEdit, onDelete, onExpire, processing }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [menuStyles, setMenuStyles] = useState({ top: 0, left: 0 });
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
   const menuRef = useRef(null);
 
   const handleToggleMenu = () => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      setMenuStyles({
+      setMenuPosition({
         top: rect.bottom + window.scrollY + 5,
         left: rect.left + window.scrollX
       });
@@ -47,8 +47,8 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
           className="dropdown-menu-fixed"
           style={{
             position: 'absolute',
-            top: `${menuStyles.top}px`,
-            left: `${menuStyles.left}px`
+            top: `${menuPosition.top}px`,
+            left: `${menuPosition.left}px`
           }}
         >
           <button onClick={() => { onEdit(user); setIsOpen(false); }} disabled={processing}>
