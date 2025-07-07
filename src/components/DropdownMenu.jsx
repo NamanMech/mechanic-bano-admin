@@ -1,4 +1,3 @@
-// DropdownMenu.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -8,7 +7,8 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   const buttonRef = useRef(null);
   const menuRef = useRef(null);
 
-  const handleToggleMenu = () => {
+  const handleToggleMenu = (e) => {
+    e.stopPropagation();
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       setMenuPosition({
