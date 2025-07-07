@@ -11,8 +11,12 @@ export default function UserManagement() {
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [searchQuery, setSearchQuery] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
-  const menuRef = useRef(null);
 
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 5;
+
+  const menuRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchUsers = async () => {
@@ -118,6 +122,16 @@ export default function UserManagement() {
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Pagination Calculation
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+  const goToPage = (pageNumber) => setCurrentPage(pageNumber);
+  const goToNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const goToPrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+
   if (loading) return <Spinner />;
 
   return (
@@ -129,7 +143,7 @@ export default function UserManagement() {
           type="text"
           placeholder="Search by name or email"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
           style={{
             padding: '8px',
             borderRadius: '4px',
@@ -140,45 +154,67 @@ export default function UserManagement() {
         />
       </div>
 
-      {filteredUsers.length === 0 ? (
+      {currentUsers.length === 0 ? (
         <p>No users found.</p>
       ) : (
-        <table className="custom-table">
-          <thead>
-            <tr>
-              <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
-                Name {sortConfig.key === 'name' ? (sortConfig.direction === 'asc' ? '🔼' : '🔽') : ''}
-              </th>
-              <th onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>
-                Email {sortConfig.key === 'email' ? (sortConfig.direction === 'asc' ? '🔼' : '🔽') : ''}
-              </th>
-              <th onClick={() => requestSort('isSubscribed')} style={{ cursor: 'pointer' }}>
-                Subscription Status {sortConfig.key === 'isSubscribed' ? (sortConfig.direction === 'asc' ? '🔼' : '🔽') : ''}
-              </th>
-              <th>Subscription End</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user._id}>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
-                <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
-                <td style={{ position: 'relative' }}>
-                  <button
-                    onClick={(e) => handleMenuToggle(e, user.email)}
-                    className="btn-menu"
-                    disabled={processing}
-                  >
-                    {menuOpen === user.email ? 'Close' : 'Menu'}
-                  </button>
-                </td>
+        <>
+          <table className="custom-table">
+            <thead>
+              <tr>
+                <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
+                  Name {sortConfig.key === 'name' ? (sortConfig.direction === 'asc' ? '🔼' : '🔽') : ''}
+                </th>
+                <th onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>
+                  Email {sortConfig.key === 'email' ? (sortConfig.direction === 'asc' ? '🔼' : '🔽') : ''}
+                </th>
+                <th onClick={() => requestSort('isSubscribed')} style={{ cursor: 'pointer' }}>
+                  Subscription Status {sortConfig.key === 'isSubscribed' ? (sortConfig.direction === 'asc' ? '🔼' : '🔽') : ''}
+                </th>
+                <th>Subscription End</th>
+                <th>Actions</th>
               </tr>
+            </thead>
+            <tbody>
+              {currentUsers.map((user) => (
+                <tr key={user._id}>
+                  <td>{user.name}</td>
+                  <td>{user.email}</td>
+                  <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
+                  <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
+                  <td style={{ position: 'relative' }}>
+                    <button
+                      onClick={(e) => handleMenuToggle(e, user.email)}
+                      className="btn-menu"
+                      disabled={processing}
+                    >
+                      {menuOpen === user.email ? 'Close' : 'Menu'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="pagination" style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <button onClick={goToPrevPage} disabled={currentPage === 1} className="btn-primary">
+              Previous
+            </button>
+
+            {[...Array(totalPages).keys()].map((num) => (
+              <button
+                key={num + 1}
+                onClick={() => goToPage(num + 1)}
+                className={`btn-primary ${currentPage === num + 1 ? 'active-page' : ''}`}
+              >
+                {num + 1}
+              </button>
             ))}
-          </tbody>
-        </table>
+
+            <button onClick={goToNextPage} disabled={currentPage === totalPages} className="btn-primary">
+              Next
+            </button>
+          </div>
+        </>
       )}
 
       {menuOpen && (
