@@ -1,15 +1,15 @@
 /* App.css */
 
 body {
-  font-family: 'Arial', sans-serif;
-  background-color: #1e1e1e;
-  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212;
+  color: #f1f1f1;
   margin: 0;
   padding: 0;
 }
 
 a {
-  color: violet;
+  color: #bb86fc;
   text-decoration: none;
   margin: 0 10px;
 }
@@ -19,7 +19,7 @@ a:hover {
 }
 
 .navbar {
-  background-color: #282c34;
+  background-color: #1f1f1f;
   padding: 15px;
   text-align: center;
 }
@@ -43,16 +43,19 @@ form {
 
 input, textarea, select {
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 6px;
   border: none;
   outline: none;
+  background-color: #2a2a2a;
+  color: white;
 }
 
 button {
-  padding: 10px;
+  padding: 10px 15px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 button:disabled {
@@ -61,12 +64,12 @@ button:disabled {
 }
 
 .save-button {
-  background-color: #007bff;
-  color: white;
+  background-color: #03dac6;
+  color: black;
 }
 
 .save-button:hover {
-  background-color: #0056b3;
+  background-color: #00c4b4;
 }
 
 .cancel-button {
@@ -78,30 +81,35 @@ button:disabled {
   background-color: #5a6268;
 }
 
-.edit-button {
+.edit-button,
+.btn-edit {
   background-color: #28a745;
   color: white;
 }
 
-.edit-button:hover {
+.edit-button:hover,
+.btn-edit:hover {
   background-color: #218838;
 }
 
-.delete-button {
+.delete-button,
+.btn-delete {
   background-color: #dc3545;
   color: white;
 }
 
-.delete-button:hover {
+.delete-button:hover,
+.btn-delete:hover {
   background-color: #c82333;
 }
 
 .video-card {
-  background-color: #2c2c2c;
+  background-color: #1f1f1f;
   padding: 15px;
   margin: 10px auto;
   max-width: 400px;
-  border-radius: 8px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .video-card h3 {
@@ -119,11 +127,9 @@ ul {
   padding: 0;
 }
 
-/* Hide menu by default on small screens and show when open using inline styles */
-
 @media (min-width: 600px) {
   header nav {
-    display: flex !important; /* force show on desktop */
+    display: flex !important;
     flex-direction: row;
     justify-content: center;
     gap: 15px;
@@ -143,12 +149,12 @@ ul {
 
 .custom-table th, .custom-table td {
   border: 1px solid #444;
-  padding: 10px;
+  padding: 12px;
   text-align: center;
 }
 
 .custom-table th {
-  background-color: #333;
+  background-color: #1f1f1f;
 }
 
 .custom-table tr:nth-child(even) {
@@ -156,7 +162,7 @@ ul {
 }
 
 .custom-table tr:hover {
-  background-color: #444;
+  background-color: #333;
 }
 
 .btn-primary {
@@ -168,29 +174,10 @@ ul {
   background-color: #1565c0;
 }
 
-.btn-edit {
-  background-color: #28a745;
-  color: white;
-  margin-right: 10px;
-}
-
-.btn-edit:hover {
-  background-color: #218838;
-}
-
-.btn-delete {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-delete:hover {
-  background-color: #c82333;
-}
-
 /* Spinner for App.jsx loading */
 .spinner {
   border: 6px solid #f3f3f3;
-  border-top: 6px solid #007bff;
+  border-top: 6px solid #03dac6;
   border-radius: 50%;
   width: 60px;
   height: 60px;
@@ -208,26 +195,28 @@ ul {
   font-size: 20px;
   background: transparent;
   border: none;
+  color: white;
 }
 
 .dropdown-menu {
   position: fixed;
   background-color: white;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 5px 0;
-  min-width: 150px;
+  min-width: 160px;
   z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .dropdown-menu button {
   width: 100%;
-  padding: 8px 12px;
+  padding: 10px 15px;
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
+  color: black;
 }
 
 .dropdown-menu button:hover {
@@ -237,9 +226,9 @@ ul {
 .btn-menu {
   background-color: #ddd;
   border: none;
-  padding: 5px 10px;
+  padding: 8px 12px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .btn-menu:hover {
