@@ -269,3 +269,24 @@ ul {
   background-color: gray;
   cursor: not-allowed;
 }
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+  .pagination-controls {
+    flex-direction: column;
+  }
+}
