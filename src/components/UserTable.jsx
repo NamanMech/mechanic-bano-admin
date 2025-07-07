@@ -1,28 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 
-export default function UserTable({ users, onEdit, onDelete, onExpire }) {
-  const [menuOpenId, setMenuOpenId] = useState(null);
-  const menuRef = useRef(null);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setMenuOpenId(null);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const toggleMenu = (id) => {
-    if (menuOpenId === id) {
-      setMenuOpenId(null);
-    } else {
-      setMenuOpenId(id);
-    }
-  };
-
+export default function UserTable({
+  users,
+  processing,
+  handleEditClick,
+  handleDelete,
+  handleExpire,
+  menuStates,
+  handleMenuToggle,
+  menuPositions,
+}) {
   return (
     <table className="custom-table">
       <thead>
@@ -40,21 +27,59 @@ export default function UserTable({ users, onEdit, onDelete, onExpire }) {
             <td>{user.name}</td>
             <td>{user.email}</td>
             <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
-            <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
+            <td>
+              {user.subscriptionEnd
+                ? new Date(user.subscriptionEnd).toLocaleDateString()
+                : '-'}
+            </td>
             <td style={{ position: 'relative' }}>
               <button
+                onClick={(e) => handleMenuToggle(e, user.email)}
                 className="dropdown-trigger"
-                onClick={() => toggleMenu(user._id)}
               >
-                ≡
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="white"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4 6h16M4 12h16M4 18h16"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
               </button>
 
-              {menuOpenId === user._id && (
-                <div className="dropdown-menu" ref={menuRef} style={{ right: 0 }}>
-                  <button onClick={() => { onEdit(user); setMenuOpenId(null); }}>Edit</button>
-                  <button onClick={() => { onDelete(user.email); setMenuOpenId(null); }}>Delete</button>
+              {menuStates[user.email] && (
+                <div
+                  className="dropdown-menu"
+                  style={{
+                    top: menuPositions[user.email]?.y || 0,
+                    left: menuPositions[user.email]?.x || 0,
+                  }}
+                >
+                  <button
+                    onClick={() => handleEditClick(user)}
+                    disabled={processing}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(user.email)}
+                    disabled={processing}
+                  >
+                    Delete
+                  </button>
                   {user.isSubscribed && (
-                    <button onClick={() => { onExpire(user.email); setMenuOpenId(null); }}>Expire</button>
+                    <button
+                      onClick={() => handleExpire(user.email)}
+                      disabled={processing}
+                    >
+                      Expire
+                    </button>
                   )}
                 </div>
               )}
