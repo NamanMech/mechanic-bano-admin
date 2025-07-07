@@ -249,3 +249,15 @@ ul {
     min-width: 120px;
   }
 }
+
+.search-bar, .user-form, .custom-table, .pagination {
+  margin-bottom: 20px;
+}
+
+.pagination select {
+  margin-left: 10px;
+}
+
+.dropdown-trigger {
+  padding: 5px;
+}
