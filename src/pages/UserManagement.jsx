@@ -18,6 +18,8 @@ export default function UserManagement() {
   const [sortOrder, setSortOrder] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const [menuStates, setMenuStates] = useState({});
+  const [menuPositions, setMenuPositions] = useState({});
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -104,6 +106,20 @@ export default function UserManagement() {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
+  const handleMenuToggle = (event, email) => {
+    event.stopPropagation();
+    setMenuStates((prev) => ({
+      ...prev,
+      [email]: !prev[email],
+    }));
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    setMenuPositions((prev) => ({
+      ...prev,
+      [email]: { x: rect.left + 'px', y: rect.bottom + 'px' },
+    }));
+  };
+
   const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -146,10 +162,13 @@ export default function UserManagement() {
         <>
           <UserTable
             users={displayedUsers}
-            onEdit={handleEditClick}
-            onDelete={handleDelete}
-            onExpire={handleExpire}
             processing={processing}
+            handleEditClick={handleEditClick}
+            handleDelete={handleDelete}
+            handleExpire={handleExpire}
+            menuStates={menuStates}
+            handleMenuToggle={handleMenuToggle}
+            menuPositions={menuPositions}
           />
           <Pagination
             currentPage={currentPage}
