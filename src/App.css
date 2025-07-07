@@ -195,6 +195,7 @@ ul {
   padding: 5px;
 }
 
+/* Force Dropdown Menu Style */
 .dropdown-menu-fixed {
   position: absolute;
   background-color: white !important;
@@ -223,7 +224,7 @@ ul {
   color: black !important;
 }
 
-/* Force all dropdown children to stay white */
+/* Ensure all dropdown children stay white */
 .dropdown-menu-fixed * {
   background-color: white !important;
   color: black !important;
