@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import UserForm from '../components/UserForm.jsx';
 import SearchBar from '../components/SearchBar.jsx';
 import Pagination from '../components/Pagination.jsx';
+import UserTable from '../components/UserTable.jsx';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -12,10 +13,12 @@ export default function UserManagement() {
   const [processing, setProcessing] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [formData, setFormData] = useState({ name: '', email: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchUsers = async () => {
@@ -63,114 +66,100 @@ export default function UserManagement() {
     }
   };
 
-  const handleAddClick = () => {
-    setEditingUser(null);
-    setIsFormOpen(true);
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setProcessing(true);
+    try {
+      if (editingUser) {
+        await axios.put(`${API_URL}user?email=${editingUser.email}&type=update`, formData);
+        toast.success('User updated successfully');
+      } else {
+        await axios.post(`${API_URL}user`, formData);
+        toast.success('User added successfully');
+      }
+      fetchUsers();
+      setIsFormOpen(false);
+      setEditingUser(null);
+      setFormData({ name: '', email: '' });
+    } catch (error) {
+      toast.error('Error saving user');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const handleEditClick = (user) => {
     setEditingUser(user);
+    setFormData({ name: user.name, email: user.email });
     setIsFormOpen(true);
   };
 
-  const handleSearch = (query) => {
-    setSearchQuery(query.toLowerCase());
-    setCurrentPage(1);
+  const handleAddClick = () => {
+    setEditingUser(null);
+    setFormData({ name: '', email: '' });
+    setIsFormOpen(true);
   };
 
-  const handleSort = () => {
+  const handleSortToggle = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const handlePageSizeChange = (size) => {
-    setPageSize(size);
-    setCurrentPage(1);
-  };
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    if (sortOrder === 'asc') return a.name.localeCompare(b.name);
+    else return b.name.localeCompare(a.name);
+  });
 
-  const filteredUsers = users
-    .filter((user) => user.name.toLowerCase().includes(searchQuery) || user.email.toLowerCase().includes(searchQuery))
-    .sort((a, b) => {
-      if (sortOrder === 'asc') return a.name.localeCompare(b.name);
-      return b.name.localeCompare(a.name);
-    });
-
-  const totalPages = Math.ceil(filteredUsers.length / pageSize);
-  const displayedUsers = filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const totalPages = Math.ceil(sortedUsers.length / pageSize);
+  const displayedUsers = sortedUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   if (loading) return <Spinner />;
 
   return (
     <div className="container">
       <h2>All Users</h2>
+
       <button onClick={handleAddClick} className="btn-primary" style={{ marginBottom: '20px' }}>
         Add User
       </button>
 
+      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} handleSortToggle={handleSortToggle} sortOrder={sortOrder} />
+
       {isFormOpen && (
         <UserForm
-          user={editingUser}
-          fetchUsers={fetchUsers}
+          formData={formData}
+          setFormData={setFormData}
+          handleFormSubmit={handleFormSubmit}
+          isEditing={editingUser !== null}
+          processing={processing}
           setIsFormOpen={setIsFormOpen}
-          setEditingUser={setEditingUser}
         />
       )}
-
-      <SearchBar searchQuery={searchQuery} onSearch={handleSearch} onSort={handleSort} sortOrder={sortOrder} />
 
       {filteredUsers.length === 0 ? (
         <p>No users found.</p>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table className="custom-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Subscription Status</th>
-                <th>Subscription End</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayedUsers.map((user) => (
-                <tr key={user._id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
-                  <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
-                  <td>
-                    <div className="action-buttons">
-                      <button onClick={() => handleEditClick(user)} className="btn-edit" disabled={processing}>
-                        Edit
-                      </button>
-                      <button onClick={() => handleDelete(user.email)} className="btn-delete" disabled={processing}>
-                        Delete
-                      </button>
-                      {user.isSubscribed && (
-                        <button onClick={() => handleExpire(user.email)} className="btn-edit" disabled={processing}>
-                          Expire
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <UserTable
+            users={displayedUsers}
+            onEdit={handleEditClick}
+            onDelete={handleDelete}
+            onExpire={handleExpire}
+            processing={processing}
+          />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+          />
+        </>
       )}
-
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        pageSize={pageSize}
-        onPageSizeChange={handlePageSizeChange}
-      />
     </div>
   );
 }
