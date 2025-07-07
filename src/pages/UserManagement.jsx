@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Spinner from '../components/Spinner.jsx';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner.jsx';
+import UserTable from '../components/UserTable.jsx';
+import UserForm from '../components/UserForm.jsx';
+import SearchBar from '../components/SearchBar.jsx';
+import Pagination from '../components/Pagination.jsx';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -10,6 +14,9 @@ export default function UserManagement() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '' });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -63,11 +70,9 @@ export default function UserManagement() {
     setProcessing(true);
     try {
       if (editingUser) {
-        // ✅ Update user with correct URL
         await axios.put(`${API_URL}user?email=${editingUser.email}&type=update`, formData);
         toast.success('User updated successfully');
       } else {
-        // ✅ Add new user
         await axios.post(`${API_URL}user`, formData);
         toast.success('User added successfully');
       }
@@ -94,6 +99,14 @@ export default function UserManagement() {
     setIsFormOpen(true);
   };
 
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredUsers.length / pageSize);
+  const paginatedUsers = filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   if (loading) return <Spinner />;
 
   return (
@@ -104,83 +117,31 @@ export default function UserManagement() {
       </button>
 
       {isFormOpen && (
-        <form onSubmit={handleFormSubmit}>
-          <input
-            type="text"
-            placeholder="Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            required
-            disabled={editingUser !== null} // Email should not change during update
-          />
-          <button type="submit" disabled={processing}>
-            {processing ? 'Saving...' : editingUser ? 'Update User' : 'Add User'}
-          </button>
-          <button type="button" onClick={() => setIsFormOpen(false)} className="cancel-button" disabled={processing}>
-            Cancel
-          </button>
-        </form>
+        <UserForm
+          formData={formData}
+          setFormData={setFormData}
+          handleFormSubmit={handleFormSubmit}
+          isEditing={editingUser !== null}
+          onCancel={() => setIsFormOpen(false)}
+          processing={processing}
+        />
       )}
 
-      {users.length === 0 ? (
-        <p>No users found.</p>
-      ) : (
-        <table className="custom-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Subscription Status</th>
-              <th>Subscription End</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user._id}>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
-                <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
-                <td>
-                  <button
-                    onClick={() => handleEditClick(user)}
-                    className="btn-edit"
-                    style={{ marginRight: '5px' }}
-                    disabled={processing}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(user.email)}
-                    className="btn-delete"
-                    style={{ marginRight: '5px' }}
-                    disabled={processing}
-                  >
-                    Delete
-                  </button>
-                  {user.isSubscribed && (
-                    <button
-                      onClick={() => handleExpire(user.email)}
-                      className="btn-edit"
-                      disabled={processing}
-                    >
-                      Expire
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
+      <UserTable
+        users={paginatedUsers}
+        processing={processing}
+        onEdit={handleEditClick}
+        onDelete={handleDelete}
+        onExpire={handleExpire}
+      />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }
