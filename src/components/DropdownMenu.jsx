@@ -34,6 +34,36 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const menuStyle = {
+    position: 'absolute',
+    top: `${menuPosition.top}px`,
+    left: `${menuPosition.left}px`,
+    backgroundColor: 'white',
+    color: 'black',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    zIndex: 9999,
+    display: 'flex',
+    flexDirection: 'column',
+    minWidth: '120px',
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+  };
+
+  const buttonStyle = {
+    width: '100%',
+    padding: '10px',
+    backgroundColor: 'white',
+    color: 'black',
+    border: 'none',
+    textAlign: 'left',
+    cursor: 'pointer',
+  };
+
+  const buttonHoverStyle = {
+    backgroundColor: '#f2f2f2',
+    color: 'black',
+  };
+
   return (
     <>
       <button ref={buttonRef} onClick={handleToggleMenu} className="dropdown-trigger">
@@ -43,66 +73,37 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
       </button>
 
       {isOpen && createPortal(
-        <>
-          {/* Color Lock Style Injected Directly in Portal */}
-          <style>{`
-            .dropdown-menu-fixed {
-              background-color: white !important;
-              color: black !important;
-              border: 1px solid #ccc;
-              border-radius: 4px;
-              z-index: 9999;
-              display: flex;
-              flex-direction: column;
-              min-width: 120px;
-              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            }
-            .dropdown-menu-fixed button {
-              background-color: white !important;
-              color: black !important;
-              padding: 10px;
-              border: none;
-              text-align: left;
-              cursor: pointer;
-              width: 100%;
-            }
-            .dropdown-menu-fixed button:hover {
-              background-color: #f2f2f2 !important;
-              color: black !important;
-            }
-          `}</style>
-
-          <div
-            ref={menuRef}
-            className="dropdown-menu-fixed"
-            style={{
-              position: 'absolute',
-              top: `${menuPosition.top}px`,
-              left: `${menuPosition.left}px`
-            }}
+        <div ref={menuRef} style={menuStyle}>
+          <button
+            style={buttonStyle}
+            onMouseOver={(e) => Object.assign(e.target.style, buttonHoverStyle)}
+            onMouseOut={(e) => Object.assign(e.target.style, buttonStyle)}
+            onClick={() => { onEdit(user); setIsOpen(false); }}
+            disabled={processing}
           >
+            Edit
+          </button>
+          <button
+            style={buttonStyle}
+            onMouseOver={(e) => Object.assign(e.target.style, buttonHoverStyle)}
+            onMouseOut={(e) => Object.assign(e.target.style, buttonStyle)}
+            onClick={() => { onDelete(user.email); setIsOpen(false); }}
+            disabled={processing}
+          >
+            Delete
+          </button>
+          {user.isSubscribed && (
             <button
-              onClick={() => { onEdit(user); setIsOpen(false); }}
+              style={buttonStyle}
+              onMouseOver={(e) => Object.assign(e.target.style, buttonHoverStyle)}
+              onMouseOut={(e) => Object.assign(e.target.style, buttonStyle)}
+              onClick={() => { onExpire(user.email); setIsOpen(false); }}
               disabled={processing}
             >
-              Edit
+              Expire
             </button>
-            <button
-              onClick={() => { onDelete(user.email); setIsOpen(false); }}
-              disabled={processing}
-            >
-              Delete
-            </button>
-            {user.isSubscribed && (
-              <button
-                onClick={() => { onExpire(user.email); setIsOpen(false); }}
-                disabled={processing}
-              >
-                Expire
-              </button>
-            )}
-          </div>
-        </>,
+          )}
+        </div>,
         document.body
       )}
     </>
