@@ -7,37 +7,34 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   const buttonRef = useRef(null);
   const menuRef = useRef(null);
 
-  const handleToggleMenu = () => {
+  const handleToggleMenu = (e) => {
+    e.stopPropagation();
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       setMenuPosition({
         top: rect.bottom + window.scrollY + 5,
         left: rect.left + window.scrollX
       });
-      setIsOpen(!isOpen);
-    }
-  };
-
-  const handleClickOutside = (e) => {
-    if (
-      menuRef.current &&
-      !menuRef.current.contains(e.target) &&
-      !buttonRef.current.contains(e.target)
-    ) {
-      setIsOpen(false);
+      setIsOpen((prev) => !prev);
     }
   };
 
   useEffect(() => {
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
+    const handleClickOutside = (e) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target) &&
+        !buttonRef.current.contains(e.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
 
-    // Cleanup
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
