@@ -197,8 +197,8 @@ ul {
 }
 
 .dropdown-menu {
-  background-color: white;
-  color: black;
+  background-color: white !important; /* Force white background */
+  color: black !important; /* Force black text */
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 5px 0;
@@ -206,7 +206,7 @@ ul {
   z-index: 1000;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   display: flex;
-  flex-direction: column; /* By default column */
+  flex-direction: column;
 }
 
 .dropdown-menu button {
