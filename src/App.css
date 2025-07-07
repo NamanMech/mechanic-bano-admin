@@ -193,6 +193,7 @@ ul {
   font-size: 20px;
   background: transparent;
   border: none;
+  padding: 5px;
 }
 
 .dropdown-menu {
@@ -205,6 +206,14 @@ ul {
   min-width: 150px;
   z-index: 1000;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transform: scale(0.95);
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu.show {
+  transform: scale(1);
+  opacity: 1;
 }
 
 .dropdown-menu button {
@@ -232,24 +241,6 @@ ul {
   background-color: #bbb;
 }
 
-/* Responsive Table */
-@media (max-width: 768px) {
-  .custom-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  
-  .custom-table th, .custom-table td {
-    min-width: 120px;
-    padding: 8px;
-  }
-
-  .dropdown-menu {
-    min-width: 120px;
-  }
-}
-
 .search-bar, .user-form, .custom-table, .pagination {
   margin-bottom: 20px;
 }
@@ -258,6 +249,33 @@ ul {
   margin-left: 10px;
 }
 
-.dropdown-trigger {
-  padding: 5px;
+/* Status icons for subscription */
+.status-icon {
+  font-size: 20px;
+}
+
+.status-icon.active {
+  color: #28a745;
+}
+
+.status-icon.inactive {
+  color: #dc3545;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  .custom-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .custom-table th, .custom-table td {
+    min-width: 120px;
+    padding: 8px;
+  }
+
+  .dropdown-menu {
+    min-width: 120px;
+  }
 }
