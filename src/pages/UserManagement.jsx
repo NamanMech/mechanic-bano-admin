@@ -10,6 +10,7 @@ export default function UserManagement() {
   const [menuOpen, setMenuOpen] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
   const menuRef = useRef(null);
 
   const API_URL = import.meta.env.VITE_API_URL;
@@ -66,7 +67,6 @@ export default function UserManagement() {
     let top = rect.bottom + window.scrollY + 5;
     let left = rect.left + window.scrollX;
 
-    // Adjust if going out of screen
     const menuWidth = 160;
     if (left + menuWidth > window.innerWidth) {
       left = window.innerWidth - menuWidth - 10;
@@ -87,7 +87,32 @@ export default function UserManagement() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const filteredUsers = users.filter(
+  const requestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedUsers = [...users].sort((a, b) => {
+    let aValue = a[sortConfig.key];
+    let bValue = b[sortConfig.key];
+
+    if (sortConfig.key === 'isSubscribed') {
+      aValue = aValue ? 1 : 0;
+      bValue = bValue ? 1 : 0;
+    } else {
+      aValue = aValue?.toString().toLowerCase();
+      bValue = bValue?.toString().toLowerCase();
+    }
+
+    if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const filteredUsers = sortedUsers.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -121,9 +146,15 @@ export default function UserManagement() {
         <table className="custom-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Subscription Status</th>
+              <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
+                Name {sortConfig.key === 'name' ? (sortConfig.direction === 'asc' ? '🔼' : '🔽') : ''}
+              </th>
+              <th onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>
+                Email {sortConfig.key === 'email' ? (sortConfig.direction === 'asc' ? '🔼' : '🔽') : ''}
+              </th>
+              <th onClick={() => requestSort('isSubscribed')} style={{ cursor: 'pointer' }}>
+                Subscription Status {sortConfig.key === 'isSubscribed' ? (sortConfig.direction === 'asc' ? '🔼' : '🔽') : ''}
+              </th>
               <th>Subscription End</th>
               <th>Actions</th>
             </tr>
