@@ -34,35 +34,22 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const menuStyle = {
-    position: 'absolute',
-    top: `${menuPosition.top}px`,
-    left: `${menuPosition.left}px`,
-    backgroundColor: 'white',
-    color: 'black',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    zIndex: 9999,
-    display: 'flex',
-    flexDirection: 'column',
-    minWidth: '120px',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-  };
+  useEffect(() => {
+    if (menuRef.current) {
+      const buttons = menuRef.current.querySelectorAll('button');
+      buttons.forEach(button => {
+        button.style.setProperty('background-color', 'white', 'important');
+        button.style.setProperty('color', 'black', 'important');
 
-  const buttonStyle = {
-    width: '100%',
-    padding: '10px',
-    backgroundColor: 'white',
-    color: 'black',
-    border: 'none',
-    textAlign: 'left',
-    cursor: 'pointer',
-  };
-
-  const buttonHoverStyle = {
-    backgroundColor: '#f2f2f2',
-    color: 'black',
-  };
+        button.onmouseover = () => {
+          button.style.setProperty('background-color', '#f2f2f2', 'important');
+        };
+        button.onmouseout = () => {
+          button.style.setProperty('background-color', 'white', 'important');
+        };
+      });
+    }
+  }, [isOpen]);
 
   return (
     <>
@@ -73,33 +60,31 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
       </button>
 
       {isOpen && createPortal(
-        <div ref={menuRef} style={menuStyle}>
-          <button
-            style={buttonStyle}
-            onMouseOver={(e) => Object.assign(e.target.style, buttonHoverStyle)}
-            onMouseOut={(e) => Object.assign(e.target.style, buttonStyle)}
-            onClick={() => { onEdit(user); setIsOpen(false); }}
-            disabled={processing}
-          >
+        <div
+          ref={menuRef}
+          style={{
+            position: 'absolute',
+            top: `${menuPosition.top}px`,
+            left: `${menuPosition.left}px`,
+            backgroundColor: 'white',
+            color: 'black',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            zIndex: 9999,
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: '120px',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+          }}
+        >
+          <button onClick={() => { onEdit(user); setIsOpen(false); }} disabled={processing}>
             Edit
           </button>
-          <button
-            style={buttonStyle}
-            onMouseOver={(e) => Object.assign(e.target.style, buttonHoverStyle)}
-            onMouseOut={(e) => Object.assign(e.target.style, buttonStyle)}
-            onClick={() => { onDelete(user.email); setIsOpen(false); }}
-            disabled={processing}
-          >
+          <button onClick={() => { onDelete(user.email); setIsOpen(false); }} disabled={processing}>
             Delete
           </button>
           {user.isSubscribed && (
-            <button
-              style={buttonStyle}
-              onMouseOver={(e) => Object.assign(e.target.style, buttonHoverStyle)}
-              onMouseOut={(e) => Object.assign(e.target.style, buttonStyle)}
-              onClick={() => { onExpire(user.email); setIsOpen(false); }}
-              disabled={processing}
-            >
+            <button onClick={() => { onExpire(user.email); setIsOpen(false); }} disabled={processing}>
               Expire
             </button>
           )}
