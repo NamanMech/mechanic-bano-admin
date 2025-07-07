@@ -48,17 +48,40 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
           className="dropdown-menu-fixed"
           style={{
             top: `${menuPosition.top}px`,
-            left: `${menuPosition.left}px`
+            left: `${menuPosition.left}px`,
+            backgroundColor: 'white',
+            color: 'black',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            zIndex: 9999,
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: '120px',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
           }}
         >
-          <button onClick={() => { onEdit(user); setIsOpen(false); }} disabled={processing}>
+          <button
+            style={{ backgroundColor: 'white', color: 'black', padding: '10px', textAlign: 'left' }}
+            onClick={() => { onEdit(user); setIsOpen(false); }}
+            disabled={processing}
+          >
             Edit
           </button>
-          <button onClick={() => { onDelete(user.email); setIsOpen(false); }} disabled={processing}>
+
+          <button
+            style={{ backgroundColor: 'white', color: 'black', padding: '10px', textAlign: 'left' }}
+            onClick={() => { onDelete(user.email); setIsOpen(false); }}
+            disabled={processing}
+          >
             Delete
           </button>
+
           {user.isSubscribed && (
-            <button onClick={() => { onExpire(user.email); setIsOpen(false); }} disabled={processing}>
+            <button
+              style={{ backgroundColor: 'white', color: 'black', padding: '10px', textAlign: 'left' }}
+              onClick={() => { onExpire(user.email); setIsOpen(false); }}
+              disabled={processing}
+            >
               Expire
             </button>
           )}
