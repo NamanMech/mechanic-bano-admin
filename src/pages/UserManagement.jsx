@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner.jsx';
 import { toast } from 'react-toastify';
@@ -7,10 +7,10 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
-  const dropdownRef = useRef(null);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchUsers = async () => {
@@ -28,19 +28,6 @@ export default function UserManagement() {
     fetchUsers();
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpenDropdown(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
   const handleDelete = async (email) => {
     if (confirm('Are you sure you want to delete this user?')) {
       setProcessing(true);
@@ -52,7 +39,7 @@ export default function UserManagement() {
         toast.error('Error deleting user');
       } finally {
         setProcessing(false);
-        setOpenDropdown(null);
+        setSelectedUserId(null);
       }
     }
   };
@@ -68,21 +55,23 @@ export default function UserManagement() {
         toast.error('Error expiring subscription');
       } finally {
         setProcessing(false);
-        setOpenDropdown(null);
+        setSelectedUserId(null);
       }
     }
   };
 
-  const toggleDropdown = (event, userId) => {
+  const handleMenuClick = (userId, event) => {
+    event.stopPropagation();
     const rect = event.currentTarget.getBoundingClientRect();
-    setDropdownPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
-
-    if (openDropdown === userId) {
-      setOpenDropdown(null);
-    } else {
-      setOpenDropdown(userId);
-    }
+    setMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+    setSelectedUserId(userId);
   };
+
+  useEffect(() => {
+    const handleClickOutside = () => setSelectedUserId(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   if (loading) return <Spinner />;
 
@@ -92,7 +81,7 @@ export default function UserManagement() {
       {users.length === 0 ? (
         <p>No users found.</p>
       ) : (
-        <table className="custom-table" style={{ position: 'relative' }}>
+        <table className="custom-table">
           <thead>
             <tr>
               <th>Name</th>
@@ -109,54 +98,34 @@ export default function UserManagement() {
                 <td>{user.email}</td>
                 <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
                 <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
-                <td style={{ position: 'relative' }}>
+                <td>
                   <button
-                    onClick={(e) => toggleDropdown(e, user._id)}
-                    className="btn-action"
+                    className="btn-menu"
+                    onClick={(event) => handleMenuClick(user._id, event)}
+                    disabled={processing}
                   >
-                    ⋮
+                    Menu
                   </button>
-
-                  {openDropdown === user._id && (
-                    <div
-                      ref={dropdownRef}
-                      className="dropdown-menu"
-                      style={{
-                        position: 'absolute',
-                        top: dropdownPosition.top,
-                        left: dropdownPosition.left,
-                        backgroundColor: 'white',
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                        zIndex: 1000,
-                        width: '160px',
-                      }}
-                    >
-                      <button
-                        onClick={() => handleDelete(user.email)}
-                        className="btn-delete"
-                        style={{ width: '100%', padding: '8px', borderBottom: '1px solid #ddd' }}
-                        disabled={processing}
-                      >
-                        {processing ? 'Processing...' : 'Delete'}
-                      </button>
-                      {user.isSubscribed && (
-                        <button
-                          onClick={() => handleExpire(user.email)}
-                          className="btn-edit"
-                          style={{ width: '100%', padding: '8px' }}
-                          disabled={processing}
-                        >
-                          {processing ? 'Processing...' : 'Expire Subscription'}
-                        </button>
-                      )}
-                    </div>
-                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+
+      {selectedUserId && (
+        <div
+          className="dropdown-menu"
+          style={{ top: `${menuPosition.top}px`, left: `${menuPosition.left}px`, position: 'absolute' }}
+        >
+          <button onClick={() => handleDelete(selectedUserId)} disabled={processing}>
+            {processing ? 'Processing...' : 'Delete'}
+          </button>
+          <button onClick={() => handleExpire(selectedUserId)} disabled={processing}>
+            {processing ? 'Processing...' : 'Expire Subscription'}
+          </button>
+          <button onClick={() => setSelectedUserId(null)}>Close</button>
+        </div>
       )}
     </div>
   );
