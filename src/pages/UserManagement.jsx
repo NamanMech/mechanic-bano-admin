@@ -9,7 +9,9 @@ export default function UserManagement() {
   const [processing, setProcessing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [searchQuery, setSearchQuery] = useState('');
   const menuRef = useRef(null);
+
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchUsers = async () => {
@@ -61,12 +63,17 @@ export default function UserManagement() {
 
   const handleMenuToggle = (event, email) => {
     const rect = event.target.getBoundingClientRect();
-    if (menuOpen === email) {
-      setMenuOpen(null);
-    } else {
-      setMenuOpen(email);
-      setMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+    let top = rect.bottom + window.scrollY + 5;
+    let left = rect.left + window.scrollX;
+
+    // Adjust if going out of screen
+    const menuWidth = 160;
+    if (left + menuWidth > window.innerWidth) {
+      left = window.innerWidth - menuWidth - 10;
     }
+
+    setMenuOpen((prev) => (prev === email ? null : email));
+    setMenuPosition({ top, left });
   };
 
   const handleClickOutside = (e) => {
@@ -80,21 +87,35 @@ export default function UserManagement() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) return <Spinner />;
 
   return (
     <div className="container">
       <h2>All Users</h2>
 
-      <div className="search-bar">
+      <div className="search-bar" style={{ marginBottom: '20px' }}>
         <input
           type="text"
           placeholder="Search by name or email"
+          value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            padding: '8px',
+            borderRadius: '4px',
+            border: '1px solid #ccc',
+            width: '100%',
+            maxWidth: '400px',
+          }}
         />
       </div>
 
-      {users.length === 0 ? (
+      {filteredUsers.length === 0 ? (
         <p>No users found.</p>
       ) : (
         <table className="custom-table">
@@ -108,7 +129,7 @@ export default function UserManagement() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user._id}>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
