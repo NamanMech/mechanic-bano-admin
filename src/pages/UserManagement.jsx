@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner.jsx';
 import { toast } from 'react-toastify';
@@ -8,8 +8,8 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const menuRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchUsers = async () => {
@@ -59,14 +59,26 @@ export default function UserManagement() {
     }
   };
 
-  const handleMenuToggle = (email) => {
-    setMenuOpen((prev) => (prev === email ? null : email));
+  const handleMenuToggle = (event, email) => {
+    const rect = event.target.getBoundingClientRect();
+    if (menuOpen === email) {
+      setMenuOpen(null);
+    } else {
+      setMenuOpen(email);
+      setMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+    }
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleClickOutside = (e) => {
+    if (menuRef.current && !menuRef.current.contains(e.target)) {
+      setMenuOpen(null);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   if (loading) return <Spinner />;
 
@@ -78,13 +90,12 @@ export default function UserManagement() {
         <input
           type="text"
           placeholder="Search by name or email"
-          value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
-      {filteredUsers.length === 0 ? (
-        <p>No matching users found.</p>
+      {users.length === 0 ? (
+        <p>No users found.</p>
       ) : (
         <table className="custom-table">
           <thead>
@@ -97,7 +108,7 @@ export default function UserManagement() {
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((user) => (
+            {users.map((user) => (
               <tr key={user._id}>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
@@ -105,36 +116,40 @@ export default function UserManagement() {
                 <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
                 <td style={{ position: 'relative' }}>
                   <button
-                    onClick={() => handleMenuToggle(user.email)}
+                    onClick={(e) => handleMenuToggle(e, user.email)}
                     className="btn-menu"
                     disabled={processing}
                   >
                     {menuOpen === user.email ? 'Close' : 'Menu'}
                   </button>
-
-                  {menuOpen === user.email && (
-                    <div className="dropdown-menu" style={{ right: 0, top: '100%' }}>
-                      <button
-                        onClick={() => handleDelete(user.email)}
-                        disabled={processing}
-                      >
-                        {processing ? 'Processing...' : 'Delete User'}
-                      </button>
-                      {user.isSubscribed && (
-                        <button
-                          onClick={() => handleExpire(user.email)}
-                          disabled={processing}
-                        >
-                          {processing ? 'Processing...' : 'Expire Subscription'}
-                        </button>
-                      )}
-                    </div>
-                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+
+      {menuOpen && (
+        <div
+          className="dropdown-menu"
+          style={{ position: 'absolute', top: menuPosition.top, left: menuPosition.left }}
+          ref={menuRef}
+        >
+          <button
+            onClick={() => handleDelete(menuOpen)}
+            disabled={processing}
+          >
+            {processing ? 'Processing...' : 'Delete User'}
+          </button>
+          {users.find((u) => u.email === menuOpen)?.isSubscribed && (
+            <button
+              onClick={() => handleExpire(menuOpen)}
+              disabled={processing}
+            >
+              {processing ? 'Processing...' : 'Expire Subscription'}
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
