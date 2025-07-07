@@ -1,3 +1,4 @@
+// DropdownMenu.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -29,9 +30,14 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   };
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [isOpen]);
 
   return (
     <>
@@ -48,7 +54,15 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
           style={{
             position: 'absolute',
             top: `${menuPosition.top}px`,
-            left: `${menuPosition.left}px`
+            left: `${menuPosition.left}px`,
+            backgroundColor: 'white',
+            color: 'black',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            zIndex: 1000,
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: '120px',
           }}
         >
           <button onClick={() => { onEdit(user); setIsOpen(false); }} disabled={processing}>
