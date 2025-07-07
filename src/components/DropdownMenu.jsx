@@ -11,7 +11,7 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       setMenuStyles({
-        top: rect.bottom + window.scrollY + 5, // 5px gap from button
+        top: rect.bottom + window.scrollY + 5,
         left: rect.left + window.scrollX
       });
       setIsOpen(!isOpen);
@@ -41,31 +41,30 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
         </svg>
       </button>
 
-      {isOpen &&
-        createPortal(
-          <div
-            ref={menuRef}
-            className="dropdown-menu"
-            style={{
-              position: 'absolute',
-              top: `${menuStyles.top}px`,
-              left: `${menuStyles.left}px`
-            }}
-          >
-            <button onClick={() => { onEdit(user); setIsOpen(false); }} disabled={processing}>
-              Edit
+      {isOpen && createPortal(
+        <div
+          ref={menuRef}
+          className="dropdown-menu-fixed"
+          style={{
+            position: 'absolute',
+            top: `${menuStyles.top}px`,
+            left: `${menuStyles.left}px`
+          }}
+        >
+          <button onClick={() => { onEdit(user); setIsOpen(false); }} disabled={processing}>
+            Edit
+          </button>
+          <button onClick={() => { onDelete(user.email); setIsOpen(false); }} disabled={processing}>
+            Delete
+          </button>
+          {user.isSubscribed && (
+            <button onClick={() => { onExpire(user.email); setIsOpen(false); }} disabled={processing}>
+              Expire
             </button>
-            <button onClick={() => { onDelete(user.email); setIsOpen(false); }} disabled={processing}>
-              Delete
-            </button>
-            {user.isSubscribed && (
-              <button onClick={() => { onExpire(user.email); setIsOpen(false); }} disabled={processing}>
-                Expire
-              </button>
-            )}
-          </div>,
-          document.body
-        )}
+          )}
+        </div>,
+        document.body
+      )}
     </>
   );
 }
