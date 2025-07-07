@@ -7,7 +7,8 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState(null); // ✅ Track which dropdown is open
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -37,6 +38,7 @@ export default function UserManagement() {
         toast.error('Error deleting user');
       } finally {
         setProcessing(false);
+        setOpenDropdown(null);
       }
     }
   };
@@ -52,6 +54,7 @@ export default function UserManagement() {
         toast.error('Error expiring subscription');
       } finally {
         setProcessing(false);
+        setOpenDropdown(null);
       }
     }
   };
@@ -81,18 +84,31 @@ export default function UserManagement() {
                 <td>{user.email}</td>
                 <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
                 <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
-                <td style={{ position: 'relative' }}>
-                  {/* Dropdown Trigger */}
+                <td>
                   <button
-                    onClick={() => setOpenDropdown(openDropdown === user._id ? null : user._id)}
-                    className="dropdown-trigger"
+                    onClick={(e) => {
+                      const rect = e.target.getBoundingClientRect();
+                      setDropdownPosition({
+                        top: rect.bottom + window.scrollY,
+                        left: rect.left + window.scrollX,
+                      });
+                      setOpenDropdown(openDropdown === user._id ? null : user._id);
+                    }}
+                    className="btn-menu"
+                    disabled={processing}
                   >
                     ⋮
                   </button>
 
-                  {/* Dropdown Menu */}
                   {openDropdown === user._id && (
-                    <div className="dropdown-menu">
+                    <div
+                      className="dropdown-menu"
+                      style={{
+                        top: `${dropdownPosition.top}px`,
+                        left: `${dropdownPosition.left}px`,
+                        position: 'fixed',
+                      }}
+                    >
                       <button
                         onClick={() => handleDelete(user.email)}
                         disabled={processing}
