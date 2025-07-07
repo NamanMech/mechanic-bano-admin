@@ -7,6 +7,7 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null); // ✅ Track which dropdown is open
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -80,23 +81,34 @@ export default function UserManagement() {
                 <td>{user.email}</td>
                 <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
                 <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
-                <td>
+                <td style={{ position: 'relative' }}>
+                  {/* Dropdown Trigger */}
                   <button
-                    onClick={() => handleDelete(user.email)}
-                    className="btn-delete"
-                    style={{ marginRight: '5px' }}
-                    disabled={processing}
+                    onClick={() => setOpenDropdown(openDropdown === user._id ? null : user._id)}
+                    className="dropdown-trigger"
                   >
-                    {processing ? 'Processing...' : 'Delete'}
+                    ⋮
                   </button>
-                  {user.isSubscribed && (
-                    <button
-                      onClick={() => handleExpire(user.email)}
-                      className="btn-edit"
-                      disabled={processing}
-                    >
-                      {processing ? 'Processing...' : 'Expire Subscription'}
-                    </button>
+
+                  {/* Dropdown Menu */}
+                  {openDropdown === user._id && (
+                    <div className="dropdown-menu">
+                      <button
+                        onClick={() => handleDelete(user.email)}
+                        disabled={processing}
+                      >
+                        {processing ? 'Processing...' : 'Delete'}
+                      </button>
+
+                      {user.isSubscribed && (
+                        <button
+                          onClick={() => handleExpire(user.email)}
+                          disabled={processing}
+                        >
+                          {processing ? 'Processing...' : 'Expire Subscription'}
+                        </button>
+                      )}
+                    </div>
                   )}
                 </td>
               </tr>
