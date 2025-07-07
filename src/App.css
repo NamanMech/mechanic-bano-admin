@@ -187,7 +187,7 @@ ul {
   100% { transform: rotate(360deg); }
 }
 
-/* Dropdown Menu (Fixed) */
+/* Dropdown Trigger Button */
 .dropdown-trigger {
   cursor: pointer;
   background: transparent;
@@ -195,11 +195,11 @@ ul {
   padding: 5px;
 }
 
-/* Dropdown Menu Final Fix */
-.dropdown-menu {
-  position: fixed;
-  background-color: white !important;  /* Force white background */
-  color: black !important;             /* Force black text */
+/* Dropdown Menu via Portal */
+.dropdown-menu-fixed {
+  position: absolute;
+  background-color: white !important;
+  color: black !important;
   border: 1px solid #ccc;
   border-radius: 4px;
   z-index: 1000;
@@ -208,26 +208,24 @@ ul {
   min-width: 120px;
 }
 
-.dropdown-menu button {
+.dropdown-menu-fixed button {
   width: 100%;
   padding: 10px;
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  color: black !important; /* Force black text */
+  color: black !important;
 }
 
-.dropdown-menu button:hover {
-  background-color: #f2f2f2 !important; /* Force hover color */
-  color: black !important; /* Ensure text color stays black on hover */
+.dropdown-menu-fixed button:hover {
+  background-color: #f2f2f2 !important;
+  color: black !important;
 }
 
-/* Mobile Fix */
 @media (max-width: 768px) {
-  .dropdown-menu {
+  .dropdown-menu-fixed {
     min-width: 100px;
-    right: auto !important; /* Remove forced right positioning */
   }
 }
 
@@ -300,10 +298,6 @@ ul {
   .custom-table th, .custom-table td {
     min-width: 120px;
     padding: 8px;
-  }
-
-  .dropdown-menu {
-    min-width: 120px;
   }
 
   .search-bar {
