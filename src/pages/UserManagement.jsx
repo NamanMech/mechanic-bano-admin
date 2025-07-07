@@ -63,11 +63,11 @@ export default function UserManagement() {
     setProcessing(true);
     try {
       if (editingUser) {
-        // Update user
-        await axios.put(`${API_URL}user?email=${editingUser.email}`, formData);
+        // ✅ Update user with correct URL
+        await axios.put(`${API_URL}user?email=${editingUser.email}&type=update`, formData);
         toast.success('User updated successfully');
       } else {
-        // Add user
+        // ✅ Add new user
         await axios.post(`${API_URL}user`, formData);
         toast.success('User added successfully');
       }
@@ -118,12 +118,12 @@ export default function UserManagement() {
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
-            disabled={editingUser !== null} // Email should not change while updating
+            disabled={editingUser !== null} // Email should not change during update
           />
           <button type="submit" disabled={processing}>
             {processing ? 'Saving...' : editingUser ? 'Update User' : 'Add User'}
           </button>
-          <button type="button" onClick={() => setIsFormOpen(false)} className="cancel-button">
+          <button type="button" onClick={() => setIsFormOpen(false)} className="cancel-button" disabled={processing}>
             Cancel
           </button>
         </form>
