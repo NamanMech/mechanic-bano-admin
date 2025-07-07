@@ -39,7 +39,7 @@ export default function UserTable({
                   ? new Date(user.subscriptionEnd).toLocaleDateString()
                   : '-'}
               </td>
-              <td style={{ position: 'relative' }}>
+              <td>
                 <button
                   onClick={(e) => handleMenuToggle(e, user.email)}
                   className="dropdown-trigger"
@@ -59,46 +59,47 @@ export default function UserTable({
                     />
                   </svg>
                 </button>
-
-                {menuStates[user.email] && (
-                  <div
-                    className="dropdown-menu show"
-                    style={{
-                      position: 'absolute',
-                      top: '40px',
-                      right: '0',
-                      backgroundColor: '#fff',
-                      color: '#000',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px',
-                      zIndex: 1000,
-                    }}
-                  >
-                    <button
-                      onClick={() => handleEditClick(user)}
-                      disabled={processing}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user.email)}
-                      disabled={processing}
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => handleExpire(user.email)}
-                      disabled={processing || !user.isSubscribed}
-                    >
-                      {user.isSubscribed ? 'Expire' : 'Expired'}
-                    </button>
-                  </div>
-                )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Dropdown Menu Rendered Outside the Table */}
+      {Object.entries(menuStates).map(([email, isOpen]) =>
+        isOpen ? (
+          <div
+            key={email}
+            className="dropdown-menu show"
+            style={{
+              position: 'fixed',
+              top: menuPositions[email]?.y || 0,
+              left: menuPositions[email]?.x || 0,
+              backgroundColor: '#fff',
+              color: '#000',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              zIndex: 1000,
+              display: 'flex',
+              flexDirection: 'column',
+              minWidth: '120px',
+            }}
+          >
+            <button onClick={() => handleEditClick(users.find(u => u.email === email))} disabled={processing}>
+              Edit
+            </button>
+            <button onClick={() => handleDelete(email)} disabled={processing}>
+              Delete
+            </button>
+            <button
+              onClick={() => handleExpire(email)}
+              disabled={processing || !users.find(u => u.email === email)?.isSubscribed}
+            >
+              {users.find(u => u.email === email)?.isSubscribed ? 'Expire' : 'Expired'}
+            </button>
+          </div>
+        ) : null
+      )}
     </div>
   );
 }
