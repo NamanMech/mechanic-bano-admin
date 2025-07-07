@@ -195,7 +195,7 @@ ul {
   padding: 5px;
 }
 
-.dropdown-menu {
+.dropdown-menu-fixed {
   background-color: white;
   color: black;
   border: 1px solid #ddd;
@@ -208,7 +208,7 @@ ul {
   flex-direction: column;
 }
 
-.dropdown-menu button {
+.dropdown-menu-fixed button {
   width: 100%;
   padding: 8px 12px;
   background: none;
@@ -217,7 +217,7 @@ ul {
   cursor: pointer;
 }
 
-.dropdown-menu button:hover {
+.dropdown-menu-fixed button:hover {
   background-color: #f2f2f2;
 }
 
