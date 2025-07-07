@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner.jsx';
 import { toast } from 'react-toastify';
@@ -10,6 +10,7 @@ export default function UserManagement() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
+  const dropdownRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchUsers = async () => {
@@ -25,6 +26,19 @@ export default function UserManagement() {
 
   useEffect(() => {
     fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const handleDelete = async (email) => {
@@ -59,6 +73,17 @@ export default function UserManagement() {
     }
   };
 
+  const toggleDropdown = (event, userId) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setDropdownPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+
+    if (openDropdown === userId) {
+      setOpenDropdown(null);
+    } else {
+      setOpenDropdown(userId);
+    }
+  };
+
   if (loading) return <Spinner />;
 
   return (
@@ -67,7 +92,7 @@ export default function UserManagement() {
       {users.length === 0 ? (
         <p>No users found.</p>
       ) : (
-        <table className="custom-table">
+        <table className="custom-table" style={{ position: 'relative' }}>
           <thead>
             <tr>
               <th>Name</th>
@@ -84,41 +109,42 @@ export default function UserManagement() {
                 <td>{user.email}</td>
                 <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
                 <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
-                <td>
+                <td style={{ position: 'relative' }}>
                   <button
-                    onClick={(e) => {
-                      const rect = e.target.getBoundingClientRect();
-                      setDropdownPosition({
-                        top: rect.bottom + window.scrollY,
-                        left: rect.left + window.scrollX,
-                      });
-                      setOpenDropdown(openDropdown === user._id ? null : user._id);
-                    }}
-                    className="btn-menu"
-                    disabled={processing}
+                    onClick={(e) => toggleDropdown(e, user._id)}
+                    className="btn-action"
                   >
                     ⋮
                   </button>
 
                   {openDropdown === user._id && (
                     <div
+                      ref={dropdownRef}
                       className="dropdown-menu"
                       style={{
-                        top: `${dropdownPosition.top}px`,
-                        left: `${dropdownPosition.left}px`,
-                        position: 'fixed',
+                        position: 'absolute',
+                        top: dropdownPosition.top,
+                        left: dropdownPosition.left,
+                        backgroundColor: 'white',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        zIndex: 1000,
+                        width: '160px',
                       }}
                     >
                       <button
                         onClick={() => handleDelete(user.email)}
+                        className="btn-delete"
+                        style={{ width: '100%', padding: '8px', borderBottom: '1px solid #ddd' }}
                         disabled={processing}
                       >
                         {processing ? 'Processing...' : 'Delete'}
                       </button>
-
                       {user.isSubscribed && (
                         <button
                           onClick={() => handleExpire(user.email)}
+                          className="btn-edit"
+                          style={{ width: '100%', padding: '8px' }}
                           disabled={processing}
                         >
                           {processing ? 'Processing...' : 'Expire Subscription'}
