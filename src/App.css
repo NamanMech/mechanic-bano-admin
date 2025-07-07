@@ -197,9 +197,9 @@ ul {
 
 /* Dropdown Menu Final Fix */
 .dropdown-menu {
-  position: fixed; /* Important: fixed to viewport */
-  background-color: white !important;
-  color: black !important;
+  position: fixed;
+  background-color: white !important;  /* Force white background */
+  color: black !important;             /* Force black text */
   border: 1px solid #ccc;
   border-radius: 4px;
   z-index: 1000;
@@ -215,11 +215,12 @@ ul {
   border: none;
   text-align: left;
   cursor: pointer;
-  color: black !important;
+  color: black !important; /* Force black text */
 }
 
 .dropdown-menu button:hover {
-  background-color: #f2f2f2;
+  background-color: #f2f2f2 !important; /* Force hover color */
+  color: black !important; /* Ensure text color stays black on hover */
 }
 
 /* Mobile Fix */
