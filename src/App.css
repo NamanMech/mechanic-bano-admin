@@ -172,7 +172,6 @@ ul {
   background-color: #c82333;
 }
 
-/* Spinner for App.jsx loading */
 .spinner {
   border: 6px solid #f3f3f3;
   border-top: 6px solid #007bff;
@@ -188,6 +187,7 @@ ul {
   100% { transform: rotate(360deg); }
 }
 
+/* Dropdown Menu (Fixed) */
 .dropdown-trigger {
   cursor: pointer;
   font-size: 20px;
@@ -197,7 +197,7 @@ ul {
 }
 
 .dropdown-menu {
-  position: fixed;
+  position: absolute;
   background-color: white;
   color: black;
   border: 1px solid #ddd;
@@ -229,6 +229,37 @@ ul {
   background-color: #f2f2f2;
 }
 
+/* Spacing Fixes */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.pagination select {
+  padding: 8px;
+  border-radius: 5px;
+  border: none;
+}
+
+.search-bar input {
+  flex: 1;
+  max-width: 300px;
+}
+
+.search-bar button {
+  white-space: nowrap;
+}
+
 .btn-menu {
   background-color: #ddd;
   border: none;
@@ -245,11 +276,6 @@ ul {
   margin-bottom: 20px;
 }
 
-.pagination select {
-  margin-left: 10px;
-}
-
-/* Status icons for subscription */
 .status-icon {
   font-size: 20px;
 }
@@ -262,7 +288,6 @@ ul {
   color: #dc3545;
 }
 
-/* Responsive Table */
 @media (max-width: 768px) {
   .custom-table {
     display: block;
@@ -277,5 +302,14 @@ ul {
 
   .dropdown-menu {
     min-width: 120px;
+  }
+
+  .search-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pagination {
+    flex-direction: column;
   }
 }
