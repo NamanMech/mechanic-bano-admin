@@ -18,7 +18,7 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   }, []);
 
   return (
-    <div className="dropdown" ref={menuRef}>
+    <div className="dropdown" ref={menuRef} style={{ position: 'relative' }}>
       <button onClick={toggleMenu} className="dropdown-trigger">
         <svg
           width="24"
@@ -36,29 +36,28 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
         </svg>
       </button>
 
-      {/* Menu display control yaha se hoga */}
-      <div className="dropdown-menu" style={{ display: isOpen ? 'block' : 'none' }}>
-        <button
-          onClick={() => { onEdit(user); setIsOpen(false); }}
-          disabled={processing}
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => { onDelete(user.email); setIsOpen(false); }}
-          disabled={processing}
-        >
-          Delete
-        </button>
-        {user.isSubscribed && (
+      {isOpen && (
+        <div className="dropdown-menu" style={{ position: 'absolute', top: '30px', right: '0' }}>
+          <button
+            onClick={() => { onEdit(user); setIsOpen(false); }}
+            disabled={processing}
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => { onDelete(user.email); setIsOpen(false); }}
+            disabled={processing}
+          >
+            Delete
+          </button>
           <button
             onClick={() => { onExpire(user.email); setIsOpen(false); }}
             disabled={processing}
           >
             Expire
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
