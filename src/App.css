@@ -250,3 +250,7 @@ ul {
 .search-bar input:focus {
   border-color: #007bff;
 }
+
+.active-page {
+  background-color: #4caf50;
+}
