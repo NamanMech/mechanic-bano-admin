@@ -197,16 +197,14 @@ ul {
 
 /* Dropdown Menu Final Fix */
 .dropdown-menu {
-  position: absolute;
-  top: 40px;
-  right: 0;
-  background-color: white !important; /* Force white background */
-  color: black !important; /* Force black text */
+  position: fixed; /* Important: fixed to viewport */
+  background-color: white !important;
+  color: black !important;
   border: 1px solid #ccc;
   border-radius: 4px;
   z-index: 1000;
   display: flex;
-  flex-direction: column; /* Always stack vertically */
+  flex-direction: column;
   min-width: 120px;
 }
 
@@ -217,17 +215,18 @@ ul {
   border: none;
   text-align: left;
   cursor: pointer;
-  color: black !important; /* Ensure button text is black */
+  color: black !important;
 }
 
 .dropdown-menu button:hover {
   background-color: #f2f2f2;
 }
 
+/* Mobile Fix */
 @media (max-width: 768px) {
   .dropdown-menu {
     min-width: 100px;
-    right: 10px; /* Adjust right spacing on mobile if needed */
+    right: auto !important; /* Remove forced right positioning */
   }
 }
 
