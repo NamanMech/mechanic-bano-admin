@@ -7,9 +7,8 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [menuOpen, setMenuOpen] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -39,7 +38,7 @@ export default function UserManagement() {
         toast.error('Error deleting user');
       } finally {
         setProcessing(false);
-        setSelectedUserId(null);
+        setMenuOpen(null);
       }
     }
   };
@@ -55,47 +54,37 @@ export default function UserManagement() {
         toast.error('Error expiring subscription');
       } finally {
         setProcessing(false);
-        setSelectedUserId(null);
+        setMenuOpen(null);
       }
     }
   };
 
-  const handleMenuClick = (userId, event) => {
-    event.stopPropagation();
-    const rect = event.currentTarget.getBoundingClientRect();
-    const menuWidth = 160; // approx menu width
-    const menuHeight = 100; // approx menu height
-
-    let left = rect.left + window.scrollX;
-    let top = rect.bottom + window.scrollY;
-
-    // Check if menu overflows the screen width
-    if (left + menuWidth > window.innerWidth) {
-      left = window.innerWidth - menuWidth - 10; // 10px padding from right
-    }
-
-    // Check if menu overflows the screen height
-    if (top + menuHeight > window.innerHeight + window.scrollY) {
-      top = rect.top + window.scrollY - menuHeight; // Show menu above the button
-    }
-
-    setMenuPosition({ top, left });
-    setSelectedUserId(userId);
+  const handleMenuToggle = (email) => {
+    setMenuOpen((prev) => (prev === email ? null : email));
   };
 
-  useEffect(() => {
-    const handleClickOutside = () => setSelectedUserId(null);
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) return <Spinner />;
 
   return (
     <div className="container">
       <h2>All Users</h2>
-      {users.length === 0 ? (
-        <p>No users found.</p>
+
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search by name or email"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {filteredUsers.length === 0 ? (
+        <p>No matching users found.</p>
       ) : (
         <table className="custom-table">
           <thead>
@@ -108,43 +97,44 @@ export default function UserManagement() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user._id}>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
                 <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
                 <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
-                <td>
+                <td style={{ position: 'relative' }}>
                   <button
+                    onClick={() => handleMenuToggle(user.email)}
                     className="btn-menu"
-                    onClick={(event) => handleMenuClick(user._id, event)}
                     disabled={processing}
                   >
-                    Menu
+                    {menuOpen === user.email ? 'Close' : 'Menu'}
                   </button>
+
+                  {menuOpen === user.email && (
+                    <div className="dropdown-menu" style={{ right: 0, top: '100%' }}>
+                      <button
+                        onClick={() => handleDelete(user.email)}
+                        disabled={processing}
+                      >
+                        {processing ? 'Processing...' : 'Delete User'}
+                      </button>
+                      {user.isSubscribed && (
+                        <button
+                          onClick={() => handleExpire(user.email)}
+                          disabled={processing}
+                        >
+                          {processing ? 'Processing...' : 'Expire Subscription'}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      )}
-
-      {selectedUserId && (
-        <div
-          className="dropdown-menu"
-          style={{
-            top: `${menuPosition.top}px`,
-            left: `${menuPosition.left}px`,
-            position: 'absolute'
-          }}
-        >
-          <button onClick={() => handleDelete(selectedUserId)} disabled={processing}>
-            {processing ? 'Processing...' : 'Delete'}
-          </button>
-          <button onClick={() => handleExpire(selectedUserId)} disabled={processing}>
-            {processing ? 'Processing...' : 'Expire Subscription'}
-          </button>
-        </div>
       )}
     </div>
   );
