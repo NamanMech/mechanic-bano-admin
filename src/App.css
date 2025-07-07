@@ -26,14 +26,13 @@ a:hover {
 
 .container {
   padding: 20px;
-  max-width: 100%;
 }
 
 h1, h2, h3 {
   text-align: center;
 }
 
-form, .user-form {
+form {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -120,39 +119,6 @@ ul {
   padding: 0;
 }
 
-/* Search Bar */
-.search-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.search-bar input {
-  width: 100%;
-}
-
-.search-bar button {
-  width: 100%;
-}
-
-@media (min-width: 600px) {
-  .search-bar {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
-  .search-bar input {
-    width: auto;
-    flex: 1;
-  }
-
-  .search-bar button {
-    width: auto;
-  }
-}
-
-/* Table */
 .custom-table {
   width: 100%;
   border-collapse: collapse;
@@ -190,7 +156,7 @@ ul {
 .btn-edit {
   background-color: #28a745;
   color: white;
-  margin-right: 5px;
+  margin-right: 10px;
 }
 
 .btn-edit:hover {
@@ -206,7 +172,7 @@ ul {
   background-color: #c82333;
 }
 
-/* Spinner */
+/* Spinner for App.jsx loading */
 .spinner {
   border: 6px solid #f3f3f3;
   border-top: 6px solid #007bff;
@@ -222,7 +188,6 @@ ul {
   100% { transform: rotate(360deg); }
 }
 
-/* Dropdown Menu */
 .dropdown-trigger {
   cursor: pointer;
   font-size: 20px;
@@ -233,12 +198,13 @@ ul {
 .dropdown-menu {
   position: fixed;
   background-color: white;
+  color: black;
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 5px 0;
   min-width: 150px;
   z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .dropdown-menu button {
@@ -266,22 +232,20 @@ ul {
   background-color: #bbb;
 }
 
-/* Pagination */
-.pagination {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-  margin-top: 20px;
-}
+/* Responsive Table */
+@media (max-width: 768px) {
+  .custom-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .custom-table th, .custom-table td {
+    min-width: 120px;
+    padding: 8px;
+  }
 
-.pagination button, .pagination select {
-  padding: 8px 12px;
-}
-
-@media (min-width: 600px) {
-  .pagination {
-    flex-direction: row;
-    justify-content: center;
+  .dropdown-menu {
+    min-width: 120px;
   }
 }
