@@ -195,8 +195,8 @@ ul {
   padding: 5px;
 }
 
-/* Dropdown Menu Final CSS */
-.dropdown-menu-fixed {
+/* Dropdown Menu Final CSS - Fixed with High Specificity */
+body .dropdown-menu-fixed {
   position: absolute;
   background-color: white !important;
   color: black !important;
@@ -209,7 +209,7 @@ ul {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-.dropdown-menu-fixed button {
+body .dropdown-menu-fixed button {
   width: 100%;
   padding: 10px;
   background-color: white !important;
@@ -219,13 +219,13 @@ ul {
   cursor: pointer;
 }
 
-.dropdown-menu-fixed button:hover {
+body .dropdown-menu-fixed button:hover {
   background-color: #f2f2f2 !important;
   color: black !important;
 }
 
 @media (max-width: 768px) {
-  .dropdown-menu-fixed {
+  body .dropdown-menu-fixed {
     min-width: 100px;
     right: auto !important;
   }
