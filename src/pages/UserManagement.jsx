@@ -1,5 +1,5 @@
 // src/pages/UserManagement.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner.jsx';
 import { toast } from 'react-toastify';
@@ -14,6 +14,8 @@ export default function UserManagement() {
   const [processing, setProcessing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+
+  const menuRef = useRef(null);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -37,6 +39,18 @@ export default function UserManagement() {
     handleSearch(searchTerm);
   }, [users, searchTerm]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuUser(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleSearch = (term) => {
     const filtered = users.filter(user =>
       user.name.toLowerCase().includes(term.toLowerCase()) ||
@@ -50,8 +64,8 @@ export default function UserManagement() {
     const sorted = [...filteredUsers].sort((a, b) => {
       const nameA = a.name.toLowerCase();
       const nameB = b.name.toLowerCase();
-      if (sortOrder === 'asc') return nameA > nameB ? 1 : -1;
-      else return nameA < nameB ? 1 : -1;
+      if (sortOrder === 'asc') return nameA < nameB ? -1 : 1;
+      else return nameA > nameB ? -1 : 1;
     });
     setFilteredUsers(sorted);
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -153,12 +167,13 @@ export default function UserManagement() {
                     className="btn-menu"
                     disabled={processing}
                   >
-                    ☰ Menu
+                    ☰
                   </button>
 
                   {menuUser === user.email && (
                     <div
                       className="dropdown-menu"
+                      ref={menuRef}
                       style={{ top: '30px', right: '0' }}
                     >
                       <button onClick={() => handleDelete(user.email)} disabled={processing}>
@@ -169,7 +184,6 @@ export default function UserManagement() {
                           {processing ? 'Processing...' : 'Expire Subscription'}
                         </button>
                       )}
-                      <button onClick={() => setMenuUser(null)}>Close</button>
                     </div>
                   )}
                 </td>
