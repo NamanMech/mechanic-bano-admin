@@ -34,23 +34,6 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    if (menuRef.current) {
-      const buttons = menuRef.current.querySelectorAll('button');
-      buttons.forEach(button => {
-        button.style.setProperty('background-color', 'white', 'important');
-        button.style.setProperty('color', 'black', 'important');
-
-        button.onmouseover = () => {
-          button.style.setProperty('background-color', '#f2f2f2', 'important');
-        };
-        button.onmouseout = () => {
-          button.style.setProperty('background-color', 'white', 'important');
-        };
-      });
-    }
-  }, [isOpen]);
-
   return (
     <>
       <button ref={buttonRef} onClick={handleToggleMenu} className="dropdown-trigger">
@@ -75,16 +58,57 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
             flexDirection: 'column',
             minWidth: '120px',
             boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+            padding: '0',
+            all: 'initial' // This will reset all inherited styles
           }}
         >
-          <button onClick={() => { onEdit(user); setIsOpen(false); }} disabled={processing}>
+          <button
+            style={{
+              all: 'initial',
+              width: '100%',
+              padding: '10px',
+              backgroundColor: 'white',
+              color: 'black',
+              border: 'none',
+              textAlign: 'left',
+              cursor: 'pointer'
+            }}
+            onClick={() => { onEdit(user); setIsOpen(false); }}
+            disabled={processing}
+          >
             Edit
           </button>
-          <button onClick={() => { onDelete(user.email); setIsOpen(false); }} disabled={processing}>
+          <button
+            style={{
+              all: 'initial',
+              width: '100%',
+              padding: '10px',
+              backgroundColor: 'white',
+              color: 'black',
+              border: 'none',
+              textAlign: 'left',
+              cursor: 'pointer'
+            }}
+            onClick={() => { onDelete(user.email); setIsOpen(false); }}
+            disabled={processing}
+          >
             Delete
           </button>
           {user.isSubscribed && (
-            <button onClick={() => { onExpire(user.email); setIsOpen(false); }} disabled={processing}>
+            <button
+              style={{
+                all: 'initial',
+                width: '100%',
+                padding: '10px',
+                backgroundColor: 'white',
+                color: 'black',
+                border: 'none',
+                textAlign: 'left',
+                cursor: 'pointer'
+              }}
+              onClick={() => { onExpire(user.email); setIsOpen(false); }}
+              disabled={processing}
+            >
               Expire
             </button>
           )}
