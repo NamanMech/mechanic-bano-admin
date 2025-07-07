@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner.jsx';
-import UserTable from '../components/UserTable.jsx';
+import { toast } from 'react-toastify';
 import UserForm from '../components/UserForm.jsx';
 import SearchBar from '../components/SearchBar.jsx';
 import Pagination from '../components/Pagination.jsx';
@@ -11,12 +10,16 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '' });
-  const [searchTerm, setSearchTerm] = useState('');
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
+
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
+  const [pageSize, setPageSize] = useState(5);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -99,48 +102,119 @@ export default function UserManagement() {
     setIsFormOpen(true);
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleSortToggle = () => {
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+  };
 
-  const totalPages = Math.ceil(filteredUsers.length / pageSize);
-  const paginatedUsers = filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
 
   if (loading) return <Spinner />;
+
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedUsers = filteredUsers.sort((a, b) => {
+    if (sortOrder === 'asc') return a.name.localeCompare(b.name);
+    else return b.name.localeCompare(a.name);
+  });
+
+  const totalPages = Math.ceil(sortedUsers.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedUsers = sortedUsers.slice(startIndex, startIndex + pageSize);
 
   return (
     <div className="container">
       <h2>All Users</h2>
+
       <button onClick={handleAddClick} className="btn-primary" style={{ marginBottom: '20px' }}>
         Add User
+      </button>
+
+      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+
+      <button onClick={handleSortToggle} className="btn-edit" style={{ marginBottom: '15px' }}>
+        Sort {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
       </button>
 
       {isFormOpen && (
         <UserForm
           formData={formData}
           setFormData={setFormData}
-          handleFormSubmit={handleFormSubmit}
-          isEditing={editingUser !== null}
+          onSubmit={handleFormSubmit}
           onCancel={() => setIsFormOpen(false)}
           processing={processing}
+          editingUser={editingUser}
         />
       )}
 
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-
-      <UserTable
-        users={paginatedUsers}
-        processing={processing}
-        onEdit={handleEditClick}
-        onDelete={handleDelete}
-        onExpire={handleExpire}
-      />
+      {paginatedUsers.length === 0 ? (
+        <p>No users found.</p>
+      ) : (
+        <table className="custom-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Subscription Status</th>
+              <th>Subscription End</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedUsers.map((user) => (
+              <tr key={user._id}>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{user.isSubscribed ? 'Active' : 'Inactive'}</td>
+                <td>{user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'}</td>
+                <td>
+                  <button
+                    onClick={() => handleEditClick(user)}
+                    className="btn-edit"
+                    style={{ marginRight: '5px' }}
+                    disabled={processing}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(user.email)}
+                    className="btn-delete"
+                    style={{ marginRight: '5px' }}
+                    disabled={processing}
+                  >
+                    Delete
+                  </button>
+                  {user.isSubscribed && (
+                    <button
+                      onClick={() => handleExpire(user.email)}
+                      className="btn-edit"
+                      disabled={processing}
+                    >
+                      Expire
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={setCurrentPage}
+        onPageChange={handlePageChange}
+        pageSize={pageSize}
+        onPageSizeChange={handlePageSizeChange}
       />
     </div>
   );
