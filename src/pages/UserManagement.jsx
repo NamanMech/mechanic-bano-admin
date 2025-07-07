@@ -63,7 +63,23 @@ export default function UserManagement() {
   const handleMenuClick = (userId, event) => {
     event.stopPropagation();
     const rect = event.currentTarget.getBoundingClientRect();
-    setMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+    const menuWidth = 160; // approx menu width
+    const menuHeight = 100; // approx menu height
+
+    let left = rect.left + window.scrollX;
+    let top = rect.bottom + window.scrollY;
+
+    // Check if menu overflows the screen width
+    if (left + menuWidth > window.innerWidth) {
+      left = window.innerWidth - menuWidth - 10; // 10px padding from right
+    }
+
+    // Check if menu overflows the screen height
+    if (top + menuHeight > window.innerHeight + window.scrollY) {
+      top = rect.top + window.scrollY - menuHeight; // Show menu above the button
+    }
+
+    setMenuPosition({ top, left });
     setSelectedUserId(userId);
   };
 
@@ -116,7 +132,11 @@ export default function UserManagement() {
       {selectedUserId && (
         <div
           className="dropdown-menu"
-          style={{ top: `${menuPosition.top}px`, left: `${menuPosition.left}px`, position: 'absolute' }}
+          style={{
+            top: `${menuPosition.top}px`,
+            left: `${menuPosition.left}px`,
+            position: 'absolute'
+          }}
         >
           <button onClick={() => handleDelete(selectedUserId)} disabled={processing}>
             {processing ? 'Processing...' : 'Delete'}
@@ -124,7 +144,6 @@ export default function UserManagement() {
           <button onClick={() => handleExpire(selectedUserId)} disabled={processing}>
             {processing ? 'Processing...' : 'Expire Subscription'}
           </button>
-          <button onClick={() => setSelectedUserId(null)}>Close</button>
         </div>
       )}
     </div>
