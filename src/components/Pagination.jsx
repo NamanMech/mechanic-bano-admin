@@ -1,42 +1,29 @@
 import React from 'react';
 
-export default function Pagination({ currentPage, totalPages, onPageChange, pageSize, onPageSizeChange }) {
-  const handlePageSizeChange = (e) => {
-    onPageSizeChange(parseInt(e.target.value));
-  };
+export default function Pagination({ currentPage, totalPages, setCurrentPage, pageSize, setPageSize }) {
+  const pageSizes = [5, 10, 20];
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
-      <div>
-        <button
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="btn-edit"
-          style={{ marginRight: '10px' }}
-        >
-          Prev
-        </button>
-        <button
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="btn-edit"
-        >
-          Next
-        </button>
-      </div>
+    <div className="pagination">
+      <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
+        Prev
+      </button>
 
-      <div>
+      <span>
         Page {currentPage} of {totalPages}
-      </div>
+      </span>
 
-      <div>
-        <label htmlFor="pageSize">Page Size: </label>
-        <select id="pageSize" value={pageSize} onChange={handlePageSizeChange}>
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={15}>15</option>
-        </select>
-      </div>
+      <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>
+        Next
+      </button>
+
+      <select value={pageSize} onChange={(e) => setPageSize(Number(e.target.value))}>
+        {pageSizes.map((size) => (
+          <option key={size} value={size}>
+            {size} per page
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
