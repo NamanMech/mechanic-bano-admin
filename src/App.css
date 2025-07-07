@@ -234,3 +234,20 @@ ul {
 .btn-menu:hover {
   background-color: #bbb;
 }
+
+.search-bar {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  padding: 10px;
+  width: 250px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.search-bar input:focus {
+  border-color: #007bff;
+}
