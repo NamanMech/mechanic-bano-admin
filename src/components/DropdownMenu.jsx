@@ -4,16 +4,21 @@ import { createPortal } from 'react-dom';
 export default function DropdownMenu({ user, onEdit, onDelete, onExpire, processing }) {
   const [isOpen, setIsOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [alignRight, setAlignRight] = useState(false);
   const buttonRef = useRef(null);
   const menuRef = useRef(null);
 
   const handleToggleMenu = (e) => {
     e.stopPropagation();
     const rect = buttonRef.current.getBoundingClientRect();
+    const menuWidth = 140; // estimated width
+    const shouldAlignRight = window.innerWidth - rect.right < menuWidth;
+
     setMenuPosition({
       top: rect.bottom + window.scrollY + 5,
-      left: rect.left + window.scrollX,
+      left: shouldAlignRight ? rect.right - menuWidth + window.scrollX : rect.left + window.scrollX,
     });
+    setAlignRight(shouldAlignRight);
     setIsOpen(!isOpen);
   };
 
@@ -54,7 +59,7 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   const menu = (
     <div
       ref={menuRef}
-      className="dropdown-menu-fixed dropdown-clean"
+      className={`dropdown-menu-fixed dropdown-clean ${alignRight ? 'align-right' : ''}`}
       style={{
         top: `${menuPosition.top}px`,
         left: `${menuPosition.left}px`,
