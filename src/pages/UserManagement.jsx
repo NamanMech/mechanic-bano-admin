@@ -21,6 +21,11 @@ export default function UserManagement() {
   const [editingUserEmail, setEditingUserEmail] = useState(null);
   const [editingFormData, setEditingFormData] = useState({ name: '', email: '' });
 
+  // ✅ Advanced filter states
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
+
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchUsers = async () => {
@@ -89,7 +94,6 @@ export default function UserManagement() {
     }
   };
 
-  // Inline edit handlers
   const handleEditClick = (user) => {
     setEditingUserEmail(user.email);
     setEditingFormData({ name: user.name, email: user.email });
@@ -118,14 +122,32 @@ export default function UserManagement() {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = users
+    .filter((user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter((user) => {
+      if (filterStatus === 'subscribed') return user.isSubscribed;
+      if (filterStatus === 'expired') return !user.isSubscribed;
+      return true;
+    })
+    .filter((user) => {
+      if (!filterStartDate && !filterEndDate) return true;
+      if (!user.subscriptionEnd) return false;
+      const subDate = new Date(user.subscriptionEnd);
+      const start = filterStartDate ? new Date(filterStartDate) : null;
+      const end = filterEndDate ? new Date(filterEndDate) : null;
+      return (
+        (!start || subDate >= start) &&
+        (!end || subDate <= end)
+      );
+    });
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
-    if (sortOrder === 'asc') return a.name.localeCompare(b.name);
-    else return b.name.localeCompare(a.name);
+    return sortOrder === 'asc'
+      ? a.name.localeCompare(b.name)
+      : b.name.localeCompare(a.name);
   });
 
   const totalPages = Math.ceil(sortedUsers.length / pageSize);
@@ -146,6 +168,12 @@ export default function UserManagement() {
         setSearchQuery={setSearchQuery}
         handleSortToggle={handleSortToggle}
         sortOrder={sortOrder}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        filterStartDate={filterStartDate}
+        setFilterStartDate={setFilterStartDate}
+        filterEndDate={filterEndDate}
+        setFilterEndDate={setFilterEndDate}
       />
 
       {isFormOpen && (
@@ -169,8 +197,8 @@ export default function UserManagement() {
             handleEditClick={handleEditClick}
             handleSaveInlineEdit={handleSaveInlineEdit}
             handleCancelInlineEdit={handleCancelInlineEdit}
-            handleDelete={handleDelete}            
-            handleExpire={handleExpire}           
+            handleDelete={handleDelete}
+            handleExpire={handleExpire}
             editingUserEmail={editingUserEmail}
             editingFormData={editingFormData}
             setEditingFormData={setEditingFormData}
