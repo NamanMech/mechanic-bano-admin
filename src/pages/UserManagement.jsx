@@ -17,12 +17,18 @@ export default function UserManagement() {
   const [processing, setProcessing] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '' });
+
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+
   const [editingUserEmail, setEditingUserEmail] = useState(null);
   const [editingFormData, setEditingFormData] = useState({ name: '', email: '' });
+
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -131,10 +137,25 @@ export default function UserManagement() {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // ✅ Filtering Logic with Date + Status
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus =
+      filterStatus === 'all' ||
+      (filterStatus === 'subscribed' && user.isSubscribed) ||
+      (filterStatus === 'expired' && !user.isSubscribed);
+
+    const subscriptionEnd = user.subscriptionEnd ? new Date(user.subscriptionEnd) : null;
+
+    const matchesDate =
+      (!filterStartDate || (subscriptionEnd && subscriptionEnd >= new Date(filterStartDate))) &&
+      (!filterEndDate || (subscriptionEnd && subscriptionEnd <= new Date(filterEndDate)));
+
+    return matchesSearch && matchesStatus && matchesDate;
+  });
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     if (sortOrder === 'asc') return a.name.localeCompare(b.name);
@@ -163,6 +184,12 @@ export default function UserManagement() {
         setSearchQuery={setSearchQuery}
         handleSortToggle={handleSortToggle}
         sortOrder={sortOrder}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        filterStartDate={filterStartDate}
+        setFilterStartDate={setFilterStartDate}
+        filterEndDate={filterEndDate}
+        setFilterEndDate={setFilterEndDate}
       />
 
       {isFormOpen && (
