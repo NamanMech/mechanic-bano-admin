@@ -7,6 +7,7 @@ import SearchBar from '../components/SearchBar.jsx';
 import Pagination from '../components/Pagination.jsx';
 import UserTable from '../components/UserTable.jsx';
 import AuditTimeline from '../components/AuditTimeline.jsx';
+import UserStats from '../components/UserStats.jsx';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -179,6 +180,8 @@ export default function UserManagement() {
       <button onClick={() => setIsFormOpen(true)} className="btn-primary" style={{ marginBottom: '20px' }}>
         Add User
       </button>
+
+      <UserStats users={users} />
 
       <SearchBar
         searchQuery={searchQuery}
