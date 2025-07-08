@@ -386,3 +386,46 @@ input[type="email"] {
   border-bottom: 1px solid #444;
   padding: 6px 0;
 }
+
+.dropdown-menu-fixed {
+  position: absolute;
+  background-color: #333;
+  color: white;
+  border-radius: 6px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  padding: 8px 0;
+  z-index: 9999;
+  width: 140px;
+}
+
+.dropdown-menu-fixed button {
+  background: none;
+  border: none;
+  color: white;
+  text-align: left;
+  width: 100%;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dropdown-menu-fixed button:hover {
+  background-color: #444;
+}
+
+.dropdown-trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.align-right {
+  right: 0 !important;
+}
+
+@media (max-width: 480px) {
+  .dropdown-menu-fixed {
+    width: 130px;
+    font-size: 13px;
+  }
+}
