@@ -3,6 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_UPLOAD_URL } from '../utils/cloudinaryConfig';
 import { v4 as uuidv4 } from 'uuid';
+import { pdfjs } from 'react-pdf';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
@@ -11,6 +12,7 @@ export default function PDFManagement() {
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);  // Track the current page
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -35,13 +37,10 @@ export default function PDFManagement() {
 
     try {
       const res = await axios.post(CLOUDINARY_UPLOAD_URL, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       return res.data.secure_url;
     } catch (err) {
-      console.error('Upload error:', err.response?.data || err.message);
       toast.error('Cloudinary upload failed');
       throw err;
     }
@@ -52,13 +51,15 @@ export default function PDFManagement() {
     setLoading(true);
 
     try {
-      if (!file) {
+      let fileUrl = '';
+
+      if (file) {
+        fileUrl = await uploadToCloudinary(file);
+      } else {
         toast.error('Please select a PDF file');
         setLoading(false);
         return;
       }
-
-      const fileUrl = await uploadToCloudinary(file);
 
       const payload = {
         title,
@@ -69,10 +70,10 @@ export default function PDFManagement() {
 
       if (editingPdf) {
         await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
-        toast.success('PDF updated successfully');
+        toast.success('PDF updated');
       } else {
         await axios.post(`${API_URL}general?type=pdf`, payload);
-        toast.success('PDF uploaded successfully');
+        toast.success('PDF uploaded');
       }
 
       setTitle('');
@@ -91,7 +92,7 @@ export default function PDFManagement() {
     if (confirm('Are you sure?')) {
       try {
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        toast.success('PDF deleted');
+        toast.success('Deleted');
         fetchPdfs();
       } catch {
         toast.error('Delete failed');
@@ -103,6 +104,25 @@ export default function PDFManagement() {
     setEditingPdf(pdf);
     setTitle(pdf.title);
     setCategory(pdf.category);
+  };
+
+  const renderPdfViewer = (pdfUrl) => {
+    return (
+      <div>
+        <div>
+          <button onClick={() => setPageNumber(pageNumber - 1)} disabled={pageNumber <= 1}>Previous</button>
+          <button onClick={() => setPageNumber(pageNumber + 1)}>Next</button>
+        </div>
+        <iframe
+          title="PDF Viewer"
+          src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`}
+          width="100%"
+          height="600"
+          frameBorder="0"
+          style={{ marginTop: '10px', border: '1px solid #999' }}
+        />
+      </div>
+    );
   };
 
   return (
@@ -150,16 +170,9 @@ export default function PDFManagement() {
             >
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
-
-              {/* ✅ Use Google Docs Viewer for safe embedding */}
-              <iframe
-                src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdf.originalLink)}&embedded=true`}
-                title={pdf.title}
-                width="100%"
-                height="400"
-                frameBorder="0"
-                style={{ marginTop: '10px', border: '1px solid #999' }}
-              ></iframe>
+              
+              {/* Rendering PDF using PDF.js iframe */}
+              {renderPdfViewer(pdf.originalLink)}
 
               <div style={{ marginTop: '10px' }}>
                 <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
