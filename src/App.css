@@ -187,7 +187,7 @@ ul {
   100% { transform: rotate(360deg); }
 }
 
-/* Dropdown Menu Trigger */
+/* Dropdown Trigger Button */
 .dropdown-trigger {
   cursor: pointer;
   background: transparent;
@@ -195,33 +195,39 @@ ul {
   padding: 5px;
 }
 
-/* Dropdown Menu Final CSS - Fixed with High Specificity */
+/* Final Working Dropdown Menu CSS */
 body .dropdown-menu-fixed {
   position: absolute;
-  background-color: white !important;
-  color: black !important;
-  border: 1px solid #ccc;
+  background-color: #2c2c2c !important;
+  color: white !important;
+  border: 1px solid #444;
   border-radius: 4px;
   z-index: 9999;
   display: flex;
   flex-direction: column;
   min-width: 120px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 body .dropdown-menu-fixed button {
   width: 100%;
   padding: 10px;
-  background-color: white !important;
-  color: black !important;
+  background-color: #2c2c2c !important;
+  color: white !important;
   border: none;
   text-align: left;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 body .dropdown-menu-fixed button:hover {
-  background-color: #f2f2f2 !important;
-  color: black !important;
+  background-color: #444 !important;
+  color: white !important;
+}
+
+/* Remove .dropdown-clean if not used separately */
+.dropdown-clean {
+  all: unset;
 }
 
 @media (max-width: 768px) {
@@ -314,33 +320,4 @@ body .dropdown-menu-fixed button:hover {
   .pagination {
     flex-direction: column;
   }
-}
-
-/* Fix dropdown background and text color */
-.dropdown-clean {
-  position: absolute;
-  background-color: white !important;
-  color: black !important;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  min-width: 120px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.dropdown-clean button {
-  width: 100%;
-  padding: 10px;
-  background-color: white !important;
-  color: black !important;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-}
-
-.dropdown-clean button:hover {
-  background-color: #f2f2f2 !important;
-  color: black !important;
 }
