@@ -6,6 +6,7 @@ import UserForm from '../components/UserForm.jsx';
 import SearchBar from '../components/SearchBar.jsx';
 import Pagination from '../components/Pagination.jsx';
 import UserTable from '../components/UserTable.jsx';
+import AuditTimeline from '../components/AuditTimeline.jsx';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -21,7 +22,7 @@ export default function UserManagement() {
   const [editingUserEmail, setEditingUserEmail] = useState(null);
   const [editingFormData, setEditingFormData] = useState({ name: '', email: '' });
 
-  const [auditLogs, setAuditLogs] = useState([]); // ✅ New state for Feature 6
+  const [auditLogs, setAuditLogs] = useState([]);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -40,13 +41,22 @@ export default function UserManagement() {
     fetchUsers();
   }, []);
 
+  const isDuplicateEmail = (email) => {
+    return users.some((user) => user.email === email);
+  };
+
+  const logAction = (action, email) => {
+    const timestamp = new Date().toLocaleString();
+    setAuditLogs((prev) => [{ action, email, timestamp }, ...prev]);
+  };
+
   const handleDelete = async (email) => {
     if (confirm('Are you sure you want to delete this user?')) {
       setProcessing(true);
       try {
         await axios.delete(`${API_URL}user?email=${email}`);
         toast.success('User deleted successfully');
-        setAuditLogs(prev => [...prev, `🗑️ Deleted user: ${email}`]); // ✅ Feature 6
+        logAction('Deleted User', email);
         fetchUsers();
       } catch (error) {
         toast.error('Error deleting user');
@@ -62,7 +72,7 @@ export default function UserManagement() {
       try {
         await axios.put(`${API_URL}subscription?type=expire&email=${email}`);
         toast.success('Subscription expired successfully');
-        setAuditLogs(prev => [...prev, `⏳ Expired subscription: ${email}`]); // ✅ Feature 6
+        logAction('Expired Subscription', email);
         fetchUsers();
       } catch (error) {
         toast.error('Error expiring subscription');
@@ -74,16 +84,26 @@ export default function UserManagement() {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.name || !formData.email) {
+      toast.error('Please fill all fields');
+      return;
+    }
+
+    if (!formData._id && isDuplicateEmail(formData.email)) {
+      toast.error('Email already exists');
+      return;
+    }
+
     setProcessing(true);
     try {
       if (formData._id) {
         await axios.put(`${API_URL}user?email=${formData.email}&type=update`, formData);
         toast.success('User updated successfully');
-        setAuditLogs(prev => [...prev, `✏️ Edited user: ${formData.email}`]); // ✅ Feature 6
+        logAction('Updated User', formData.email);
       } else {
         await axios.post(`${API_URL}user`, formData);
         toast.success('User added successfully');
-        setAuditLogs(prev => [...prev, `➕ Added user: ${formData.email}`]); // ✅ Feature 6
+        logAction('Added User', formData.email);
       }
       fetchUsers();
       setIsFormOpen(false);
@@ -106,11 +126,24 @@ export default function UserManagement() {
   };
 
   const handleSaveInlineEdit = async (originalEmail) => {
+    if (!editingFormData.name || !editingFormData.email) {
+      toast.error('Please fill all fields');
+      return;
+    }
+
+    if (
+      editingFormData.email !== originalEmail &&
+      isDuplicateEmail(editingFormData.email)
+    ) {
+      toast.error('Email already exists');
+      return;
+    }
+
     setProcessing(true);
     try {
       await axios.put(`${API_URL}user?email=${originalEmail}&type=update`, editingFormData);
       toast.success('User updated successfully');
-      setAuditLogs(prev => [...prev, `✏️ Inline edited user: ${editingFormData.email}`]); // ✅ Feature 6
+      logAction('Inline Edit', editingFormData.email);
       fetchUsers();
       handleCancelInlineEdit();
     } catch (error) {
@@ -192,15 +225,7 @@ export default function UserManagement() {
         </>
       )}
 
-      {/* ✅ Audit Log Section */}
-      <div className="audit-log">
-        <h3>🧾 Activity Log</h3>
-        <ul>
-          {auditLogs.slice().reverse().map((log, index) => (
-            <li key={index}>{log}</li>
-          ))}
-        </ul>
-      </div>
+      <AuditTimeline logs={auditLogs} />
     </div>
   );
 }
