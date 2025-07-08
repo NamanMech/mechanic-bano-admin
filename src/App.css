@@ -29,32 +29,32 @@ a:hover {
   margin: auto;
 }
 
+/* Headings */
 h1, h2, h3 {
   text-align: center;
 }
 
+/* Forms */
 form {
   display: flex;
   flex-direction: column;
   gap: 10px;
   max-width: 400px;
-  margin: auto;
-  margin-bottom: 30px;
-  width: 100%;
+  margin: 0 auto 30px;
   padding: 0 10px;
+  width: 100%;
 }
 
 input, textarea, select {
   padding: 10px;
   border-radius: 5px;
-  border: none;
+  border: 1px solid #555;
   outline: none;
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 14px;
   background-color: #1e1e1e;
   color: white;
-  border: 1px solid #555;
+  font-size: 14px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 /* Buttons */
@@ -190,7 +190,7 @@ button:disabled {
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  min-width: 160px;
+  min-width: 140px;
   max-width: 200px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   padding: 5px 0;
@@ -211,16 +211,18 @@ button:disabled {
   background-color: #444;
 }
 
-/* Search and Pagination */
+/* Search + Pagination */
 .search-bar {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .search-bar input {
   flex: 1;
+  min-width: 200px;
   max-width: 300px;
 }
 
@@ -234,6 +236,7 @@ button:disabled {
   justify-content: center;
   gap: 10px;
   margin-top: 20px;
+  flex-wrap: wrap;
 }
 
 .pagination select {
@@ -257,7 +260,7 @@ button:disabled {
 }
 
 .audit-log ul {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
   margin: 0;
 }
@@ -268,7 +271,7 @@ button:disabled {
   padding: 6px 0;
 }
 
-/* Responsive Layout Fixes */
+/* Responsive Layout */
 @media (max-width: 768px) {
   .custom-table {
     display: block;
@@ -283,7 +286,6 @@ button:disabled {
 
   .dropdown-menu-fixed {
     min-width: 130px;
-    max-width: 180px;
     font-size: 14px;
   }
 
