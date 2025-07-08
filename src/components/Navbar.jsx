@@ -53,48 +53,45 @@ export default function Navbar({ pageStatus }) {
           }}
         >
           <NavLink to="/" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-  Home
-</NavLink>
-
-{pageStatus.youtube && (
-  <NavLink to="/YouTubeVideoManagement" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-    YouTube Videos
-  </NavLink>
-)}
-
-{pageStatus.pdf && (
-  <NavLink to="/PDFManagement" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-    PDF Files
-  </NavLink>
-)}
-
-{pageStatus.welcome && (
-  <NavLink to="/WelcomeNoteManagement" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-    Welcome Note
-  </NavLink>
-)}
-
-{pageStatus.sitename && (
-  <NavLink to="/SiteNameManagement" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-    Site Name
-  </NavLink>
-)}
-
-{pageStatus.subscription && (
-  <NavLink to="/SubscriptionPlans" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-    Subscription Plans
-  </NavLink>
-)}
-
-{pageStatus.users && (
-  <NavLink to="/UserManagement" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-    Users
-  </NavLink>
-)}
-
-<NavLink to="/pagecontrol" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-  Page Control
-</NavLink>
+            Home
+          </NavLink>
+          {pageStatus.videos && (
+            <NavLink to="/videos" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+              Videos
+            </NavLink>
+          )}
+          {pageStatus.pdfs && (
+            <NavLink to="/pdfs" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+              PDFs
+            </NavLink>
+          )}
+          {pageStatus.welcome && (
+            <NavLink to="/welcome" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+              Welcome Note
+            </NavLink>
+          )}
+          {pageStatus.sitename && (
+            <NavLink to="/sitename" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+              Site Name
+            </NavLink>
+          )}
+          {pageStatus.pagecontrol && (
+            <NavLink to="/pagecontrol" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+              Page Control
+            </NavLink>
+          )}
+          {pageStatus['subscription-plans'] && (
+            <NavLink to="/subscription-plans" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+              Subscription Plans
+            </NavLink>
+          )}
+          {pageStatus.users && (
+            <NavLink to="/users" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+              Users
+            </NavLink>
+          )}
+        </nav>
+      )}
 
       <style>{`
         @keyframes slideDown {
