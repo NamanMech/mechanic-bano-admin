@@ -5,7 +5,7 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   const [isOpen, setIsOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
-  const menuRef = useRef(null);
+  const iframeRef = useRef(null);
 
   const handleToggleMenu = (e) => {
     e.stopPropagation();
@@ -21,8 +21,8 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
 
   const handleClickOutside = (e) => {
     if (
-      menuRef.current &&
-      !menuRef.current.contains(e.target) &&
+      iframeRef.current &&
+      !iframeRef.current.contains(e.target) &&
       !buttonRef.current.contains(e.target)
     ) {
       setIsOpen(false);
@@ -43,28 +43,36 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
       </button>
 
       {isOpen && createPortal(
-        <div
-          ref={menuRef}
+        <iframe
+          ref={iframeRef}
           style={{
             position: 'absolute',
             top: `${menuPosition.top}px`,
             left: `${menuPosition.left}px`,
-            backgroundColor: 'white',
-            color: 'black',
+            width: '150px',
+            height: user.isSubscribed ? '150px' : '100px',
             border: '1px solid #ccc',
             borderRadius: '4px',
             zIndex: 9999,
+          }}
+        ></iframe>,
+        document.body
+      )}
+
+      {isOpen && iframeRef.current && createPortal(
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'white',
+            color: 'black',
             display: 'flex',
             flexDirection: 'column',
-            minWidth: '120px',
-            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-            padding: '0',
-            all: 'initial' // This will reset all inherited styles
+            padding: '0'
           }}
         >
           <button
             style={{
-              all: 'initial',
               width: '100%',
               padding: '10px',
               backgroundColor: 'white',
@@ -80,7 +88,6 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
           </button>
           <button
             style={{
-              all: 'initial',
               width: '100%',
               padding: '10px',
               backgroundColor: 'white',
@@ -97,7 +104,6 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
           {user.isSubscribed && (
             <button
               style={{
-                all: 'initial',
                 width: '100%',
                 padding: '10px',
                 backgroundColor: 'white',
@@ -113,7 +119,7 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
             </button>
           )}
         </div>,
-        document.body
+        iframeRef.current?.contentDocument?.body
       )}
     </>
   );
