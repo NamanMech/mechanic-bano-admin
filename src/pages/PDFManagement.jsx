@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { storage } from '../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -12,6 +12,7 @@ export default function PDFManagement() {
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
+  const fileInputRef = useRef();
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -29,58 +30,59 @@ export default function PDFManagement() {
   }, []);
 
   const uploadToFirebase = async (file) => {
-    const storageRef = ref(storage, `pdfs/${uuidv4()}-${file.name}`);
-    const snapshot = await uploadBytes(storageRef, file);
-    return await getDownloadURL(snapshot.ref);
+    const fileRef = ref(storage, `pdfs/${uuidv4()}-${file.name}`);
+    const snapshot = await uploadBytes(fileRef, file);
+    const url = await getDownloadURL(snapshot.ref);
+    return url;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!file) {
+      toast.error('Please choose a PDF file');
+      return;
+    }
+
     setLoading(true);
+    toast.info(editingPdf ? 'Updating PDF...' : 'Uploading PDF...', { autoClose: 1000 });
 
     try {
-      let fileUrl = '';
-
-      if (file) {
-        fileUrl = await uploadToFirebase(file);
-      } else {
-        toast.error('Please choose a PDF file');
-        setLoading(false);
-        return;
-      }
+      const fileUrl = await uploadToFirebase(file);
 
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '', // Not needed anymore
+        embedLink: fileUrl, // For now, use same Firebase URL
         category,
       };
 
       if (editingPdf) {
         await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
-        toast.success('PDF updated');
+        toast.success('PDF updated successfully');
       } else {
         await axios.post(`${API_URL}general?type=pdf`, payload);
-        toast.success('PDF uploaded');
+        toast.success('PDF uploaded successfully');
       }
 
+      // Reset form
       setTitle('');
       setFile(null);
       setCategory('free');
       setEditingPdf(null);
+      fileInputRef.current.value = '';
       fetchPdfs();
-    } catch {
-      toast.error('Failed to upload');
+    } catch (err) {
+      toast.error('Upload failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (confirm('Are you sure?')) {
+    if (confirm('Are you sure you want to delete this PDF?')) {
       try {
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        toast.success('Deleted');
+        toast.success('PDF deleted');
         fetchPdfs();
       } catch {
         toast.error('Delete failed');
@@ -109,7 +111,9 @@ export default function PDFManagement() {
         <input
           type="file"
           accept="application/pdf"
+          ref={fileInputRef}
           onChange={(e) => setFile(e.target.files[0])}
+          required={!editingPdf}
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="free">Free</option>
@@ -128,6 +132,13 @@ export default function PDFManagement() {
           {pdfs.map((pdf) => (
             <li key={pdf._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
               <h3>{pdf.title}</h3>
+              <iframe
+                src={pdf.originalLink + '#toolbar=0&navpanes=0&scrollbar=0'}
+                width="100%"
+                height="300"
+                frameBorder="0"
+                title={pdf.title}
+              ></iframe>
               <p>Category: {pdf.category}</p>
               <button onClick={() => handleEdit(pdf)}>Edit</button>
               <button onClick={() => handleDelete(pdf._id)}>Delete</button>
