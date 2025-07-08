@@ -6,7 +6,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBc1bRjPiMC0LCCht-wZGTDY5RTLC_Eo0U",
   authDomain: "mechanicbanopublic.firebaseapp.com",
   projectId: "mechanicbanopublic",
-  storageBucket: "mechanicbanopublic.firebasestorage.app",
+  storageBucket: "mechanicbanopublic.appspot.com", // ✅ Fixed here
   messagingSenderId: "303726026304",
   appId: "1:303726026304:web:46a128903e164cea2209a5"
 };
