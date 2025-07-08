@@ -10,24 +10,10 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   const handleToggleMenu = (e) => {
     e.stopPropagation();
     const rect = buttonRef.current.getBoundingClientRect();
-    const menuWidth = 160;
-    const screenWidth = window.innerWidth;
-
-    let left = rect.left + window.scrollX;
-
-    // Prevent overflow on right side
-    if (left + menuWidth > screenWidth) {
-      left = screenWidth - menuWidth - 10;
-    }
-
-    // Prevent overflow on left side
-    left = Math.max(10, left);
-
     setMenuPosition({
       top: rect.bottom + window.scrollY + 5,
-      left,
+      left: rect.left + window.scrollX,
     });
-
     setIsOpen(!isOpen);
   };
 
@@ -46,19 +32,38 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleEdit = () => {
+    onEdit(user);
+    setIsOpen(false);
+  };
+
+  const handleDeleteClick = () => {
+    if (confirm(`Are you sure you want to delete user: ${user.email}?`)) {
+      onDelete(user.email);
+      setIsOpen(false);
+    }
+  };
+
+  const handleExpireClick = () => {
+    if (confirm(`Expire subscription for: ${user.email}?`)) {
+      onExpire(user.email);
+      setIsOpen(false);
+    }
+  };
+
   const menu = (
     <div
       ref={menuRef}
-      className="dropdown-menu-fixed"
+      className="dropdown-menu-fixed dropdown-clean"
       style={{
         top: `${menuPosition.top}px`,
         left: `${menuPosition.left}px`,
       }}
     >
-      <button onClick={() => { onEdit(user); setIsOpen(false); }} disabled={processing}>Edit</button>
-      <button onClick={() => { onDelete(user.email); setIsOpen(false); }} disabled={processing}>Delete</button>
+      <button onClick={handleEdit} disabled={processing}>Edit</button>
+      <button onClick={handleDeleteClick} disabled={processing}>Delete</button>
       {user.isSubscribed && (
-        <button onClick={() => { onExpire(user.email); setIsOpen(false); }} disabled={processing}>Expire</button>
+        <button onClick={handleExpireClick} disabled={processing}>Expire</button>
       )}
     </div>
   );
@@ -66,7 +71,7 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   return (
     <>
       <button ref={buttonRef} onClick={handleToggleMenu} className="dropdown-trigger">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
           <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       </button>
