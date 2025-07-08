@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { storage } from '../firebaseConfig';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { toast } from 'react-toastify';
+import { CLOUDINARY_UPLOAD_URL, CLOUDINARY_UPLOAD_PRESET } from '../utils/cloudinaryConfig';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function PDFManagement() {
@@ -12,7 +11,6 @@ export default function PDFManagement() {
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
-  const fileInputRef = useRef();
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -29,50 +27,55 @@ export default function PDFManagement() {
     fetchPdfs();
   }, []);
 
-  const uploadToFirebase = async (file) => {
-    const fileRef = ref(storage, `pdfs/${uuidv4()}-${file.name}`);
-    const snapshot = await uploadBytes(fileRef, file);
-    const url = await getDownloadURL(snapshot.ref);
-    return url;
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('public_id', `pdfs/${uuidv4()}-${file.name}`);
+    
+    const response = await axios.post(CLOUDINARY_UPLOAD_URL, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    return response.data.secure_url;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) {
-      toast.error('Please choose a PDF file');
-      return;
-    }
-
     setLoading(true);
-    toast.info(editingPdf ? 'Updating PDF...' : 'Uploading PDF...', { autoClose: 1000 });
 
     try {
-      const fileUrl = await uploadToFirebase(file);
+      if (!file) {
+        toast.error('Please select a PDF file');
+        setLoading(false);
+        return;
+      }
+
+      const fileUrl = await uploadToCloudinary(file);
 
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: fileUrl, // For now, use same Firebase URL
+        embedLink: '', // Not used anymore
         category,
       };
 
       if (editingPdf) {
         await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
-        toast.success('PDF updated successfully');
+        toast.success('PDF updated');
       } else {
         await axios.post(`${API_URL}general?type=pdf`, payload);
-        toast.success('PDF uploaded successfully');
+        toast.success('PDF uploaded');
       }
 
-      // Reset form
       setTitle('');
       setFile(null);
       setCategory('free');
       setEditingPdf(null);
-      fileInputRef.current.value = '';
       fetchPdfs();
     } catch (err) {
-      toast.error('Upload failed. Please try again.');
+      console.error(err);
+      toast.error('Upload failed');
     } finally {
       setLoading(false);
     }
@@ -96,6 +99,13 @@ export default function PDFManagement() {
     setCategory(pdf.category);
   };
 
+  const handleCancelEdit = () => {
+    setEditingPdf(null);
+    setTitle('');
+    setFile(null);
+    setCategory('free');
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>PDF Management</h1>
@@ -111,9 +121,7 @@ export default function PDFManagement() {
         <input
           type="file"
           accept="application/pdf"
-          ref={fileInputRef}
           onChange={(e) => setFile(e.target.files[0])}
-          required={!editingPdf}
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="free">Free</option>
@@ -122,23 +130,22 @@ export default function PDFManagement() {
         <button type="submit" disabled={loading}>
           {loading ? 'Uploading...' : editingPdf ? 'Update PDF' : 'Upload PDF'}
         </button>
+        {editingPdf && (
+          <button type="button" onClick={handleCancelEdit}>
+            Cancel Edit
+          </button>
+        )}
       </form>
 
       <h2 style={{ marginTop: '40px' }}>Uploaded PDFs</h2>
       {pdfs.length === 0 ? (
-        <p>No PDFs yet.</p>
+        <p>No PDFs uploaded yet.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {pdfs.map((pdf) => (
             <li key={pdf._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
               <h3>{pdf.title}</h3>
-              <iframe
-                src={pdf.originalLink + '#toolbar=0&navpanes=0&scrollbar=0'}
-                width="100%"
-                height="300"
-                frameBorder="0"
-                title={pdf.title}
-              ></iframe>
+              <a href={pdf.originalLink} target="_blank" rel="noopener noreferrer">View PDF</a>
               <p>Category: {pdf.category}</p>
               <button onClick={() => handleEdit(pdf)}>Edit</button>
               <button onClick={() => handleDelete(pdf._id)}>Delete</button>
