@@ -169,8 +169,8 @@ export default function UserManagement() {
             handleEditClick={handleEditClick}
             handleSaveInlineEdit={handleSaveInlineEdit}
             handleCancelInlineEdit={handleCancelInlineEdit}
-            handleDelete={handleDelete}            {/* ✅ Added */}
-            handleExpire={handleExpire}            {/* ✅ Added */}
+            handleDelete={handleDelete}            
+            handleExpire={handleExpire}           
             editingUserEmail={editingUserEmail}
             editingFormData={editingFormData}
             setEditingFormData={setEditingFormData}
