@@ -315,3 +315,32 @@ body .dropdown-menu-fixed button:hover {
     flex-direction: column;
   }
 }
+
+/* Fix dropdown background and text color */
+.dropdown-clean {
+  position: absolute;
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-clean button {
+  width: 100%;
+  padding: 10px;
+  background-color: white !important;
+  color: black !important;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-clean button:hover {
+  background-color: #f2f2f2 !important;
+  color: black !important;
+}
