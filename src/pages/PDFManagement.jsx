@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { storage } from '../firebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
   const [title, setTitle] = useState('');
-  const [link, setLink] = useState('');
+  const [file, setFile] = useState(null);
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const extractGoogleDriveId = (url) => {
-    const regex = /\/d\/([a-zA-Z0-9_-]+)/;
-    const match = url.match(regex);
-    return match ? match[1] : '';
-  };
-
   const fetchPdfs = async () => {
     try {
       const response = await axios.get(`${API_URL}general?type=pdf`);
       setPdfs(response.data);
-    } catch (error) {
+    } catch {
       toast.error('Error fetching PDFs');
     }
   };
@@ -31,57 +28,62 @@ export default function PDFManagement() {
     fetchPdfs();
   }, []);
 
+  const uploadToFirebase = async (file) => {
+    const storageRef = ref(storage, `pdfs/${uuidv4()}-${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    return await getDownloadURL(snapshot.ref);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const driveId = extractGoogleDriveId(link);
-    if (!driveId) {
-      toast.error('Invalid Google Drive link');
-      setLoading(false);
-      return;
-    }
-
-    const embedLink = `https://drive.google.com/file/d/${driveId}/preview`;
-    const originalLink = link;
-
     try {
-      if (editingPdf) {
-        await axios.put(
-          `${API_URL}general?type=pdf&id=${editingPdf._id}`,
-          { title, embedLink, originalLink, category }
-        );
-        toast.success('PDF updated successfully');
-        setEditingPdf(null);
+      let fileUrl = '';
+
+      if (file) {
+        fileUrl = await uploadToFirebase(file);
       } else {
-        await axios.post(`${API_URL}general?type=pdf`, {
-          title,
-          embedLink,
-          originalLink,
-          category,
-        });
-        toast.success('PDF added successfully');
+        toast.error('Please choose a PDF file');
+        setLoading(false);
+        return;
+      }
+
+      const payload = {
+        title,
+        originalLink: fileUrl,
+        embedLink: '', // Not needed anymore
+        category,
+      };
+
+      if (editingPdf) {
+        await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
+        toast.success('PDF updated');
+      } else {
+        await axios.post(`${API_URL}general?type=pdf`, payload);
+        toast.success('PDF uploaded');
       }
 
       setTitle('');
-      setLink('');
+      setFile(null);
       setCategory('free');
+      setEditingPdf(null);
       fetchPdfs();
-    } catch (error) {
-      toast.error('Error saving PDF');
+    } catch {
+      toast.error('Failed to upload');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this PDF?')) {
+    if (confirm('Are you sure?')) {
       try {
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        toast.success('PDF deleted successfully');
+        toast.success('Deleted');
         fetchPdfs();
-      } catch (error) {
-        toast.error('Error deleting PDF');
+      } catch {
+        toast.error('Delete failed');
       }
     }
   };
@@ -89,15 +91,7 @@ export default function PDFManagement() {
   const handleEdit = (pdf) => {
     setEditingPdf(pdf);
     setTitle(pdf.title);
-    setLink(pdf.originalLink);
     setCategory(pdf.category);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingPdf(null);
-    setTitle('');
-    setLink('');
-    setCategory('free');
   };
 
   return (
@@ -113,50 +107,30 @@ export default function PDFManagement() {
           required
         />
         <input
-          type="text"
-          placeholder="Google Drive Link"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          required
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => setFile(e.target.files[0])}
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="free">Free</option>
           <option value="premium">Premium</option>
         </select>
         <button type="submit" disabled={loading}>
-          {loading ? (editingPdf ? 'Updating...' : 'Saving...') : editingPdf ? 'Update PDF' : 'Save'}
+          {loading ? 'Uploading...' : editingPdf ? 'Update PDF' : 'Upload PDF'}
         </button>
-        {editingPdf && (
-          <button type="button" onClick={handleCancelEdit}>
-            Cancel Edit
-          </button>
-        )}
       </form>
 
       <h2 style={{ marginTop: '40px' }}>Uploaded PDFs</h2>
       {pdfs.length === 0 ? (
-        <p>No PDFs uploaded yet.</p>
+        <p>No PDFs yet.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {pdfs.map((pdf) => (
-            <li
-              key={pdf._id}
-              style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}
-            >
+            <li key={pdf._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
               <h3>{pdf.title}</h3>
-              <iframe
-                src={pdf.embedLink}
-                width="300"
-                height="200"
-                title={pdf.title}
-                frameBorder="0"
-                allow="autoplay"
-              ></iframe>
               <p>Category: {pdf.category}</p>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={() => handleEdit(pdf)}>Edit</button>
-                <button onClick={() => handleDelete(pdf._id)}>Delete</button>
-              </div>
+              <button onClick={() => handleEdit(pdf)}>Edit</button>
+              <button onClick={() => handleDelete(pdf._id)}>Delete</button>
             </li>
           ))}
         </ul>
