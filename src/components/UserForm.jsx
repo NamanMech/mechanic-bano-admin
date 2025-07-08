@@ -1,27 +1,57 @@
 import React from 'react';
+import { showSuccessToast, showErrorToast, showWarningToast } from '../utils/toastUtils';
 
-export default function UserForm({ formData, setFormData, handleFormSubmit, isEditing, processing, setIsFormOpen }) {
+export default function UserForm({
+  formData,
+  setFormData,
+  handleFormSubmit,
+  isEditing,
+  processing,
+  setIsFormOpen
+}) {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.email) {
+      showWarningToast('Name and Email are required');
+      return;
+    }
+
+    handleFormSubmit(e); // actual API call with toasts already handled in UserManagement
+  };
+
   return (
-    <form onSubmit={handleFormSubmit} className="user-form">
+    <form onSubmit={onSubmit}>
       <input
         type="text"
-        placeholder="Name"
+        name="name"
+        placeholder="Enter name"
         value={formData.name}
-        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-        required
+        onChange={handleChange}
+        disabled={processing}
       />
       <input
         type="email"
-        placeholder="Email"
+        name="email"
+        placeholder="Enter email"
         value={formData.email}
-        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-        required
-        disabled={isEditing}
+        onChange={handleChange}
+        disabled={processing}
       />
-      <button type="submit" disabled={processing}>
-        {processing ? 'Saving...' : isEditing ? 'Update User' : 'Add User'}
+      <button type="submit" className="save-button" disabled={processing}>
+        {isEditing ? 'Update' : 'Add'}
       </button>
-      <button type="button" onClick={() => setIsFormOpen(false)} className="cancel-button" disabled={processing}>
+      <button
+        type="button"
+        className="cancel-button"
+        onClick={() => setIsFormOpen(false)}
+        disabled={processing}
+      >
         Cancel
       </button>
     </form>
