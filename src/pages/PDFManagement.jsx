@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_UPLOAD_URL } from '../utils/cloudinaryConfig';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
@@ -30,9 +31,20 @@ export default function PDFManagement() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('public_id', `pdfs/${uuidv4()}-${file.name}`);
 
-    const response = await axios.post(CLOUDINARY_UPLOAD_URL, formData);
-    return response.data.secure_url;
+    try {
+      const res = await axios.post(CLOUDINARY_UPLOAD_URL, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return res.data.secure_url;
+    } catch (err) {
+      console.error(err);
+      toast.error('Cloudinary upload failed');
+      throw err;
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -40,22 +52,20 @@ export default function PDFManagement() {
     setLoading(true);
 
     try {
-      if (!file && !editingPdf) {
+      let fileUrl = '';
+
+      if (file) {
+        fileUrl = await uploadToCloudinary(file);
+      } else {
         toast.error('Please select a PDF file');
         setLoading(false);
         return;
       }
 
-      let fileUrl = editingPdf?.originalLink;
-
-      if (file) {
-        fileUrl = await uploadToCloudinary(file);
-      }
-
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '', // optional, not used
+        embedLink: '',
         category,
       };
 
@@ -72,8 +82,9 @@ export default function PDFManagement() {
       setCategory('free');
       setEditingPdf(null);
       fetchPdfs();
-    } catch {
+    } catch (error) {
       toast.error('Upload failed');
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -83,7 +94,7 @@ export default function PDFManagement() {
     if (confirm('Are you sure?')) {
       try {
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        toast.success('Deleted');
+        toast.success('PDF deleted');
         fetchPdfs();
       } catch {
         toast.error('Delete failed');
@@ -113,13 +124,14 @@ export default function PDFManagement() {
           type="file"
           accept="application/pdf"
           onChange={(e) => setFile(e.target.files[0])}
+          required
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="free">Free</option>
           <option value="premium">Premium</option>
         </select>
         <button type="submit" disabled={loading}>
-          {loading ? 'Uploading...' : editingPdf ? 'Update PDF' : 'Upload PDF'}
+          {loading ? (editingPdf ? 'Updating...' : 'Uploading...') : editingPdf ? 'Update PDF' : 'Upload PDF'}
         </button>
       </form>
 
