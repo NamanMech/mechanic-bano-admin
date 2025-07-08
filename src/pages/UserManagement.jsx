@@ -8,8 +8,8 @@ import UserTable from '../components/UserTable.jsx';
 import {
   showSuccessToast,
   showErrorToast,
-  showWarningToast
-} from '../utils/toastUtils.js';
+  showWarningToast,
+} from '../utils/toastUtils';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -21,7 +21,6 @@ export default function UserManagement() {
   const [sortOrder, setSortOrder] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-
   const [editingUserEmail, setEditingUserEmail] = useState(null);
   const [editingFormData, setEditingFormData] = useState({ name: '', email: '' });
 
@@ -74,6 +73,12 @@ export default function UserManagement() {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.name || !formData.email) {
+      showWarningToast('Name and email are required');
+      return;
+    }
+
     setProcessing(true);
     try {
       if (formData._id) {
@@ -104,6 +109,11 @@ export default function UserManagement() {
   };
 
   const handleSaveInlineEdit = async (originalEmail) => {
+    if (!editingFormData.name || !editingFormData.email) {
+      showWarningToast('Name and Email are required');
+      return;
+    }
+
     setProcessing(true);
     try {
       await axios.put(`${API_URL}user?email=${originalEmail}&type=update`, editingFormData);
@@ -127,9 +137,8 @@ export default function UserManagement() {
   );
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
-    return sortOrder === 'asc'
-      ? a.name.localeCompare(b.name)
-      : b.name.localeCompare(a.name);
+    if (sortOrder === 'asc') return a.name.localeCompare(b.name);
+    else return b.name.localeCompare(a.name);
   });
 
   const totalPages = Math.ceil(sortedUsers.length / pageSize);
@@ -141,7 +150,11 @@ export default function UserManagement() {
     <div className="container">
       <h2>All Users</h2>
 
-      <button onClick={() => setIsFormOpen(true)} className="btn-primary" style={{ marginBottom: '20px' }}>
+      <button
+        onClick={() => setIsFormOpen(true)}
+        className="btn-primary"
+        style={{ marginBottom: '20px' }}
+      >
         Add User
       </button>
 
