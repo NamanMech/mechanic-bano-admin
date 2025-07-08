@@ -1,4 +1,5 @@
 import React from 'react';
+import DropdownMenu from './DropdownMenu.jsx';
 
 export default function UserTable({
   users,
@@ -6,6 +7,8 @@ export default function UserTable({
   handleEditClick,
   handleSaveInlineEdit,
   handleCancelInlineEdit,
+  handleDelete,
+  handleExpire,
   editingUserEmail,
   editingFormData,
   setEditingFormData
@@ -83,12 +86,13 @@ export default function UserTable({
                       </button>
                     </>
                   ) : (
-                    <button
-                      className="edit-button"
-                      onClick={() => handleEditClick(user)}
-                    >
-                      Edit
-                    </button>
+                    <DropdownMenu
+                      user={user}
+                      onEdit={handleEditClick}
+                      onDelete={handleDelete}
+                      onExpire={handleExpire}
+                      processing={processing}
+                    />
                   )}
                 </td>
               </tr>
