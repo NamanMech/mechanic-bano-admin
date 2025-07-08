@@ -39,7 +39,6 @@ export default function PDFManagement() {
       });
       return res.data.secure_url;
     } catch (err) {
-      console.error(err);
       toast.error('Cloudinary upload failed');
       throw err;
     }
@@ -63,7 +62,7 @@ export default function PDFManagement() {
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '', // Not needed
+        embedLink: '', // Not needed anymore
         category,
       };
 
@@ -80,7 +79,7 @@ export default function PDFManagement() {
       setCategory('free');
       setEditingPdf(null);
       fetchPdfs();
-    } catch (error) {
+    } catch {
       toast.error('Upload failed');
     } finally {
       setLoading(false);
@@ -91,7 +90,7 @@ export default function PDFManagement() {
     if (confirm('Are you sure?')) {
       try {
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        toast.success('PDF deleted');
+        toast.success('Deleted');
         fetchPdfs();
       } catch {
         toast.error('Delete failed');
@@ -138,13 +137,35 @@ export default function PDFManagement() {
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {pdfs.map((pdf) => (
-            <li key={pdf._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
+            <li
+              key={pdf._id}
+              style={{
+                marginBottom: '20px',
+                border: '1px solid #ccc',
+                padding: '10px',
+                borderRadius: '8px',
+                background: '#f8f8f8',
+              }}
+            >
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
-              <a href={pdf.originalLink} target="_blank" rel="noopener noreferrer">View PDF</a>
-              <br />
-              <button onClick={() => handleEdit(pdf)}>Edit</button>
-              <button onClick={() => handleDelete(pdf._id)}>Delete</button>
+
+              {/* ✅ Embed PDF using Google Docs Viewer */}
+              <iframe
+                src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdf.originalLink)}&embedded=true`}
+                title={pdf.title}
+                width="100%"
+                height="400"
+                frameBorder="0"
+                style={{ marginTop: '10px', border: '1px solid #999' }}
+              ></iframe>
+
+              <div style={{ marginTop: '10px' }}>
+                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
+                  Edit
+                </button>
+                <button onClick={() => handleDelete(pdf._id)}>Delete</button>
+              </div>
             </li>
           ))}
         </ul>
