@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
@@ -39,9 +38,7 @@ export default function App() {
     fetchPageStatus();
   }, []);
 
-  if (loading) {
-    return <div className="spinner"></div>;
-  }
+  if (loading) return <div className="spinner"></div>;
 
   return (
     <Router>
@@ -53,9 +50,9 @@ export default function App() {
           {pageStatus.pdfs && <Route path="/pdfs" element={<PDFManagement />} />}
           {pageStatus.welcome && <Route path="/welcome" element={<WelcomeNoteManagement />} />}
           {pageStatus.sitename && <Route path="/sitename" element={<SiteNameManagement />} />}
-          <Route path="/pagecontrol" element={<PageControlManagement />} />
-          <Route path="/subscription-plans" element={<SubscriptionPlans />} />
-          <Route path="/users" element={<UserManagement />} />
+          <Route path="/pagecontrol" element={<PageControlManagement fetchPageStatus={fetchPageStatus} />} />
+          {pageStatus['subscription-plans'] && <Route path="/subscription-plans" element={<SubscriptionPlans />} />}
+          {pageStatus.users && <Route path="/users" element={<UserManagement />} />}
         </Routes>
       </div>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
