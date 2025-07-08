@@ -10,10 +10,24 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   const handleToggleMenu = (e) => {
     e.stopPropagation();
     const rect = buttonRef.current.getBoundingClientRect();
+    const menuWidth = 160;
+    const screenWidth = window.innerWidth;
+
+    let left = rect.left + window.scrollX;
+
+    // Prevent overflow on right side
+    if (left + menuWidth > screenWidth) {
+      left = screenWidth - menuWidth - 10;
+    }
+
+    // Prevent overflow on left side
+    left = Math.max(10, left);
+
     setMenuPosition({
       top: rect.bottom + window.scrollY + 5,
-      left: rect.left + window.scrollX,
+      left,
     });
+
     setIsOpen(!isOpen);
   };
 
@@ -35,7 +49,7 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   const menu = (
     <div
       ref={menuRef}
-      className="dropdown-menu-fixed dropdown-clean"
+      className="dropdown-menu-fixed"
       style={{
         top: `${menuPosition.top}px`,
         left: `${menuPosition.left}px`,
@@ -52,10 +66,10 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
   return (
     <>
       <button ref={buttonRef} onClick={handleToggleMenu} className="dropdown-trigger">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </button>
       {isOpen && createPortal(menu, document.body)}
     </>
   );
