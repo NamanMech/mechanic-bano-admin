@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner.jsx';
-import { toast } from 'react-toastify';
 import UserForm from '../components/UserForm.jsx';
 import SearchBar from '../components/SearchBar.jsx';
 import Pagination from '../components/Pagination.jsx';
 import UserTable from '../components/UserTable.jsx';
-import AuditTimeline from '../components/AuditTimeline.jsx';
-import UserStats from '../components/UserStats.jsx';
+import {
+  showSuccessToast,
+  showErrorToast,
+  showWarningToast
+} from '../utils/toastUtils.js';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -23,8 +25,6 @@ export default function UserManagement() {
   const [editingUserEmail, setEditingUserEmail] = useState(null);
   const [editingFormData, setEditingFormData] = useState({ name: '', email: '' });
 
-  const [auditLogs, setAuditLogs] = useState([]);
-
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchUsers = async () => {
@@ -32,7 +32,7 @@ export default function UserManagement() {
       const response = await axios.get(`${API_URL}user`);
       setUsers(response.data);
     } catch (error) {
-      toast.error('Error fetching users');
+      showErrorToast('Error fetching users');
     } finally {
       setLoading(false);
     }
@@ -42,25 +42,15 @@ export default function UserManagement() {
     fetchUsers();
   }, []);
 
-  const isDuplicateEmail = (email) => {
-    return users.some((user) => user.email === email);
-  };
-
-  const logAction = (action, email) => {
-    const timestamp = new Date().toLocaleString();
-    setAuditLogs((prev) => [{ action, email, timestamp }, ...prev]);
-  };
-
   const handleDelete = async (email) => {
     if (confirm('Are you sure you want to delete this user?')) {
       setProcessing(true);
       try {
         await axios.delete(`${API_URL}user?email=${email}`);
-        toast.success('User deleted successfully');
-        logAction('Deleted User', email);
+        showSuccessToast('User deleted successfully');
         fetchUsers();
       } catch (error) {
-        toast.error('Error deleting user');
+        showErrorToast('Error deleting user');
       } finally {
         setProcessing(false);
       }
@@ -72,11 +62,10 @@ export default function UserManagement() {
       setProcessing(true);
       try {
         await axios.put(`${API_URL}subscription?type=expire&email=${email}`);
-        toast.success('Subscription expired successfully');
-        logAction('Expired Subscription', email);
+        showSuccessToast('Subscription expired successfully');
         fetchUsers();
       } catch (error) {
-        toast.error('Error expiring subscription');
+        showErrorToast('Error expiring subscription');
       } finally {
         setProcessing(false);
       }
@@ -85,32 +74,20 @@ export default function UserManagement() {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.email) {
-      toast.error('Please fill all fields');
-      return;
-    }
-
-    if (!formData._id && isDuplicateEmail(formData.email)) {
-      toast.error('Email already exists');
-      return;
-    }
-
     setProcessing(true);
     try {
       if (formData._id) {
         await axios.put(`${API_URL}user?email=${formData.email}&type=update`, formData);
-        toast.success('User updated successfully');
-        logAction('Updated User', formData.email);
+        showSuccessToast('User updated successfully');
       } else {
         await axios.post(`${API_URL}user`, formData);
-        toast.success('User added successfully');
-        logAction('Added User', formData.email);
+        showSuccessToast('User added successfully');
       }
       fetchUsers();
       setIsFormOpen(false);
       setFormData({ name: '', email: '' });
     } catch (error) {
-      toast.error('Error saving user');
+      showErrorToast('Error saving user');
     } finally {
       setProcessing(false);
     }
@@ -127,28 +104,14 @@ export default function UserManagement() {
   };
 
   const handleSaveInlineEdit = async (originalEmail) => {
-    if (!editingFormData.name || !editingFormData.email) {
-      toast.error('Please fill all fields');
-      return;
-    }
-
-    if (
-      editingFormData.email !== originalEmail &&
-      isDuplicateEmail(editingFormData.email)
-    ) {
-      toast.error('Email already exists');
-      return;
-    }
-
     setProcessing(true);
     try {
       await axios.put(`${API_URL}user?email=${originalEmail}&type=update`, editingFormData);
-      toast.success('User updated successfully');
-      logAction('Inline Edit', editingFormData.email);
+      showSuccessToast('User updated successfully');
       fetchUsers();
       handleCancelInlineEdit();
     } catch (error) {
-      toast.error('Error updating user');
+      showErrorToast('Error updating user');
     } finally {
       setProcessing(false);
     }
@@ -164,8 +127,9 @@ export default function UserManagement() {
   );
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
-    if (sortOrder === 'asc') return a.name.localeCompare(b.name);
-    else return b.name.localeCompare(a.name);
+    return sortOrder === 'asc'
+      ? a.name.localeCompare(b.name)
+      : b.name.localeCompare(a.name);
   });
 
   const totalPages = Math.ceil(sortedUsers.length / pageSize);
@@ -180,8 +144,6 @@ export default function UserManagement() {
       <button onClick={() => setIsFormOpen(true)} className="btn-primary" style={{ marginBottom: '20px' }}>
         Add User
       </button>
-
-      <UserStats users={users} />
 
       <SearchBar
         searchQuery={searchQuery}
@@ -227,8 +189,6 @@ export default function UserManagement() {
           />
         </>
       )}
-
-      <AuditTimeline logs={auditLogs} />
     </div>
   );
 }
