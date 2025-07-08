@@ -193,6 +193,7 @@ ul {
   background: transparent;
   border: none;
   padding: 5px;
+  color: white !important; /* ✅ ensures white icon lines */
 }
 
 /* Final Working Dropdown Menu CSS */
