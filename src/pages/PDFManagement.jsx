@@ -35,10 +35,13 @@ export default function PDFManagement() {
 
     try {
       const res = await axios.post(CLOUDINARY_UPLOAD_URL, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
       return res.data.secure_url;
     } catch (err) {
+      console.error('Upload error:', err.response?.data || err.message);
       toast.error('Cloudinary upload failed');
       throw err;
     }
@@ -49,15 +52,13 @@ export default function PDFManagement() {
     setLoading(true);
 
     try {
-      let fileUrl = '';
-
-      if (file) {
-        fileUrl = await uploadToCloudinary(file);
-      } else {
+      if (!file) {
         toast.error('Please select a PDF file');
         setLoading(false);
         return;
       }
+
+      const fileUrl = await uploadToCloudinary(file);
 
       const payload = {
         title,
@@ -68,10 +69,10 @@ export default function PDFManagement() {
 
       if (editingPdf) {
         await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
-        toast.success('PDF updated');
+        toast.success('PDF updated successfully');
       } else {
         await axios.post(`${API_URL}general?type=pdf`, payload);
-        toast.success('PDF uploaded');
+        toast.success('PDF uploaded successfully');
       }
 
       setTitle('');
@@ -90,7 +91,7 @@ export default function PDFManagement() {
     if (confirm('Are you sure?')) {
       try {
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        toast.success('Deleted');
+        toast.success('PDF deleted');
         fetchPdfs();
       } catch {
         toast.error('Delete failed');
@@ -150,7 +151,7 @@ export default function PDFManagement() {
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
 
-              {/* ✅ Embed PDF using Google Docs Viewer */}
+              {/* ✅ Use Google Docs Viewer for safe embedding */}
               <iframe
                 src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdf.originalLink)}&embedded=true`}
                 title={pdf.title}
