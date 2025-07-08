@@ -35,9 +35,7 @@ export default function PDFManagement() {
 
     try {
       const res = await axios.post(CLOUDINARY_UPLOAD_URL, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       return res.data.secure_url;
     } catch (err) {
@@ -65,16 +63,16 @@ export default function PDFManagement() {
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '',
+        embedLink: '', // Not needed
         category,
       };
 
       if (editingPdf) {
         await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
-        toast.success('PDF updated successfully');
+        toast.success('PDF updated');
       } else {
         await axios.post(`${API_URL}general?type=pdf`, payload);
-        toast.success('PDF uploaded successfully');
+        toast.success('PDF uploaded');
       }
 
       setTitle('');
@@ -84,7 +82,6 @@ export default function PDFManagement() {
       fetchPdfs();
     } catch (error) {
       toast.error('Upload failed');
-      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -144,6 +141,8 @@ export default function PDFManagement() {
             <li key={pdf._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
+              <a href={pdf.originalLink} target="_blank" rel="noopener noreferrer">View PDF</a>
+              <br />
               <button onClick={() => handleEdit(pdf)}>Edit</button>
               <button onClick={() => handleDelete(pdf._id)}>Delete</button>
             </li>
