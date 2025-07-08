@@ -1,12 +1,14 @@
 import React from 'react';
-import DropdownMenu from './DropdownMenu.jsx';
 
 export default function UserTable({
   users,
   processing,
   handleEditClick,
-  handleDelete,
-  handleExpire
+  handleSaveInlineEdit,
+  handleCancelInlineEdit,
+  editingUserEmail,
+  editingFormData,
+  setEditingFormData
 }) {
   return (
     <div className="table-container">
@@ -21,33 +23,77 @@ export default function UserTable({
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
-            <tr key={user._id}>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>
-                {user.isSubscribed ? (
-                  <span className="status-icon active">✔️</span>
-                ) : (
-                  <span className="status-icon inactive">❌</span>
-                )}
-              </td>
-              <td>
-                {user.subscriptionEnd
-                  ? new Date(user.subscriptionEnd).toLocaleDateString()
-                  : '-'}
-              </td>
-              <td>
-                <DropdownMenu
-                  user={user}
-                  onEdit={handleEditClick}
-                  onDelete={handleDelete}
-                  onExpire={handleExpire}
-                  processing={processing}
-                />
-              </td>
-            </tr>
-          ))}
+          {users.map((user) => {
+            const isEditing = editingUserEmail === user.email;
+            return (
+              <tr key={user._id}>
+                <td>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editingFormData.name}
+                      onChange={(e) =>
+                        setEditingFormData({ ...editingFormData, name: e.target.value })
+                      }
+                    />
+                  ) : (
+                    user.name
+                  )}
+                </td>
+                <td>
+                  {isEditing ? (
+                    <input
+                      type="email"
+                      value={editingFormData.email}
+                      onChange={(e) =>
+                        setEditingFormData({ ...editingFormData, email: e.target.value })
+                      }
+                    />
+                  ) : (
+                    user.email
+                  )}
+                </td>
+                <td>
+                  {user.isSubscribed ? (
+                    <span className="status-icon active">✔️</span>
+                  ) : (
+                    <span className="status-icon inactive">❌</span>
+                  )}
+                </td>
+                <td>
+                  {user.subscriptionEnd
+                    ? new Date(user.subscriptionEnd).toLocaleDateString()
+                    : '-'}
+                </td>
+                <td>
+                  {isEditing ? (
+                    <>
+                      <button
+                        className="save-button"
+                        onClick={() => handleSaveInlineEdit(user.email)}
+                        disabled={processing}
+                      >
+                        Save
+                      </button>
+                      <button
+                        className="cancel-button"
+                        onClick={handleCancelInlineEdit}
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      className="edit-button"
+                      onClick={() => handleEditClick(user)}
+                    >
+                      Edit
+                    </button>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
