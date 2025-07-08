@@ -92,10 +92,18 @@ export default function UserTable({
                   )}
                 </td>
                 <td>
-                  {user.subscriptionEnd
-                    ? new Date(user.subscriptionEnd).toLocaleDateString()
-                    : '-'}
-                </td>
+  {user.subscriptionEnd ? (
+    <>
+      {new Date(user.subscriptionEnd).toLocaleDateString()}
+      <br />
+      <span style={{ fontSize: '12px', color: '#ffa726' }}>
+        {Math.ceil((new Date(user.subscriptionEnd) - new Date()) / (1000 * 60 * 60 * 24))} days left
+      </span>
+    </>
+  ) : (
+    '-'
+  )}
+</td>
                 <td>
                   {isEditing ? (
                     <>
