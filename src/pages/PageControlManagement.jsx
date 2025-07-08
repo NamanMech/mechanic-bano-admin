@@ -20,13 +20,18 @@ export default function PageControlManagement({ fetchPageStatus }) {
   };
 
   const togglePageStatus = async (id, currentStatus, pageName) => {
+    if (pageName === 'pagecontrol') {
+      toast.warning("This page can't be disabled");
+      return;
+    }
+
     try {
       await axios.put(`${API_URL}general?type=pagecontrol&id=${id}`, {
         enabled: !currentStatus,
       });
       toast.success(`"${formatPageName(pageName)}" ${currentStatus ? 'disabled' : 'enabled'} successfully`);
-      await loadPages();           // refresh table
-      await fetchPageStatus();     // refresh navbar
+      await loadPages();
+      await fetchPageStatus();
     } catch (err) {
       toast.error('Failed to update page status');
     }
@@ -61,15 +66,21 @@ export default function PageControlManagement({ fetchPageStatus }) {
               <td style={styles.td}>{formatPageName(page.page)}</td>
               <td style={styles.td}>{page.enabled ? 'Enabled' : 'Disabled'}</td>
               <td style={styles.td}>
-                <button
-                  onClick={() => togglePageStatus(page._id, page.enabled, page.page)}
-                  style={{
-                    ...styles.button,
-                    backgroundColor: page.enabled ? '#e74c3c' : '#2ecc71',
-                  }}
-                >
-                  {page.enabled ? 'Disable' : 'Enable'}
-                </button>
+                {page.page === 'pagecontrol' ? (
+                  <button style={{ ...styles.button, backgroundColor: '#95a5a6', cursor: 'not-allowed' }} disabled>
+                    Locked
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => togglePageStatus(page._id, page.enabled, page.page)}
+                    style={{
+                      ...styles.button,
+                      backgroundColor: page.enabled ? '#e74c3c' : '#2ecc71',
+                    }}
+                  >
+                    {page.enabled ? 'Disable' : 'Enable'}
+                  </button>
+                )}
               </td>
             </tr>
           ))}
