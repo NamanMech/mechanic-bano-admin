@@ -55,16 +55,16 @@ export default function Navbar({ pageStatus }) {
           <NavLink to="/" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
             Home
           </NavLink>
-          {pageStatus.videos && (
-            <NavLink to="/videos" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-              Videos
-            </NavLink>
-          )}
-          {pageStatus.pdfs && (
-            <NavLink to="/pdfs" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-              PDFs
-            </NavLink>
-          )}
+          {pageStatus.youtube && (
+  <NavLink to="/YouTubeVideoManagement" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+    YouTube Videos
+  </NavLink>
+)}
+{pageStatus.pdf && (
+  <NavLink to="/PDFManagement" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+    PDF Files
+  </NavLink>
+)}
           {pageStatus.welcome && (
             <NavLink to="/welcome" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
               Welcome Note
