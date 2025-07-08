@@ -29,20 +29,19 @@ a:hover {
   margin: auto;
 }
 
-/* Headings */
 h1, h2, h3 {
   text-align: center;
 }
 
-/* Forms */
 form {
   display: flex;
   flex-direction: column;
   gap: 10px;
   max-width: 400px;
-  margin: 0 auto 30px;
-  padding: 0 10px;
+  margin: auto;
+  margin-bottom: 30px;
   width: 100%;
+  padding: 0 10px;
 }
 
 input, textarea, select {
@@ -50,11 +49,11 @@ input, textarea, select {
   border-radius: 5px;
   border: 1px solid #555;
   outline: none;
+  width: 100%;
+  font-size: 14px;
   background-color: #1e1e1e;
   color: white;
-  font-size: 14px;
   box-sizing: border-box;
-  width: 100%;
 }
 
 /* Buttons */
@@ -139,6 +138,8 @@ button:disabled {
   border-collapse: collapse;
   margin-top: 20px;
   overflow-x: auto;
+  display: block;
+  white-space: nowrap;
 }
 
 .custom-table th, .custom-table td {
@@ -211,18 +212,17 @@ button:disabled {
   background-color: #444;
 }
 
-/* Search + Pagination */
+/* Search + Filter + Export + Sort Layout */
 .search-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   margin-bottom: 20px;
-  flex-wrap: wrap;
 }
 
 .search-bar input {
   flex: 1;
-  min-width: 200px;
   max-width: 300px;
 }
 
@@ -236,7 +236,6 @@ button:disabled {
   justify-content: center;
   gap: 10px;
   margin-top: 20px;
-  flex-wrap: wrap;
 }
 
 .pagination select {
@@ -260,7 +259,7 @@ button:disabled {
 }
 
 .audit-log ul {
-  list-style: none;
+  list-style-type: none;
   padding: 0;
   margin: 0;
 }
@@ -271,24 +270,8 @@ button:disabled {
   padding: 6px 0;
 }
 
-/* Responsive Layout */
+/* Responsive Fixes */
 @media (max-width: 768px) {
-  .custom-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-
-  .custom-table th, .custom-table td {
-    min-width: 120px;
-    padding: 8px;
-  }
-
-  .dropdown-menu-fixed {
-    min-width: 130px;
-    font-size: 14px;
-  }
-
   .search-bar {
     flex-direction: column;
     align-items: stretch;
@@ -299,13 +282,24 @@ button:disabled {
     align-items: stretch;
   }
 
-  .stats-container {
-    flex-direction: column;
+  .custom-table th,
+  .custom-table td {
+    min-width: 120px;
+    padding: 8px;
+  }
+
+  .dropdown-menu-fixed {
+    min-width: 130px;
+    font-size: 14px;
   }
 
   .stat-card {
     width: 100%;
     margin-bottom: 10px;
+  }
+
+  .stats-container {
+    flex-direction: column;
   }
 }
 
@@ -318,59 +312,4 @@ button:disabled {
     width: 130px;
     font-size: 13px;
   }
-}
-
-/* Ensure table scrolls horizontally on mobile */
-.custom-table {
-  overflow-x: auto;
-  display: block;
-  white-space: nowrap;
-}
-
-/* Responsive toolbar (search/filter/sort/export) */
-@media (max-width: 768px) {
-  .search-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .search-bar input,
-  .search-bar select,
-  .search-bar button {
-    width: 100%;
-  }
-
-  .dropdown-trigger {
-    padding: 8px;
-    margin-left: 4px;
-  }
-}
-
-@media (max-width: 480px) {
-  .custom-table th,
-  .custom-table td {
-    font-size: 13px;
-    padding: 8px;
-  }
-
-  .dropdown-menu-fixed {
-    width: 120px;
-    font-size: 13px;
-  }
-
-  .btn-primary,
-  .btn-edit,
-  .btn-delete {
-    padding: 8px 10px;
-    font-size: 13px;
-  }
-}
-
-.search-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-  justify-content: flex-start;
 }
