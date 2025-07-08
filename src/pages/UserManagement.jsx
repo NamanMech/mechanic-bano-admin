@@ -12,14 +12,14 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [menuStates, setMenuStates] = useState({});
-  const [menuPositions, setMenuPositions] = useState({});
+
+  const [editingUserEmail, setEditingUserEmail] = useState(null);
+  const [editingFormData, setEditingFormData] = useState({ name: '', email: '' });
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -72,8 +72,8 @@ export default function UserManagement() {
     e.preventDefault();
     setProcessing(true);
     try {
-      if (editingUser) {
-        await axios.put(`${API_URL}user?email=${editingUser.email}&type=update`, formData);
+      if (formData._id) {
+        await axios.put(`${API_URL}user?email=${formData.email}&type=update`, formData);
         toast.success('User updated successfully');
       } else {
         await axios.post(`${API_URL}user`, formData);
@@ -81,7 +81,6 @@ export default function UserManagement() {
       }
       fetchUsers();
       setIsFormOpen(false);
-      setEditingUser(null);
       setFormData({ name: '', email: '' });
     } catch (error) {
       toast.error('Error saving user');
@@ -90,34 +89,33 @@ export default function UserManagement() {
     }
   };
 
+  // Inline edit handlers
   const handleEditClick = (user) => {
-    setEditingUser(user);
-    setFormData({ name: user.name, email: user.email });
-    setIsFormOpen(true);
+    setEditingUserEmail(user.email);
+    setEditingFormData({ name: user.name, email: user.email });
   };
 
-  const handleAddClick = () => {
-    setEditingUser(null);
-    setFormData({ name: '', email: '' });
-    setIsFormOpen(true);
+  const handleCancelInlineEdit = () => {
+    setEditingUserEmail(null);
+    setEditingFormData({ name: '', email: '' });
+  };
+
+  const handleSaveInlineEdit = async (originalEmail) => {
+    setProcessing(true);
+    try {
+      await axios.put(`${API_URL}user?email=${originalEmail}&type=update`, editingFormData);
+      toast.success('User updated successfully');
+      fetchUsers();
+      handleCancelInlineEdit();
+    } catch (error) {
+      toast.error('Error updating user');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const handleSortToggle = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-  };
-
-  const handleMenuToggle = (event, email) => {
-    event.stopPropagation();
-    setMenuStates((prev) => ({
-      ...prev,
-      [email]: !prev[email],
-    }));
-
-    const rect = event.currentTarget.getBoundingClientRect();
-    setMenuPositions((prev) => ({
-      ...prev,
-      [email]: { x: rect.left + 'px', y: rect.bottom + 'px' },
-    }));
   };
 
   const filteredUsers = users.filter((user) =>
@@ -139,18 +137,23 @@ export default function UserManagement() {
     <div className="container">
       <h2>All Users</h2>
 
-      <button onClick={handleAddClick} className="btn-primary" style={{ marginBottom: '20px' }}>
+      <button onClick={() => setIsFormOpen(true)} className="btn-primary" style={{ marginBottom: '20px' }}>
         Add User
       </button>
 
-      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} handleSortToggle={handleSortToggle} sortOrder={sortOrder} />
+      <SearchBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleSortToggle={handleSortToggle}
+        sortOrder={sortOrder}
+      />
 
       {isFormOpen && (
         <UserForm
           formData={formData}
           setFormData={setFormData}
           handleFormSubmit={handleFormSubmit}
-          isEditing={editingUser !== null}
+          isEditing={formData._id !== undefined}
           processing={processing}
           setIsFormOpen={setIsFormOpen}
         />
@@ -164,12 +167,13 @@ export default function UserManagement() {
             users={displayedUsers}
             processing={processing}
             handleEditClick={handleEditClick}
-            handleDelete={handleDelete}
-            handleExpire={handleExpire}
-            menuStates={menuStates}
-            handleMenuToggle={handleMenuToggle}
-            menuPositions={menuPositions}
+            handleSaveInlineEdit={handleSaveInlineEdit}
+            handleCancelInlineEdit={handleCancelInlineEdit}
+            editingUserEmail={editingUserEmail}
+            editingFormData={editingFormData}
+            setEditingFormData={setEditingFormData}
           />
+
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
