@@ -5,6 +5,7 @@ import UserForm from '../components/UserForm.jsx';
 import SearchBar from '../components/SearchBar.jsx';
 import Pagination from '../components/Pagination.jsx';
 import UserTable from '../components/UserTable.jsx';
+import UserStats from '../components/UserStats.jsx';
 import {
   showSuccessToast,
   showErrorToast,
@@ -171,6 +172,8 @@ export default function UserManagement() {
     <div className="container">
       <h2>All Users</h2>
 
+      
+<UserStats users={users} />
       <button
         onClick={() => setIsFormOpen(true)}
         className="btn-primary"
