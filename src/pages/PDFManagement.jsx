@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { CLOUDINARY_UPLOAD_URL, CLOUDINARY_UPLOAD_PRESET } from '../utils/cloudinaryConfig';
-import { v4 as uuidv4 } from 'uuid';
+import { CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_UPLOAD_URL } from '../utils/cloudinaryConfig';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
@@ -31,12 +30,8 @@ export default function PDFManagement() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    formData.append('public_id', `pdfs/${uuidv4()}-${file.name}`);
-    
-    const response = await axios.post(CLOUDINARY_UPLOAD_URL, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
 
+    const response = await axios.post(CLOUDINARY_UPLOAD_URL, formData);
     return response.data.secure_url;
   };
 
@@ -45,27 +40,31 @@ export default function PDFManagement() {
     setLoading(true);
 
     try {
-      if (!file) {
+      if (!file && !editingPdf) {
         toast.error('Please select a PDF file');
         setLoading(false);
         return;
       }
 
-      const fileUrl = await uploadToCloudinary(file);
+      let fileUrl = editingPdf?.originalLink;
+
+      if (file) {
+        fileUrl = await uploadToCloudinary(file);
+      }
 
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '', // Not used anymore
+        embedLink: '', // optional, not used
         category,
       };
 
       if (editingPdf) {
         await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
-        toast.success('PDF updated');
+        toast.success('PDF updated successfully');
       } else {
         await axios.post(`${API_URL}general?type=pdf`, payload);
-        toast.success('PDF uploaded');
+        toast.success('PDF uploaded successfully');
       }
 
       setTitle('');
@@ -73,8 +72,7 @@ export default function PDFManagement() {
       setCategory('free');
       setEditingPdf(null);
       fetchPdfs();
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error('Upload failed');
     } finally {
       setLoading(false);
@@ -82,10 +80,10 @@ export default function PDFManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this PDF?')) {
+    if (confirm('Are you sure?')) {
       try {
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        toast.success('PDF deleted');
+        toast.success('Deleted');
         fetchPdfs();
       } catch {
         toast.error('Delete failed');
@@ -97,13 +95,6 @@ export default function PDFManagement() {
     setEditingPdf(pdf);
     setTitle(pdf.title);
     setCategory(pdf.category);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingPdf(null);
-    setTitle('');
-    setFile(null);
-    setCategory('free');
   };
 
   return (
@@ -130,22 +121,16 @@ export default function PDFManagement() {
         <button type="submit" disabled={loading}>
           {loading ? 'Uploading...' : editingPdf ? 'Update PDF' : 'Upload PDF'}
         </button>
-        {editingPdf && (
-          <button type="button" onClick={handleCancelEdit}>
-            Cancel Edit
-          </button>
-        )}
       </form>
 
       <h2 style={{ marginTop: '40px' }}>Uploaded PDFs</h2>
       {pdfs.length === 0 ? (
-        <p>No PDFs uploaded yet.</p>
+        <p>No PDFs yet.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {pdfs.map((pdf) => (
             <li key={pdf._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
               <h3>{pdf.title}</h3>
-              <a href={pdf.originalLink} target="_blank" rel="noopener noreferrer">View PDF</a>
               <p>Category: {pdf.category}</p>
               <button onClick={() => handleEdit(pdf)}>Edit</button>
               <button onClick={() => handleDelete(pdf._id)}>Delete</button>
