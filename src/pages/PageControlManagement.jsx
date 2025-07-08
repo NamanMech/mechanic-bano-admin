@@ -1,27 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import Spinner from '../components/Spinner';
 
-export default function PageControlManagement() {
+export default function PageControlManagement({ fetchPageStatus }) {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const fetchPages = async () => {
+  const loadPages = async () => {
     try {
       const response = await axios.get(`${API_URL}general?type=pagecontrol`);
       setPages(response.data);
-    } catch (error) {
-      toast.error('Failed to load page controls');
+    } catch (err) {
+      toast.error('Error fetching pages');
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchPages();
-  }, []);
 
   const togglePageStatus = async (id, currentStatus, pageName) => {
     try {
@@ -29,145 +25,91 @@ export default function PageControlManagement() {
         enabled: !currentStatus,
       });
       toast.success(`"${formatPageName(pageName)}" ${currentStatus ? 'disabled' : 'enabled'} successfully`);
-      
-      // ✅ Update local state instantly
-      setPages(prev =>
-        prev.map(p =>
-          p._id === id ? { ...p, enabled: !currentStatus } : p
-        )
-      );
-    } catch (error) {
-      toast.error('Toggle failed');
+      await loadPages();           // refresh table
+      await fetchPageStatus();     // refresh navbar
+    } catch (err) {
+      toast.error('Failed to update page status');
     }
   };
 
-  const formatPageName = (key) => {
-    const mapping = {
-      videos: 'Videos',
-      pdfs: 'PDFs',
-      welcome: 'Welcome Note',
-      sitename: 'Site Name',
-      'subscription-plans': 'Subscription Plans',
-      users: 'Users',
-      pagecontrol: 'Page Control',
-    };
-    return mapping[key] || key;
+  const formatPageName = (page) => {
+    return page
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, char => char.toUpperCase());
   };
 
-  if (loading) return <Spinner />;
+  useEffect(() => {
+    loadPages();
+  }, []);
+
+  if (loading) return <div className="spinner"></div>;
 
   return (
-    <div className="container">
-      <h2 className="title">Page Control Management</h2>
-      <div className="table-container">
-        <table className="styled-table">
-          <thead>
-            <tr>
-              <th>Page Name</th>
-              <th>Status</th>
-              <th>Toggle</th>
+    <div>
+      <h2 style={styles.heading}>Page Visibility Control</h2>
+      <table style={styles.table}>
+        <thead>
+          <tr>
+            <th style={styles.th}>Page</th>
+            <th style={styles.th}>Status</th>
+            <th style={styles.th}>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pages.map(page => (
+            <tr key={page._id}>
+              <td style={styles.td}>{formatPageName(page.page)}</td>
+              <td style={styles.td}>{page.enabled ? 'Enabled' : 'Disabled'}</td>
+              <td style={styles.td}>
+                <button
+                  onClick={() => togglePageStatus(page._id, page.enabled, page.page)}
+                  style={{
+                    ...styles.button,
+                    backgroundColor: page.enabled ? '#e74c3c' : '#2ecc71',
+                  }}
+                >
+                  {page.enabled ? 'Disable' : 'Enable'}
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {pages.map(({ _id, page, enabled }) => (
-              <tr key={_id}>
-                <td>{formatPageName(page)}</td>
-                <td style={{ color: enabled ? 'lightgreen' : 'tomato', fontWeight: 'bold' }}>
-                  {enabled ? 'Enabled' : 'Disabled'}
-                </td>
-                <td>
-                  {page === 'pagecontrol' ? (
-                    <button className="locked" disabled>Locked</button>
-                  ) : (
-                    <button
-                      className={enabled ? 'disable-btn' : 'enable-btn'}
-                      onClick={() => togglePageStatus(_id, enabled, page)}
-                    >
-                      {enabled ? 'Disable' : 'Enable'}
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <style>{`
-        .container {
-          padding: 20px;
-          background-color: #1e1e1e;
-          color: white;
-        }
-
-        .title {
-          text-align: center;
-          margin-bottom: 20px;
-          color: #ff9800;
-        }
-
-        .table-container {
-          overflow-x: auto;
-        }
-
-        .styled-table {
-          width: 100%;
-          border-collapse: collapse;
-          background-color: #2c3e50;
-        }
-
-        .styled-table th,
-        .styled-table td {
-          padding: 12px 16px;
-          text-align: left;
-        }
-
-        .styled-table th {
-          background-color: #1e1e1e;
-          color: white;
-        }
-
-        .styled-table tr:nth-child(even) {
-          background-color: #34495e;
-        }
-
-        .enable-btn {
-          background-color: #4caf50;
-          color: white;
-          border: none;
-          padding: 6px 12px;
-          border-radius: 5px;
-          cursor: pointer;
-        }
-
-        .disable-btn {
-          background-color: #ff9800;
-          color: white;
-          border: none;
-          padding: 6px 12px;
-          border-radius: 5px;
-          cursor: pointer;
-        }
-
-        .locked {
-          background-color: grey;
-          color: white;
-          padding: 6px 12px;
-          border-radius: 5px;
-          border: none;
-          cursor: not-allowed;
-        }
-
-        @media (max-width: 600px) {
-          .styled-table th, .styled-table td {
-            padding: 10px;
-          }
-
-          .title {
-            font-size: 20px;
-          }
-        }
-      `}</style>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
+
+const styles = {
+  heading: {
+    fontSize: '24px',
+    marginBottom: '20px',
+    textAlign: 'center',
+    color: '#ff9800',
+  },
+  table: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    backgroundColor: '#2c3e50',
+    color: 'white',
+    borderRadius: '8px',
+    overflow: 'hidden',
+  },
+  th: {
+    padding: '12px 16px',
+    backgroundColor: '#34495e',
+    textAlign: 'left',
+    borderBottom: '1px solid #444',
+  },
+  td: {
+    padding: '12px 16px',
+    borderBottom: '1px solid #444',
+  },
+  button: {
+    padding: '6px 12px',
+    border: 'none',
+    borderRadius: '5px',
+    color: 'white',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+  },
+};
