@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_UPLOAD_URL } from '../utils/cloudinaryConfig';
 import { v4 as uuidv4 } from 'uuid';
-import { pdfjs } from 'react-pdf';
+import PDFViewer from '../components/PDFViewer';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
@@ -12,7 +12,6 @@ export default function PDFManagement() {
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);  // Track the current page
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -64,7 +63,7 @@ export default function PDFManagement() {
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '', // Not needed anymore
+        embedLink: '', // Not needed
         category,
       };
 
@@ -104,25 +103,6 @@ export default function PDFManagement() {
     setEditingPdf(pdf);
     setTitle(pdf.title);
     setCategory(pdf.category);
-  };
-
-  const renderPdfViewer = (pdfUrl) => {
-    return (
-      <div>
-        <div>
-          <button onClick={() => setPageNumber(pageNumber - 1)} disabled={pageNumber <= 1}>Previous</button>
-          <button onClick={() => setPageNumber(pageNumber + 1)}>Next</button>
-        </div>
-        <iframe
-          title="PDF Viewer"
-          src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`}
-          width="100%"
-          height="600"
-          frameBorder="0"
-          style={{ marginTop: '10px', border: '1px solid #999' }}
-        />
-      </div>
-    );
   };
 
   return (
@@ -170,9 +150,8 @@ export default function PDFManagement() {
             >
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
-              
-              {/* Rendering PDF using PDF.js iframe */}
-              {renderPdfViewer(pdf.originalLink)}
+
+              <PDFViewer url={pdf.originalLink} />
 
               <div style={{ marginTop: '10px' }}>
                 <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
