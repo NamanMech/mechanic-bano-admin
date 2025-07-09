@@ -1,29 +1,30 @@
-// src/components/PDFViewer.jsx
 import React, { useEffect, useRef, useState } from 'react';
-import { supabase } from '../utils/supabaseClient';
 import * as pdfjsLib from 'pdfjs-dist';
+import { supabase } from '../utils/supabaseClient';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-export default function PDFViewer({ url }) {
+const PDFViewer = ({ url }) => {
   const canvasRef = useRef();
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const loadPdf = async () => {
+    const renderPDF = async () => {
       try {
-        const pathStart = '/storage/v1/object/public/';
-        const relativePath = url.split(pathStart)[1]; // "pdfs/<filename>.pdf"
-        if (!relativePath) throw new Error('Invalid public URL');
+        if (!url.includes('/storage/v1/object/public/')) {
+          throw new Error('Invalid Supabase URL');
+        }
 
-        const { data, error } = await supabase.storage.from('pdfs').download(relativePath);
-        if (error || !data) throw new Error('Failed to download file');
+        const relativePath = url.split('/storage/v1/object/public/')[1];
+        const { data, error: downloadError } = await supabase.storage.from('pdfs').download(relativePath);
 
-        const pdfBlob = data;
-        const pdfData = new Uint8Array(await pdfBlob.arrayBuffer());
+        if (downloadError || !data) {
+          throw new Error('Supabase download failed');
+        }
+
+        const pdfData = new Uint8Array(await data.arrayBuffer());
         const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-
         const page = await pdf.getPage(1);
         const viewport = page.getViewport({ scale: 1.2 });
 
@@ -34,12 +35,12 @@ export default function PDFViewer({ url }) {
 
         await page.render({ canvasContext: context, viewport }).promise;
       } catch (err) {
-        console.error('PDF Render Error:', err);
+        console.error('PDF Render Error:', err.message);
         setError('PDF cannot be rendered. Invalid link or format.');
       }
     };
 
-    if (url) loadPdf();
+    renderPDF();
   }, [url]);
 
   return (
@@ -51,4 +52,6 @@ export default function PDFViewer({ url }) {
       )}
     </div>
   );
-}
+};
+
+export default PDFViewer;
