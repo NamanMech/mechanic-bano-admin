@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { supabase } from '../utils/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '../utils/supabaseClient';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
@@ -29,15 +29,34 @@ export default function PDFManagement() {
 
   const uploadToSupabase = async (file) => {
     const fileName = `pdfs/${uuidv4()}-${file.name}`;
-    const { data, error } = await supabase.storage.from('pdfs').upload(fileName, file);
+    try {
+      const { data, error } = await supabase.storage
+        .from('pdfs')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: 'application/pdf',
+        });
 
-    if (error) {
-      console.error('Upload error:', error);
-      throw new Error('Upload failed');
+      if (error) {
+        toast.error('Supabase upload error');
+        throw new Error(error.message);
+      }
+
+      const { data: urlData, error: urlError } = supabase.storage
+        .from('pdfs')
+        .getPublicUrl(fileName);
+
+      if (urlError) {
+        toast.error('Public URL error');
+        throw new Error(urlError.message);
+      }
+
+      return urlData.publicUrl;
+    } catch (err) {
+      toast.error('Upload failed: ' + err.message);
+      throw err;
     }
-
-    const { data: urlData } = supabase.storage.from('pdfs').getPublicUrl(fileName);
-    return urlData.publicUrl;
   };
 
   const handleSubmit = async (e) => {
@@ -62,10 +81,10 @@ export default function PDFManagement() {
 
       if (editingPdf) {
         await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
-        toast.success('PDF updated');
+        toast.success('PDF updated successfully');
       } else {
         await axios.post(`${API_URL}general?type=pdf`, payload);
-        toast.success('PDF uploaded');
+        toast.success('PDF uploaded successfully');
       }
 
       setTitle('');
@@ -74,7 +93,7 @@ export default function PDFManagement() {
       setEditingPdf(null);
       fetchPdfs();
     } catch {
-      toast.error('Upload failed');
+      // error already handled in uploadToSupabase
     } finally {
       setLoading(false);
     }
@@ -84,7 +103,7 @@ export default function PDFManagement() {
     if (confirm('Are you sure?')) {
       try {
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        toast.success('Deleted');
+        toast.success('PDF deleted');
         fetchPdfs();
       } catch {
         toast.error('Delete failed');
@@ -143,15 +162,7 @@ export default function PDFManagement() {
             >
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
-
-              <iframe
-                src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdf.originalLink)}&embedded=true`}
-                width="100%"
-                height="400"
-                frameBorder="0"
-                title={pdf.title}
-              ></iframe>
-
+              <a href={pdf.originalLink} target="_blank" rel="noreferrer">View PDF</a>
               <div style={{ marginTop: '10px' }}>
                 <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
                   Edit
