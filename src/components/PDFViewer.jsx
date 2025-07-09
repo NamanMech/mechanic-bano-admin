@@ -1,33 +1,28 @@
+// src/components/PDFViewer.jsx
 import React, { useEffect, useRef, useState } from 'react';
-import * as pdfjsLib from 'pdfjs-dist';
 import { supabase } from '../utils/supabaseClient';
+import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-const PDFViewer = ({ url }) => {
+export default function PDFViewer({ url }) {
   const canvasRef = useRef();
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const renderPDF = async () => {
-      if (!url) return;
-
+    const loadPdf = async () => {
       try {
-        // ✅ Extract the storage path from public URL
-        const urlParts = url.split('/object/public/pdfs/');
-        if (urlParts.length !== 2) throw new Error('Invalid Supabase URL');
+        const pathStart = '/storage/v1/object/public/';
+        const relativePath = url.split(pathStart)[1]; // "pdfs/<filename>.pdf"
+        if (!relativePath) throw new Error('Invalid public URL');
 
-        const path = `pdfs/${urlParts[1]}`; // actual object path
+        const { data, error } = await supabase.storage.from('pdfs').download(relativePath);
+        if (error || !data) throw new Error('Failed to download file');
 
-        // ✅ Download PDF blob using Supabase client
-        const { data, error: downloadError } = await supabase.storage.from('pdfs').download(path);
-        if (downloadError) throw downloadError;
-
-        const arrayBuffer = await data.arrayBuffer();
-
-        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-        const pdf = await loadingTask.promise;
+        const pdfBlob = data;
+        const pdfData = new Uint8Array(await pdfBlob.arrayBuffer());
+        const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
 
         const page = await pdf.getPage(1);
         const viewport = page.getViewport({ scale: 1.2 });
@@ -44,7 +39,7 @@ const PDFViewer = ({ url }) => {
       }
     };
 
-    renderPDF();
+    if (url) loadPdf();
   }, [url]);
 
   return (
@@ -56,6 +51,4 @@ const PDFViewer = ({ url }) => {
       )}
     </div>
   );
-};
-
-export default PDFViewer;
+}
