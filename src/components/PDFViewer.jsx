@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-// ✅ Configure worker from CDN (important for Vite)
+// Use external worker from CDN for compatibility
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PDFViewer = ({ url }) => {
@@ -12,12 +12,17 @@ const PDFViewer = ({ url }) => {
   useEffect(() => {
     const renderPDF = async () => {
       try {
-        // ✅ Step 1: Fetch PDF manually as arrayBuffer
         const response = await fetch(url);
+
+        if (!response.ok) {
+          console.error('Failed to fetch PDF:', response.statusText);
+          return;
+        }
+
         const arrayBuffer = await response.arrayBuffer();
 
-        // ✅ Step 2: Pass arrayBuffer to PDF.js
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
 
         const page = await pdf.getPage(1);
         const viewport = page.getViewport({ scale: 1.5 });
@@ -28,8 +33,9 @@ const PDFViewer = ({ url }) => {
         canvas.width = viewport.width;
 
         await page.render({ canvasContext: context, viewport }).promise;
-      } catch (error) {
-        console.error('PDF render error:', error);
+        console.log('✅ PDF Rendered Successfully');
+      } catch (err) {
+        console.error('❌ PDF rendering failed:', err);
       }
     };
 
