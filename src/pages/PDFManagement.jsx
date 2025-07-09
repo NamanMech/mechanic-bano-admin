@@ -1,4 +1,3 @@
-// src/pages/PDFManagement.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -51,11 +50,10 @@ export default function PDFManagement() {
       }
 
       const fileUrl = await uploadToSupabase(file);
-
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '', // not used
+        embedLink: '',
         category,
       };
 
@@ -73,6 +71,7 @@ export default function PDFManagement() {
       setEditingPdf(null);
       fetchPdfs();
     } catch (err) {
+      console.error(err);
       toast.error('Upload failed');
     } finally {
       setLoading(false);
@@ -102,8 +101,19 @@ export default function PDFManagement() {
       <h1>PDF Management</h1>
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
-        <input type="text" placeholder="PDF Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-        <input type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files[0])} required />
+        <input
+          type="text"
+          placeholder="PDF Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => setFile(e.target.files[0])}
+          required
+        />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="free">Free</option>
           <option value="premium">Premium</option>
@@ -119,12 +129,31 @@ export default function PDFManagement() {
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {pdfs.map((pdf) => (
-            <li key={pdf._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
+            <li
+              key={pdf._id}
+              style={{
+                marginBottom: '20px',
+                border: '1px solid #ccc',
+                padding: '10px',
+                borderRadius: '8px',
+                background: '#f8f8f8',
+              }}
+            >
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
-              <PDFViewer url={pdf.originalLink} />
+
+              <div style={{ minHeight: '100px' }}>
+                {pdf.originalLink ? (
+                  <PDFViewer url={pdf.originalLink} />
+                ) : (
+                  <p style={{ color: 'gray' }}>No preview available</p>
+                )}
+              </div>
+
               <div style={{ marginTop: '10px' }}>
-                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>Edit</button>
+                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
+                  Edit
+                </button>
                 <button onClick={() => handleDelete(pdf._id)}>Delete</button>
               </div>
             </li>
