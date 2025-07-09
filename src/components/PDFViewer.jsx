@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-// ✅ Set global worker from CDN (for compatibility with Vite & Netlify)
+// ✅ Set the worker src from CDN (safe with Vite + Netlify)
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PDFViewer = ({ url }) => {
@@ -12,7 +12,12 @@ const PDFViewer = ({ url }) => {
   useEffect(() => {
     const renderPDF = async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument(url);
+        const loadingTask = pdfjsLib.getDocument({
+          url,
+          disableRange: true, // ✅ Disable range request (fixes Supabase streaming issues)
+          withCredentials: false,
+        });
+
         const pdf = await loadingTask.promise;
         const page = await pdf.getPage(1); // render only first page
         const viewport = page.getViewport({ scale: 1.5 });
@@ -27,7 +32,7 @@ const PDFViewer = ({ url }) => {
           viewport,
         }).promise;
       } catch (error) {
-        console.error('Error rendering PDF:', error);
+        console.error('PDF render error:', error);
       }
     };
 
