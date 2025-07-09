@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-// ✅ Use CDN Worker to avoid Vite/Netlify issues
+// Use CDN version of the worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PDFViewer = ({ url }) => {
@@ -10,43 +10,37 @@ const PDFViewer = ({ url }) => {
 
   useEffect(() => {
     const renderPDF = async () => {
-      if (!url) return;
-
       try {
-        // 👇 Fetch the PDF as a Blob first (CORS safe)
-        const response = await fetch(url, { mode: 'cors' });
-        const blob = await response.blob();
+        // 👇 Fetch PDF as blob
+        const res = await fetch(url, { mode: 'cors' });
+        const blob = await res.blob();
         const arrayBuffer = await blob.arrayBuffer();
 
-        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-        const pdf = await loadingTask.promise;
-
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 1.5 });
 
+        const viewport = page.getViewport({ scale: 1.5 });
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
 
         canvas.width = viewport.width;
         canvas.height = viewport.height;
 
-        const renderContext = {
+        await page.render({
           canvasContext: context,
           viewport: viewport,
-        };
-
-        await page.render(renderContext).promise;
+        }).promise;
       } catch (err) {
         console.error('PDF Render Error:', err);
       }
     };
 
-    renderPDF();
+    if (url) renderPDF();
   }, [url]);
 
   return (
     <div style={{ overflowX: 'auto', marginTop: '10px' }}>
-      <canvas ref={canvasRef} style={{ border: '1px solid #ccc', maxWidth: '100%' }} />
+      <canvas ref={canvasRef} style={{ border: '1px solid #ccc', width: '100%' }} />
     </div>
   );
 };
