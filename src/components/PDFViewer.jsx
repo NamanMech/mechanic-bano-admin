@@ -9,40 +9,45 @@ const PDFViewer = ({ url }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const renderPDF = async () => {
-      if (!url) return;
+  const renderPDF = async () => {
+    if (!url) return;
 
-      try {
-        const response = await fetch(url);
+    try {
+      const response = await fetch(url);
 
-        if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) throw new Error('Network response was not ok');
 
-        const arrayBuffer = await response.arrayBuffer();
+      const arrayBuffer = await response.arrayBuffer();
+      console.log('PDF ArrayBuffer size:', arrayBuffer.byteLength); // <-- Debug
 
-        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-        const pdf = await loadingTask.promise;
-
-        const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 1.2 });
-
-        const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
-
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({
-          canvasContext: context,
-          viewport,
-        }).promise;
-      } catch (err) {
-        console.error('PDF Render Error:', err);
-        setError('PDF cannot be rendered. Invalid link or format.');
+      if (arrayBuffer.byteLength === 0) {
+        throw new Error('PDF file is empty or inaccessible.');
       }
-    };
 
-    renderPDF();
-  }, [url]);
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const pdf = await loadingTask.promise;
+
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 1.2 });
+
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      await page.render({
+        canvasContext: context,
+        viewport,
+      }).promise;
+    } catch (err) {
+      console.error('PDF Render Error:', err);
+      setError('PDF cannot be rendered. Invalid link or format.');
+    }
+  };
+
+  renderPDF();
+}, [url]);
 
   return (
     <div style={{ marginTop: '10px', overflowX: 'auto' }}>
