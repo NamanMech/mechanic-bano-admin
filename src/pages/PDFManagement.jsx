@@ -63,7 +63,7 @@ export default function PDFManagement() {
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '', // Not needed
+        embedLink: '',
         category,
       };
 
