@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../utils/supabaseClient';
+import { v4 as uuidv4 } from 'uuid';
 import PDFViewer from '../components/PDFViewer';
 
 export default function PDFManagement() {
@@ -29,24 +29,16 @@ export default function PDFManagement() {
   }, []);
 
   const uploadToSupabase = async (file) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${uuidv4()}.${fileExt}`;
+    const fileName = `${uuidv4()}-${file.name}`;
     const filePath = `pdfs/${fileName}`;
 
-    const { data, error } = await supabase.storage
-      .from('pdfs')
-      .upload(filePath, file, { cacheControl: '3600', upsert: false });
-
+    const { error } = await supabase.storage.from('pdfs').upload(filePath, file);
     if (error) {
-      throw new Error(error.message);
+      throw new Error('Upload failed');
     }
 
-    const { data: publicUrlData } = supabase
-      .storage
-      .from('pdfs')
-      .getPublicUrl(filePath);
-
-    return publicUrlData.publicUrl;
+    const { data } = supabase.storage.from('pdfs').getPublicUrl(filePath);
+    return data.publicUrl;
   };
 
   const handleSubmit = async (e) => {
@@ -65,7 +57,7 @@ export default function PDFManagement() {
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '', // not needed
+        embedLink: '', // Not needed
         category,
       };
 
@@ -82,8 +74,9 @@ export default function PDFManagement() {
       setCategory('free');
       setEditingPdf(null);
       fetchPdfs();
-    } catch (error) {
+    } catch (err) {
       toast.error('Upload failed');
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -153,6 +146,7 @@ export default function PDFManagement() {
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
               <PDFViewer url={pdf.originalLink} />
+
               <div style={{ marginTop: '10px' }}>
                 <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
                   Edit
