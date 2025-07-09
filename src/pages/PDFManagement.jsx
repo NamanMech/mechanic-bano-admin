@@ -30,21 +30,25 @@ export default function PDFManagement() {
 
   const uploadToSupabase = async (file) => {
     const fileName = `${uuidv4()}-${file.name}`;
+    const filePath = `${fileName}`; // ✅ no folder
 
-    const { error } = await supabase
-      .storage
+    const { error: uploadError } = await supabase.storage
       .from('pdfs')
-      .upload(fileName, file, {
-        contentType: 'application/pdf',
-        upsert: false,
-      });
+      .upload(filePath, file);
 
-    if (error) {
+    if (uploadError) {
       throw new Error('Upload failed');
     }
 
-    const { data } = supabase.storage.from('pdfs').getPublicUrl(fileName);
-    return data.publicUrl;
+    const { data, error: signedUrlError } = await supabase.storage
+      .from('pdfs')
+      .createSignedUrl(filePath, 60 * 60); // 1 hour signed link
+
+    if (signedUrlError || !data?.signedUrl) {
+      throw new Error('Failed to generate signed URL');
+    }
+
+    return data.signedUrl;
   };
 
   const handleSubmit = async (e) => {
@@ -63,7 +67,7 @@ export default function PDFManagement() {
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '',
+        embedLink: '', // not used
         category,
       };
 
