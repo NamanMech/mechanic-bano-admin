@@ -1,3 +1,4 @@
+// src/pages/PDFManagement.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -30,12 +31,10 @@ export default function PDFManagement() {
 
   const uploadToSupabase = async (file) => {
     const fileName = `${uuidv4()}-${file.name}`;
-    const filePath = `${fileName}`; // ✅ Save directly to bucket root
+    const filePath = `pdfs/${fileName}`;
 
     const { error } = await supabase.storage.from('pdfs').upload(filePath, file);
-    if (error) {
-      throw new Error('Upload failed');
-    }
+    if (error) throw new Error('Upload failed');
 
     const { data } = supabase.storage.from('pdfs').getPublicUrl(filePath);
     return data.publicUrl;
@@ -48,7 +47,6 @@ export default function PDFManagement() {
     try {
       if (!file) {
         toast.error('Please select a PDF file');
-        setLoading(false);
         return;
       }
 
@@ -57,7 +55,7 @@ export default function PDFManagement() {
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '', // Not needed
+        embedLink: '', // not used
         category,
       };
 
@@ -76,7 +74,6 @@ export default function PDFManagement() {
       fetchPdfs();
     } catch (err) {
       toast.error('Upload failed');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -105,19 +102,8 @@ export default function PDFManagement() {
       <h1>PDF Management</h1>
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
-        <input
-          type="text"
-          placeholder="PDF Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <input
-          type="file"
-          accept="application/pdf"
-          onChange={(e) => setFile(e.target.files[0])}
-          required
-        />
+        <input type="text" placeholder="PDF Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        <input type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files[0])} required />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="free">Free</option>
           <option value="premium">Premium</option>
@@ -133,24 +119,12 @@ export default function PDFManagement() {
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {pdfs.map((pdf) => (
-            <li
-              key={pdf._id}
-              style={{
-                marginBottom: '20px',
-                border: '1px solid #ccc',
-                padding: '10px',
-                borderRadius: '8px',
-                background: '#f8f8f8',
-              }}
-            >
+            <li key={pdf._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
               <PDFViewer url={pdf.originalLink} />
-
               <div style={{ marginTop: '10px' }}>
-                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
-                  Edit
-                </button>
+                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>Edit</button>
                 <button onClick={() => handleDelete(pdf._id)}>Delete</button>
               </div>
             </li>
