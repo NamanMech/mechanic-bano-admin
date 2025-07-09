@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
+// ✅ Set global worker from CDN (for compatibility with Vite & Netlify)
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PDFViewer = ({ url }) => {
@@ -11,17 +12,9 @@ const PDFViewer = ({ url }) => {
   useEffect(() => {
     const renderPDF = async () => {
       try {
-        const res = await fetch(url);
-        const blob = await res.blob();
-
-        if (blob.type !== 'application/pdf') {
-          throw new Error('Not a valid PDF');
-        }
-
-        const blobUrl = URL.createObjectURL(blob);
-        const loadingTask = pdfjsLib.getDocument(blobUrl);
+        const loadingTask = pdfjsLib.getDocument(url);
         const pdf = await loadingTask.promise;
-        const page = await pdf.getPage(1);
+        const page = await pdf.getPage(1); // render only first page
         const viewport = page.getViewport({ scale: 1.5 });
 
         const canvas = canvasRef.current;
@@ -33,8 +26,6 @@ const PDFViewer = ({ url }) => {
           canvasContext: context,
           viewport,
         }).promise;
-
-        URL.revokeObjectURL(blobUrl); // cleanup
       } catch (error) {
         console.error('Error rendering PDF:', error);
       }
@@ -45,7 +36,7 @@ const PDFViewer = ({ url }) => {
 
   return (
     <div style={{ overflowX: 'auto', marginTop: '10px' }}>
-      <canvas ref={canvasRef} style={{ border: '1px solid #aaa' }} />
+      <canvas ref={canvasRef} style={{ border: '1px solid #aaa', width: '100%' }} />
     </div>
   );
 };
