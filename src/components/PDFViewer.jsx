@@ -13,16 +13,17 @@ const PDFViewer = ({ url }) => {
       if (!url) return;
 
       try {
-        const encodedUrl = encodeURI(url);
+        const response = await fetch(url);
 
-        const loadingTask = pdfjsLib.getDocument({
-          url: encodedUrl,
-          withCredentials: false,
-        });
+        if (!response.ok) throw new Error('Network response was not ok');
 
+        const arrayBuffer = await response.arrayBuffer();
+
+        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
+
         const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 1.5 });
+        const viewport = page.getViewport({ scale: 1.2 });
 
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
@@ -34,7 +35,6 @@ const PDFViewer = ({ url }) => {
           canvasContext: context,
           viewport,
         }).promise;
-
       } catch (err) {
         console.error('PDF Render Error:', err);
         setError('PDF cannot be rendered. Invalid link or format.');
@@ -45,11 +45,11 @@ const PDFViewer = ({ url }) => {
   }, [url]);
 
   return (
-    <div className="pdf-viewer">
+    <div style={{ marginTop: '10px', overflowX: 'auto' }}>
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
       ) : (
-        <canvas ref={canvasRef} style={{ border: '1px solid #ccc', maxWidth: '100%' }} />
+        <canvas ref={canvasRef} style={{ border: '1px solid #999' }} />
       )}
     </div>
   );
