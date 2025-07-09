@@ -1,69 +1,62 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as pdfjsLib from 'pdfjs-dist/build/pdf';
-import * as pdfjsViewer from 'pdfjs-dist/web/pdf_viewer';
-import 'pdfjs-dist/build/pdf.worker.entry';
+import * as pdfjsLib from 'pdfjs-dist';
+import 'pdfjs-dist/web/pdf_viewer.css';
 
-// Set worker path
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url
-).toString();
+// Use CDN worker for better compatibility
+pdfjsLib.GlobalWorkerOptions.workerSrc = 
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.2.67/build/pdf.worker.min.js';
 
 const PDFViewer = ({ url }) => {
   const canvasRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [pageNumber] = useState(1); // Only show first page for preview
+  const [pdfVersion, setPdfVersion] = useState(null);
 
   useEffect(() => {
-    const container = canvasRef.current.parentNode;
-    const eventBus = new pdfjsViewer.EventBus();
-    let pdfViewer = null;
+    if (!url) return;
 
     const loadPDF = async () => {
       try {
         setIsLoading(true);
         setError(null);
+        
+        // Validate URL
+        if (!url.startsWith('https://') || !url.endsWith('.pdf')) {
+          throw new Error('Invalid PDF URL format');
+        }
 
-        // Initialize PDF viewer
-        pdfViewer = new pdfjsViewer.PDFSinglePageViewer({
-          container,
-          eventBus,
-        });
+        // Fetch PDF
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch PDF');
+        const arrayBuffer = await response.arrayBuffer();
 
         // Load PDF document
-        const loadingTask = pdfjsLib.getDocument({
-          url,
-          withCredentials: false,
-        });
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        setPdfVersion(pdf.pdfInfo.pdfVersion);
         
-        const pdfDocument = await loadingTask.promise;
-        pdfViewer.setDocument(pdfDocument);
+        // Render first page
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 1.5 });
+        
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        
+        await page.render({ 
+          canvasContext: context, 
+          viewport 
+        }).promise;
         
         setIsLoading(false);
       } catch (err) {
-        console.error('PDF loading error:', err);
-        setError('Failed to load PDF preview');
+        console.error('PDF error:', err);
+        setError(err.message || 'Failed to load PDF');
         setIsLoading(false);
       }
     };
 
-    if (url) {
-      // Validate URL format
-      if (!url.startsWith('https://') || !url.endsWith('.pdf')) {
-        setError('Invalid PDF URL');
-        return;
-      }
-      
-      loadPDF();
-    }
-
-    return () => {
-      // Cleanup resources
-      if (pdfViewer) {
-        pdfViewer.setDocument(null);
-      }
-    };
+    loadPDF();
   }, [url]);
 
   return (
@@ -86,7 +79,7 @@ const PDFViewer = ({ url }) => {
           justifyContent: 'center',
           background: 'rgba(255,255,255,0.8)'
         }}>
-          Loading preview...
+          Loading PDF preview...
         </div>
       )}
       
@@ -101,7 +94,21 @@ const PDFViewer = ({ url }) => {
         </div>
       )}
       
-      <div ref={canvasRef} className="pdfViewer"></div>
+      {pdfVersion && (
+        <div style={{ 
+          position: 'absolute', 
+          top: 5, 
+          right: 5, 
+          background: 'rgba(0,0,0,0.5)',
+          color: 'white',
+          padding: '2px 5px',
+          fontSize: '0.8rem'
+        }}>
+          PDF v{pdfVersion}
+        </div>
+      )}
+      
+      <canvas ref={canvasRef} style={{ display: error ? 'none' : 'block' }} />
     </div>
   );
 };
