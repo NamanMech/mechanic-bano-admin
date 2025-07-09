@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../utils/supabaseClient';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
@@ -28,19 +28,16 @@ export default function PDFManagement() {
   }, []);
 
   const uploadToSupabase = async (file) => {
-    const filePath = `pdfs/${uuidv4()}-${file.name}`;
-    const { data, error } = await supabase.storage.from('pdfs').upload(filePath, file);
+    const fileName = `pdfs/${uuidv4()}-${file.name}`;
+    const { data, error } = await supabase.storage.from('pdfs').upload(fileName, file);
 
     if (error) {
-      throw new Error('Upload failed: ' + error.message);
+      console.error('Upload error:', error);
+      throw new Error('Upload failed');
     }
 
-    const { data: publicUrl } = supabase
-      .storage
-      .from('pdfs')
-      .getPublicUrl(filePath);
-
-    return publicUrl.publicUrl;
+    const { data: urlData } = supabase.storage.from('pdfs').getPublicUrl(fileName);
+    return urlData.publicUrl;
   };
 
   const handleSubmit = async (e) => {
@@ -59,7 +56,7 @@ export default function PDFManagement() {
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '', // not needed now
+        embedLink: '',
         category,
       };
 
@@ -76,9 +73,8 @@ export default function PDFManagement() {
       setCategory('free');
       setEditingPdf(null);
       fetchPdfs();
-    } catch (error) {
+    } catch {
       toast.error('Upload failed');
-      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -148,14 +144,13 @@ export default function PDFManagement() {
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
 
-              <a
-                href={pdf.originalLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: 'blue', textDecoration: 'underline' }}
-              >
-                View PDF
-              </a>
+              <iframe
+                src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdf.originalLink)}&embedded=true`}
+                width="100%"
+                height="400"
+                frameBorder="0"
+                title={pdf.title}
+              ></iframe>
 
               <div style={{ marginTop: '10px' }}>
                 <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
