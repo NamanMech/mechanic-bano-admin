@@ -6,11 +6,6 @@ export default defineConfig({
   build: {
     commonjsOptions: {
       transformMixedEsModules: true,
-    },
-    rollupOptions: {
-      external: [
-        /pdfjs-dist/
-      ]
     }
   }
-})
+});
