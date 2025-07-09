@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_UPLOAD_URL } from '../utils/cloudinaryConfig';
+import { supabase } from '../utils/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
-import PDFViewer from '../components/PDFViewer';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
@@ -28,21 +27,22 @@ export default function PDFManagement() {
     fetchPdfs();
   }, []);
 
-  const uploadToCloudinary = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    formData.append('public_id', `pdfs/${uuidv4()}-${file.name}`);
+  const uploadToSupabase = async (file) => {
+    const fileName = `pdfs/${uuidv4()}-${file.name}`;
+    const { data, error } = await supabase.storage
+      .from('pdfs')
+      .upload(fileName, file);
 
-    try {
-      const res = await axios.post(CLOUDINARY_UPLOAD_URL, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      return res.data.secure_url;
-    } catch (err) {
-      toast.error('Cloudinary upload failed');
-      throw err;
+    if (error) {
+      throw error;
     }
+
+    const { data: publicUrlData } = supabase
+      .storage
+      .from('pdfs')
+      .getPublicUrl(fileName);
+
+    return publicUrlData.publicUrl;
   };
 
   const handleSubmit = async (e) => {
@@ -53,7 +53,7 @@ export default function PDFManagement() {
       let fileUrl = '';
 
       if (file) {
-        fileUrl = await uploadToCloudinary(file);
+        fileUrl = await uploadToSupabase(file);
       } else {
         toast.error('Please select a PDF file');
         setLoading(false);
@@ -63,7 +63,7 @@ export default function PDFManagement() {
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '',
+        embedLink: '', // not used now
         category,
       };
 
@@ -80,7 +80,7 @@ export default function PDFManagement() {
       setCategory('free');
       setEditingPdf(null);
       fetchPdfs();
-    } catch {
+    } catch (err) {
       toast.error('Upload failed');
     } finally {
       setLoading(false);
@@ -151,7 +151,14 @@ export default function PDFManagement() {
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
 
-              <PDFViewer url={pdf.originalLink} />
+              <iframe
+                src={`https://docs.google.com/gview?url=${encodeURIComponent(pdf.originalLink)}&embedded=true`}
+                title={pdf.title}
+                width="100%"
+                height="400"
+                frameBorder="0"
+                style={{ border: '1px solid #ccc', marginTop: '10px' }}
+              ></iframe>
 
               <div style={{ marginTop: '10px' }}>
                 <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
