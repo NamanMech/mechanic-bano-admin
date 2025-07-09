@@ -1,23 +1,26 @@
+// src/components/PDFViewer.jsx
 import React, { useEffect, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
+import 'pdfjs-dist/web/pdf_viewer.css';
 
-// Set correct worker source URL
+// ✅ Use CDN-hosted PDF worker to avoid Vite build issues
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-export default function PDFViewer({ url }) {
+const PDFViewer = ({ url }) => {
   const canvasRef = useRef();
 
   useEffect(() => {
-    const renderPDF = async () => {
+    const loadPdf = async () => {
       try {
         const pdf = await pdfjsLib.getDocument(url).promise;
         const page = await pdf.getPage(1);
         const viewport = page.getViewport({ scale: 1.5 });
+
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
 
-        canvas.height = viewport.height;
         canvas.width = viewport.width;
+        canvas.height = viewport.height;
 
         const renderContext = {
           canvasContext: context,
@@ -26,12 +29,20 @@ export default function PDFViewer({ url }) {
 
         await page.render(renderContext).promise;
       } catch (err) {
-        console.error('PDF render error:', err);
+        console.error('Error loading PDF:', err);
       }
     };
 
-    renderPDF();
+    if (url) {
+      loadPdf();
+    }
   }, [url]);
 
-  return <canvas ref={canvasRef} style={{ border: '1px solid #ccc', marginTop: '10px' }} />;
-}
+  return (
+    <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
+      <canvas ref={canvasRef} style={{ border: '1px solid #ccc' }} />
+    </div>
+  );
+};
+
+export default PDFViewer;
