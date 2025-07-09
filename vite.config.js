@@ -3,5 +3,14 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  // Remove all PDF.js specific config
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+    rollupOptions: {
+      external: [
+        /pdfjs-dist/
+      ]
+    }
+  }
 })
