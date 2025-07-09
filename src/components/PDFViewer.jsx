@@ -2,24 +2,20 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-// Hosted worker for pdf.js
+// Correct worker path for browser
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-const PDFViewer = ({ url }) => {
+export default function PDFViewer({ url }) {
   const canvasRef = useRef();
   const [error, setError] = useState('');
 
   useEffect(() => {
     const renderPDF = async () => {
+      setError('');
       if (!url) return;
 
       try {
-        // 👉 Fetch the PDF file as blob
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const objectUrl = URL.createObjectURL(blob);
-
-        const loadingTask = pdfjsLib.getDocument(objectUrl);
+        const loadingTask = pdfjsLib.getDocument({ url, withCredentials: false });
         const pdf = await loadingTask.promise;
         const page = await pdf.getPage(1);
         const viewport = page.getViewport({ scale: 1.2 });
@@ -29,14 +25,9 @@ const PDFViewer = ({ url }) => {
         canvas.width = viewport.width;
         canvas.height = viewport.height;
 
-        await page.render({
-          canvasContext: context,
-          viewport,
-        }).promise;
-
-        URL.revokeObjectURL(objectUrl); // cleanup
+        await page.render({ canvasContext: context, viewport }).promise;
       } catch (err) {
-        console.error('PDF Render Error:', err);
+        console.error('PDF render error:', err);
         setError('PDF cannot be rendered. Invalid link or format.');
       }
     };
@@ -45,14 +36,12 @@ const PDFViewer = ({ url }) => {
   }, [url]);
 
   return (
-    <div style={{ marginTop: '10px', overflowX: 'auto' }}>
+    <div className="pdf-viewer" style={{ marginTop: '10px', overflowX: 'auto' }}>
       {error ? (
-        <p style={{ color: 'red' }}>{error}</p>
+        <p style={{ color: 'red', fontSize: '14px' }}>{error}</p>
       ) : (
-        <canvas ref={canvasRef} style={{ border: '1px solid #999' }} />
+        <canvas ref={canvasRef} style={{ border: '1px solid #ccc', maxWidth: '100%' }} />
       )}
     </div>
   );
-};
-
-export default PDFViewer;
+}
