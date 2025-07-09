@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_UPLOAD_URL } from '../utils/cloudinaryConfig';
 import { v4 as uuidv4 } from 'uuid';
-import { supabase } from '../utils/supabaseClient';
+import PDFViewer from '../components/PDFViewer';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
@@ -27,34 +28,19 @@ export default function PDFManagement() {
     fetchPdfs();
   }, []);
 
-  const uploadToSupabase = async (file) => {
-    const fileName = `pdfs/${uuidv4()}-${file.name}`;
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('public_id', `pdfs/${uuidv4()}-${file.name}`);
+
     try {
-      const { data, error } = await supabase.storage
-        .from('pdfs')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: 'application/pdf',
-        });
-
-      if (error) {
-        toast.error('Supabase upload error');
-        throw new Error(error.message);
-      }
-
-      const { data: urlData, error: urlError } = supabase.storage
-        .from('pdfs')
-        .getPublicUrl(fileName);
-
-      if (urlError) {
-        toast.error('Public URL error');
-        throw new Error(urlError.message);
-      }
-
-      return urlData.publicUrl;
+      const res = await axios.post(CLOUDINARY_UPLOAD_URL, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data.secure_url;
     } catch (err) {
-      toast.error('Upload failed: ' + err.message);
+      toast.error('Cloudinary upload failed');
       throw err;
     }
   };
@@ -64,27 +50,29 @@ export default function PDFManagement() {
     setLoading(true);
 
     try {
-      if (!file) {
+      let fileUrl = '';
+
+      if (file) {
+        fileUrl = await uploadToCloudinary(file);
+      } else {
         toast.error('Please select a PDF file');
         setLoading(false);
         return;
       }
 
-      const fileUrl = await uploadToSupabase(file);
-
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '',
+        embedLink: '', // Not used anymore
         category,
       };
 
       if (editingPdf) {
         await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
-        toast.success('PDF updated successfully');
+        toast.success('PDF updated');
       } else {
         await axios.post(`${API_URL}general?type=pdf`, payload);
-        toast.success('PDF uploaded successfully');
+        toast.success('PDF uploaded');
       }
 
       setTitle('');
@@ -93,7 +81,7 @@ export default function PDFManagement() {
       setEditingPdf(null);
       fetchPdfs();
     } catch {
-      // error already handled in uploadToSupabase
+      toast.error('Upload failed');
     } finally {
       setLoading(false);
     }
@@ -103,7 +91,7 @@ export default function PDFManagement() {
     if (confirm('Are you sure?')) {
       try {
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        toast.success('PDF deleted');
+        toast.success('Deleted');
         fetchPdfs();
       } catch {
         toast.error('Delete failed');
@@ -162,7 +150,10 @@ export default function PDFManagement() {
             >
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
-              <a href={pdf.originalLink} target="_blank" rel="noreferrer">View PDF</a>
+
+              {/* 🔒 Secure PDF Preview */}
+              <PDFViewer url={pdf.originalLink} />
+
               <div style={{ marginTop: '10px' }}>
                 <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
                   Edit
