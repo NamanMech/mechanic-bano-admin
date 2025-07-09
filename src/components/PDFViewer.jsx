@@ -1,8 +1,8 @@
+// src/components/PDFViewer.jsx
 import React, { useEffect, useRef } from 'react';
-import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-// ✅ Use CDN worker to avoid build issues
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PDFViewer = ({ url }) => {
@@ -11,26 +11,32 @@ const PDFViewer = ({ url }) => {
   useEffect(() => {
     const renderPDF = async () => {
       try {
-        // ✅ Fetch PDF from Supabase URL
-        const response = await fetch(url, { mode: 'cors' });
-        const blob = await response.blob();
-        const arrayBuffer = await blob.arrayBuffer();
+        const res = await fetch(url);
+        const blob = await res.blob();
 
-        // ✅ Load PDF
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        if (blob.type !== 'application/pdf') {
+          throw new Error('Not a valid PDF');
+        }
+
+        const blobUrl = URL.createObjectURL(blob);
+        const loadingTask = pdfjsLib.getDocument(blobUrl);
+        const pdf = await loadingTask.promise;
         const page = await pdf.getPage(1);
-
-        // ✅ Render to canvas
         const viewport = page.getViewport({ scale: 1.5 });
+
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        await page.render({ canvasContext: context, viewport }).promise;
-      } catch (err) {
-        console.error('PDF render error:', err);
-        alert('PDF cannot be rendered. Check URL or file type.');
+        await page.render({
+          canvasContext: context,
+          viewport,
+        }).promise;
+
+        URL.revokeObjectURL(blobUrl); // cleanup
+      } catch (error) {
+        console.error('Error rendering PDF:', error);
       }
     };
 
@@ -39,7 +45,7 @@ const PDFViewer = ({ url }) => {
 
   return (
     <div style={{ overflowX: 'auto', marginTop: '10px' }}>
-      <canvas ref={canvasRef} style={{ border: '1px solid #aaa', maxWidth: '100%' }} />
+      <canvas ref={canvasRef} style={{ border: '1px solid #aaa' }} />
     </div>
   );
 };
