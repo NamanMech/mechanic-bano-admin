@@ -433,3 +433,9 @@ button:disabled {
     font-size: 13px;
   }
 }
+
+/* Add this at the bottom */
+.pdf-viewer canvas {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin: 10px 0;
+}
