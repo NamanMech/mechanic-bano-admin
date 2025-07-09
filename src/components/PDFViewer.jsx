@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
-import 'pdfjs-dist/build/pdf.worker.entry';
+
+// Set correct worker source URL
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export default function PDFViewer({ url }) {
   const canvasRef = useRef();
@@ -21,6 +23,7 @@ export default function PDFViewer({ url }) {
           canvasContext: context,
           viewport: viewport,
         };
+
         await page.render(renderContext).promise;
       } catch (err) {
         console.error('PDF render error:', err);
