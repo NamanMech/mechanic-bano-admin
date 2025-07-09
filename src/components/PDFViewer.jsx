@@ -1,13 +1,13 @@
-// src/components/PDFViewer.jsx
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-// ✅ Use CDN to avoid worker issues with Vite/Netlify
+// ✅ Use CDN worker to avoid build issues with Vite/Netlify
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PDFViewer = ({ url }) => {
   const canvasRef = useRef();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const renderPDF = async () => {
@@ -15,8 +15,8 @@ const PDFViewer = ({ url }) => {
 
       try {
         const loadingTask = pdfjsLib.getDocument({
-          url,
-          withCredentials: false, // important for public access
+          url: url,
+          withCredentials: false, // ✅ Required for Cloudinary access
         });
 
         const pdf = await loadingTask.promise;
@@ -32,8 +32,11 @@ const PDFViewer = ({ url }) => {
           canvasContext: context,
           viewport,
         }).promise;
+
+        setLoading(false);
       } catch (error) {
-        console.error('❌ Failed to render PDF:', error.message);
+        console.error('❌ Error rendering PDF:', error);
+        setLoading(false);
       }
     };
 
@@ -42,6 +45,7 @@ const PDFViewer = ({ url }) => {
 
   return (
     <div style={{ overflowX: 'auto', marginTop: '10px', textAlign: 'center' }}>
+      {loading && <div style={{ marginBottom: '10px' }}>Loading PDF...</div>}
       <canvas
         ref={canvasRef}
         style={{
