@@ -1,8 +1,8 @@
-// src/components/PDFViewer.jsx
 import React, { useEffect, useRef } from 'react';
-import * as pdfjsLib from 'pdfjs-dist';
+import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
+// ✅ Use CDN version of the worker to avoid Vite/Netlify build errors
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PDFViewer = ({ url }) => {
@@ -11,38 +11,38 @@ const PDFViewer = ({ url }) => {
   useEffect(() => {
     const renderPDF = async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument({ url, disableStream: true });
+        if (!url) return;
+
+        const loadingTask = pdfjsLib.getDocument(url);
         const pdf = await loadingTask.promise;
         const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 1.5 });
+
+        const scale = 1.5;
+        const viewport = page.getViewport({ scale });
 
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
 
-        await page.render({
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        const renderContext = {
           canvasContext: context,
-          viewport,
-        }).promise;
+          viewport: viewport,
+        };
+
+        await page.render(renderContext).promise;
       } catch (error) {
-        console.error('PDF render error:', error);
+        console.error('Error rendering PDF:', error);
       }
     };
 
-    if (url) renderPDF();
+    renderPDF();
   }, [url]);
 
   return (
     <div style={{ overflowX: 'auto', marginTop: '10px' }}>
-      <canvas
-        ref={canvasRef}
-        style={{
-          border: '1px solid #ccc',
-          maxWidth: '100%',
-          pointerEvents: 'none',
-        }}
-      />
+      <canvas ref={canvasRef} style={{ border: '1px solid #aaa' }} />
     </div>
   );
 };
