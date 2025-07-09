@@ -4,19 +4,45 @@ const PDFViewer = ({ url }) => {
   const canvasRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const pdfjsRef = useRef(null);
 
   useEffect(() => {
     if (!url) return;
+
+    // Load PDF.js library from CDN
+    const loadPDFJS = () => {
+      return new Promise((resolve) => {
+        if (window.pdfjsLib) {
+          pdfjsRef.current = window.pdfjsLib;
+          return resolve();
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js';
+        script.onload = () => {
+          pdfjsRef.current = window.pdfjsLib;
+          resolve();
+        };
+        script.onerror = () => {
+          setError('Failed to load PDF library');
+          setIsLoading(false);
+        };
+        document.head.appendChild(script);
+      });
+    };
 
     const loadPDF = async () => {
       try {
         setIsLoading(true);
         setError(null);
         
-        // Dynamically import PDF.js to avoid build issues
-        const pdfjsLib = await import('pdfjs-dist/build/pdf');
-        const pdfjsWorker = await import('pdfjs-dist/build/pdf.worker.entry');
-        pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker.default;
+        // Load PDF.js library
+        await loadPDFJS();
+        const pdfjsLib = pdfjsRef.current;
+        
+        // Set worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js';
 
         // Validate URL
         if (!url.startsWith('https://') || !url.endsWith('.pdf')) {
@@ -92,7 +118,8 @@ const PDFViewer = ({ url }) => {
       <canvas ref={canvasRef} style={{ 
         display: error ? 'none' : 'block',
         border: '1px solid #eee',
-        borderRadius: '4px'
+        borderRadius: '4px',
+        maxWidth: '100%'
       }} />
     </div>
   );
