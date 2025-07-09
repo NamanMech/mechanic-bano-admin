@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-// Use the hosted PDF.js worker
+// Hosted worker for pdf.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PDFViewer = ({ url }) => {
@@ -12,8 +12,14 @@ const PDFViewer = ({ url }) => {
   useEffect(() => {
     const renderPDF = async () => {
       if (!url) return;
+
       try {
-        const loadingTask = pdfjsLib.getDocument(url);
+        // 👉 Fetch the PDF file as blob
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        const loadingTask = pdfjsLib.getDocument(objectUrl);
         const pdf = await loadingTask.promise;
         const page = await pdf.getPage(1);
         const viewport = page.getViewport({ scale: 1.2 });
@@ -27,6 +33,8 @@ const PDFViewer = ({ url }) => {
           canvasContext: context,
           viewport,
         }).promise;
+
+        URL.revokeObjectURL(objectUrl); // cleanup
       } catch (err) {
         console.error('PDF Render Error:', err);
         setError('PDF cannot be rendered. Invalid link or format.');
