@@ -4,44 +4,55 @@ const PDFViewer = ({ url }) => {
   const canvasRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const pdfjsRef = useRef(null);
+  const [pdfjs, setPdfjs] = useState(null);
 
+  // Load PDF.js library
   useEffect(() => {
-    if (!url) return;
-
-    // Load PDF.js library from CDN
-    const loadPDFJS = () => {
-      return new Promise((resolve) => {
+    const loadPDFJS = async () => {
+      try {
+        // Try to load from CDN first
         if (window.pdfjsLib) {
-          pdfjsRef.current = window.pdfjsLib;
-          return resolve();
+          setPdfjs(window.pdfjsLib);
+          return;
         }
 
+        // Create script element for CDN
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js';
+        script.async = true;
         script.onload = () => {
-          pdfjsRef.current = window.pdfjsLib;
-          resolve();
+          setPdfjs(window.pdfjsLib);
         };
-        script.onerror = () => {
-          setError('Failed to load PDF library');
-          setIsLoading(false);
+        script.onerror = async () => {
+          // If CDN fails, try to load from local module
+          try {
+            const pdfjsModule = await import('pdfjs-dist');
+            setPdfjs(pdfjsModule);
+          } catch (localError) {
+            setError('Failed to load PDF library');
+          }
         };
+        
         document.head.appendChild(script);
-      });
+      } catch (err) {
+        setError('Failed to load PDF library');
+      }
     };
 
-    const loadPDF = async () => {
+    loadPDFJS();
+  }, []);
+
+  // Render PDF when library and URL are available
+  useEffect(() => {
+    if (!pdfjs || !url) return;
+
+    const renderPDF = async () => {
       try {
         setIsLoading(true);
         setError(null);
         
-        // Load PDF.js library
-        await loadPDFJS();
-        const pdfjsLib = pdfjsRef.current;
-        
-        // Set worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 
+        // Set worker source
+        pdfjs.GlobalWorkerOptions.workerSrc = 
           'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js';
 
         // Validate URL
@@ -55,7 +66,7 @@ const PDFViewer = ({ url }) => {
         const arrayBuffer = await response.arrayBuffer();
 
         // Load PDF document
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
         
         // Render first page
         const page = await pdf.getPage(1);
@@ -79,8 +90,8 @@ const PDFViewer = ({ url }) => {
       }
     };
 
-    loadPDF();
-  }, [url]);
+    renderPDF();
+  }, [pdfjs, url]);
 
   return (
     <div style={{ 
