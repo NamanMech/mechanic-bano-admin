@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { supabase } from '../utils/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '../utils/supabaseClient';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
@@ -28,21 +28,19 @@ export default function PDFManagement() {
   }, []);
 
   const uploadToSupabase = async (file) => {
-    const fileName = `pdfs/${uuidv4()}-${file.name}`;
-    const { data, error } = await supabase.storage
-      .from('pdfs')
-      .upload(fileName, file);
+    const filePath = `pdfs/${uuidv4()}-${file.name}`;
+    const { data, error } = await supabase.storage.from('pdfs').upload(filePath, file);
 
     if (error) {
-      throw error;
+      throw new Error('Upload failed: ' + error.message);
     }
 
-    const { data: publicUrlData } = supabase
+    const { data: publicUrl } = supabase
       .storage
       .from('pdfs')
-      .getPublicUrl(fileName);
+      .getPublicUrl(filePath);
 
-    return publicUrlData.publicUrl;
+    return publicUrl.publicUrl;
   };
 
   const handleSubmit = async (e) => {
@@ -50,20 +48,18 @@ export default function PDFManagement() {
     setLoading(true);
 
     try {
-      let fileUrl = '';
-
-      if (file) {
-        fileUrl = await uploadToSupabase(file);
-      } else {
+      if (!file) {
         toast.error('Please select a PDF file');
         setLoading(false);
         return;
       }
 
+      const fileUrl = await uploadToSupabase(file);
+
       const payload = {
         title,
         originalLink: fileUrl,
-        embedLink: '', // not used now
+        embedLink: '', // not needed now
         category,
       };
 
@@ -80,8 +76,9 @@ export default function PDFManagement() {
       setCategory('free');
       setEditingPdf(null);
       fetchPdfs();
-    } catch (err) {
+    } catch (error) {
       toast.error('Upload failed');
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -151,14 +148,14 @@ export default function PDFManagement() {
               <h3>{pdf.title}</h3>
               <p>Category: {pdf.category}</p>
 
-              <iframe
-                src={`https://docs.google.com/gview?url=${encodeURIComponent(pdf.originalLink)}&embedded=true`}
-                title={pdf.title}
-                width="100%"
-                height="400"
-                frameBorder="0"
-                style={{ border: '1px solid #ccc', marginTop: '10px' }}
-              ></iframe>
+              <a
+                href={pdf.originalLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'blue', textDecoration: 'underline' }}
+              >
+                View PDF
+              </a>
 
               <div style={{ marginTop: '10px' }}>
                 <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
