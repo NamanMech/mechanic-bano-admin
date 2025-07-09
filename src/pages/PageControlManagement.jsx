@@ -1,160 +1,126 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { supabase } from '../utils/supabaseClient';
-import { v4 as uuidv4 } from 'uuid';
-import PDFViewer from '../components/PDFViewer';
 
-export default function PDFManagement() {
-  const [pdfs, setPdfs] = useState([]);
-  const [title, setTitle] = useState('');
-  const [file, setFile] = useState(null);
-  const [category, setCategory] = useState('free');
-  const [loading, setLoading] = useState(false);
-  const [editingPdf, setEditingPdf] = useState(null);
+export default function PageControlManagement({ fetchPageStatus }) {
+  const [pages, setPages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const fetchPdfs = async () => {
+  const loadPages = async () => {
     try {
-      const res = await axios.get(`${API_URL}general?type=pdf`);
-      setPdfs(res.data);
-    } catch {
-      toast.error('Error fetching PDFs');
-    }
-  };
-
-  useEffect(() => {
-    fetchPdfs();
-  }, []);
-
-  const uploadToSupabase = async (file) => {
-    const fileName = `${uuidv4()}-${file.name}`;
-    const filePath = `pdfs/${fileName}`;
-    const { data, error } = await supabase.storage.from('pdfs').upload(filePath, file);
-
-    if (error) throw error;
-
-    const { data: publicUrlData } = supabase.storage.from('pdfs').getPublicUrl(filePath);
-    return publicUrlData.publicUrl;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      if (!file) {
-        toast.error('Please select a PDF file');
-        return;
-      }
-
-      const uploadedUrl = await uploadToSupabase(file);
-
-      const payload = {
-        title,
-        originalLink: uploadedUrl,
-        embedLink: '',
-        category,
-      };
-
-      if (editingPdf) {
-        await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
-        toast.success('PDF updated');
-      } else {
-        await axios.post(`${API_URL}general?type=pdf`, payload);
-        toast.success('PDF uploaded');
-      }
-
-      setTitle('');
-      setFile(null);
-      setCategory('free');
-      setEditingPdf(null);
-      fetchPdfs();
+      const response = await axios.get(`${API_URL}general?type=pagecontrol`);
+      setPages(response.data);
     } catch (err) {
-      toast.error('Upload failed');
+      toast.error('Error fetching pages');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (confirm('Are you sure?')) {
-      try {
-        await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        toast.success('Deleted');
-        fetchPdfs();
-      } catch {
-        toast.error('Delete failed');
-      }
+  const togglePageStatus = async (id, currentStatus, pageName) => {
+    if (pageName === 'pagecontrol') {
+      toast.warning("This page can't be disabled");
+      return;
+    }
+
+    try {
+      await axios.put(`${API_URL}general?type=pagecontrol&id=${id}`, {
+        enabled: !currentStatus,
+      });
+      toast.success(`"${formatPageName(pageName)}" ${currentStatus ? 'disabled' : 'enabled'} successfully`);
+      await loadPages();
+      await fetchPageStatus();
+    } catch (err) {
+      toast.error('Failed to update page status');
     }
   };
 
-  const handleEdit = (pdf) => {
-    setEditingPdf(pdf);
-    setTitle(pdf.title);
-    setCategory(pdf.category);
+  const formatPageName = (page) => {
+    return page
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, char => char.toUpperCase());
   };
 
+  useEffect(() => {
+    loadPages();
+  }, []);
+
+  if (loading) return <div className="spinner"></div>;
+
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>PDF Management</h1>
-
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
-        <input
-          type="text"
-          placeholder="PDF Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <input
-          type="file"
-          accept="application/pdf"
-          onChange={(e) => setFile(e.target.files[0])}
-          required
-        />
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="free">Free</option>
-          <option value="premium">Premium</option>
-        </select>
-        <button type="submit" disabled={loading}>
-          {loading ? (editingPdf ? 'Updating...' : 'Uploading...') : editingPdf ? 'Update PDF' : 'Upload PDF'}
-        </button>
-      </form>
-
-      <h2 style={{ marginTop: '40px' }}>Uploaded PDFs</h2>
-      {pdfs.length === 0 ? (
-        <p>No PDFs yet.</p>
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {pdfs.map((pdf) => (
-            <li
-              key={pdf._id}
-              style={{
-                marginBottom: '20px',
-                border: '1px solid #ccc',
-                padding: '10px',
-                borderRadius: '8px',
-                background: '#f8f8f8',
-              }}
-            >
-              <h3>{pdf.title}</h3>
-              <p>Category: {pdf.category}</p>
-
-              {/* ✅ SECURE PDF VIEW */}
-              <PDFViewer url={pdf.originalLink} />
-
-              <div style={{ marginTop: '10px' }}>
-                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(pdf._id)}>Delete</button>
-              </div>
-            </li>
+    <div>
+      <h2 style={styles.heading}>Page Visibility Control</h2>
+      <table style={styles.table}>
+        <thead>
+          <tr>
+            <th style={styles.th}>Page</th>
+            <th style={styles.th}>Status</th>
+            <th style={styles.th}>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pages.map(page => (
+            <tr key={page._id}>
+              <td style={styles.td}>{formatPageName(page.page)}</td>
+              <td style={styles.td}>{page.enabled ? 'Enabled' : 'Disabled'}</td>
+              <td style={styles.td}>
+                {page.page === 'pagecontrol' ? (
+                  <button style={{ ...styles.button, backgroundColor: '#95a5a6', cursor: 'not-allowed' }} disabled>
+                    Locked
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => togglePageStatus(page._id, page.enabled, page.page)}
+                    style={{
+                      ...styles.button,
+                      backgroundColor: page.enabled ? '#e74c3c' : '#2ecc71',
+                    }}
+                  >
+                    {page.enabled ? 'Disable' : 'Enable'}
+                  </button>
+                )}
+              </td>
+            </tr>
           ))}
-        </ul>
-      )}
+        </tbody>
+      </table>
     </div>
   );
 }
+
+const styles = {
+  heading: {
+    fontSize: '24px',
+    marginBottom: '20px',
+    textAlign: 'center',
+    color: '#ff9800',
+  },
+  table: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    backgroundColor: '#2c3e50',
+    color: 'white',
+    borderRadius: '8px',
+    overflow: 'hidden',
+  },
+  th: {
+    padding: '12px 16px',
+    backgroundColor: '#34495e',
+    textAlign: 'left',
+    borderBottom: '1px solid #444',
+  },
+  td: {
+    padding: '12px 16px',
+    borderBottom: '1px solid #444',
+  },
+  button: {
+    padding: '6px 12px',
+    border: 'none',
+    borderRadius: '5px',
+    color: 'white',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+  },
+};
