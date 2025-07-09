@@ -1,16 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as pdfjsLib from 'pdfjs-dist';
-import 'pdfjs-dist/web/pdf_viewer.css';
-
-// Use CDN worker for better compatibility
-pdfjsLib.GlobalWorkerOptions.workerSrc = 
-  'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.2.67/build/pdf.worker.min.js';
 
 const PDFViewer = ({ url }) => {
   const canvasRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [pdfVersion, setPdfVersion] = useState(null);
 
   useEffect(() => {
     if (!url) return;
@@ -20,6 +13,11 @@ const PDFViewer = ({ url }) => {
         setIsLoading(true);
         setError(null);
         
+        // Dynamically import PDF.js to avoid build issues
+        const pdfjsLib = await import('pdfjs-dist/build/pdf');
+        const pdfjsWorker = await import('pdfjs-dist/build/pdf.worker.entry');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker.default;
+
         // Validate URL
         if (!url.startsWith('https://') || !url.endsWith('.pdf')) {
           throw new Error('Invalid PDF URL format');
@@ -32,7 +30,6 @@ const PDFViewer = ({ url }) => {
 
         // Load PDF document
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        setPdfVersion(pdf.pdfInfo.pdfVersion);
         
         // Render first page
         const page = await pdf.getPage(1);
@@ -63,8 +60,6 @@ const PDFViewer = ({ url }) => {
     <div style={{ 
       position: 'relative', 
       minHeight: '200px',
-      border: '1px solid #eee',
-      borderRadius: '4px',
       margin: '10px 0'
     }}>
       {isLoading && !error && (
@@ -94,21 +89,11 @@ const PDFViewer = ({ url }) => {
         </div>
       )}
       
-      {pdfVersion && (
-        <div style={{ 
-          position: 'absolute', 
-          top: 5, 
-          right: 5, 
-          background: 'rgba(0,0,0,0.5)',
-          color: 'white',
-          padding: '2px 5px',
-          fontSize: '0.8rem'
-        }}>
-          PDF v{pdfVersion}
-        </div>
-      )}
-      
-      <canvas ref={canvasRef} style={{ display: error ? 'none' : 'block' }} />
+      <canvas ref={canvasRef} style={{ 
+        display: error ? 'none' : 'block',
+        border: '1px solid #eee',
+        borderRadius: '4px'
+      }} />
     </div>
   );
 };
