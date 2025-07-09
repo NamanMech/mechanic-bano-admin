@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-// ✅ Set the worker src from CDN (safe with Vite + Netlify)
+// ✅ Configure worker from CDN (important for Vite)
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PDFViewer = ({ url }) => {
@@ -12,14 +12,14 @@ const PDFViewer = ({ url }) => {
   useEffect(() => {
     const renderPDF = async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument({
-          url,
-          disableRange: true, // ✅ Disable range request (fixes Supabase streaming issues)
-          withCredentials: false,
-        });
+        // ✅ Step 1: Fetch PDF manually as arrayBuffer
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
 
-        const pdf = await loadingTask.promise;
-        const page = await pdf.getPage(1); // render only first page
+        // ✅ Step 2: Pass arrayBuffer to PDF.js
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+        const page = await pdf.getPage(1);
         const viewport = page.getViewport({ scale: 1.5 });
 
         const canvas = canvasRef.current;
@@ -27,10 +27,7 @@ const PDFViewer = ({ url }) => {
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        await page.render({
-          canvasContext: context,
-          viewport,
-        }).promise;
+        await page.render({ canvasContext: context, viewport }).promise;
       } catch (error) {
         console.error('PDF render error:', error);
       }
