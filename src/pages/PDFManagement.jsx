@@ -32,10 +32,8 @@ export default function PDFManagement() {
   const uploadToSupabase = async (file) => {
     const fileName = `${uuidv4()}-${file.name}`;
     const filePath = `pdfs/${fileName}`;
-
     const { error } = await supabase.storage.from('pdfs').upload(filePath, file);
     if (error) throw new Error('Upload failed');
-
     const { data } = supabase.storage.from('pdfs').getPublicUrl(filePath);
     return data.publicUrl;
   };
@@ -104,7 +102,7 @@ export default function PDFManagement() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '20px', color: '#333' }}>PDF Management</h1>
+      <h1 style={{ marginBottom: '20px', color: '#fff' }}>PDF Management</h1>
 
       <form
         onSubmit={handleSubmit}
@@ -145,7 +143,9 @@ export default function PDFManagement() {
 
       {/* Filter Dropdown */}
       <div style={{ marginBottom: '20px' }}>
-        <label style={{ marginRight: '10px', fontWeight: 'bold' }}>Filter by category:</label>
+        <label style={{ marginRight: '10px', fontWeight: 'bold', color: '#fff' }}>
+          Filter by category:
+        </label>
         <select value={filter} onChange={(e) => setFilter(e.target.value)}>
           <option value="all">All</option>
           <option value="free">Free</option>
@@ -153,10 +153,10 @@ export default function PDFManagement() {
         </select>
       </div>
 
-      <h2 style={{ marginBottom: '10px', color: '#333' }}>Uploaded PDFs</h2>
+      <h2 style={{ marginBottom: '10px', color: '#fff' }}>Uploaded PDFs</h2>
 
       {filteredPdfs.length === 0 ? (
-        <p style={{ color: '#666' }}>No PDFs found.</p>
+        <p style={{ color: '#ccc' }}>No PDFs found.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {filteredPdfs.map((pdf) => (
