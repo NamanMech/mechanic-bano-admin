@@ -12,6 +12,7 @@ export default function PDFManagement() {
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
+  const [filter, setFilter] = useState('all');
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -96,10 +97,16 @@ export default function PDFManagement() {
     setCategory(pdf.category);
   };
 
+  const filteredPdfs = pdfs.filter((pdf) => {
+    if (filter === 'all') return true;
+    return pdf.category === filter;
+  });
+
   return (
     <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
       <h1 style={{ color: '#222' }}>PDF Management</h1>
 
+      {/* Upload Form */}
       <form
         onSubmit={handleSubmit}
         style={{
@@ -137,12 +144,23 @@ export default function PDFManagement() {
         </button>
       </form>
 
+      {/* Filter Dropdown */}
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ marginRight: '10px', fontWeight: 'bold' }}>Filter by category:</label>
+        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <option value="all">All</option>
+          <option value="free">Free</option>
+          <option value="premium">Premium</option>
+        </select>
+      </div>
+
+      {/* PDF List */}
       <h2 style={{ color: '#222' }}>Uploaded PDFs</h2>
-      {pdfs.length === 0 ? (
-        <p style={{ color: '#666' }}>No PDFs yet.</p>
+      {filteredPdfs.length === 0 ? (
+        <p style={{ color: '#666' }}>No PDFs found.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
-          {pdfs.map((pdf) => (
+          {filteredPdfs.map((pdf) => (
             <li
               key={pdf._id}
               style={{
@@ -153,11 +171,7 @@ export default function PDFManagement() {
                 background: '#f9f9f9',
               }}
             >
-              <PDFViewer
-                url={pdf.originalLink}
-                title={pdf.title}
-                category={pdf.category}
-              />
+              <PDFViewer url={pdf.originalLink} title={pdf.title} category={pdf.category} />
 
               <div style={{ marginTop: '15px' }}>
                 <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
