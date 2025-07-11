@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
-import { supabase } from '../utils/supabaseClient';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
@@ -13,17 +12,13 @@ const PDFViewer = ({ url }) => {
     const renderPDF = async () => {
       try {
         if (!url.includes('/storage/v1/object/public/')) {
-          throw new Error('Invalid Supabase URL');
+          throw new Error('Invalid Supabase public URL');
         }
 
-        const relativePath = url.split('/storage/v1/object/public/')[1];
-        const { data, error: downloadError } = await supabase.storage.from('pdfs').download(relativePath);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch PDF from Supabase public URL');
 
-        if (downloadError || !data) {
-          throw new Error('Supabase download failed');
-        }
-
-        const pdfData = new Uint8Array(await data.arrayBuffer());
+        const pdfData = new Uint8Array(await response.arrayBuffer());
         const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
         const page = await pdf.getPage(1);
         const viewport = page.getViewport({ scale: 1.2 });
@@ -36,7 +31,7 @@ const PDFViewer = ({ url }) => {
         await page.render({ canvasContext: context, viewport }).promise;
       } catch (err) {
         console.error('PDF Render Error:', err.message);
-        setError('PDF cannot be rendered. Invalid link or format.');
+        setError('PDF cannot be rendered. Please check the link or file format.');
       }
     };
 
