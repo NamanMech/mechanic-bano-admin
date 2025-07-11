@@ -72,7 +72,7 @@ const PDFViewer = ({ url, title, category }) => {
 
   return (
     <div ref={containerRef} style={{ marginTop: '10px', textAlign: 'center' }}>
-      <h3 style={{ color: '#333', marginBottom: '4px' }}>{title}</h3>
+      <h3 style={{ color: '#222', marginBottom: '4px' }}>{title}</h3>
       <p style={{ color: '#555', fontSize: '14px', marginBottom: '8px' }}>Category: {category}</p>
 
       {error ? (
