@@ -12,6 +12,7 @@ export default function PDFManagement() {
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
+  const [filter, setFilter] = useState('all');
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -79,19 +80,21 @@ export default function PDFManagement() {
   };
 
   const handleDelete = async (id, fileUrl) => {
-    if (confirm('Are you sure?')) {
+    if (confirm('Are you sure you want to delete this PDF?')) {
       try {
-        // Extract Supabase relative path
-        const relativePath = fileUrl.split('/storage/v1/object/public/')[1];
-
+        const relativePath = fileUrl.replace(
+          'https://owmdhrvscnbiuvoihozb.supabase.co/storage/v1/object/public/',
+          ''
+        );
         const { error: deleteError } = await supabase.storage.from('pdfs').remove([relativePath]);
+
         if (deleteError) {
           console.error('Supabase delete error:', deleteError.message);
           throw new Error('Supabase delete failed');
         }
 
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        toast.success('Deleted');
+        toast.success('Deleted from Supabase and database');
         fetchPdfs();
       } catch (err) {
         console.error(err);
@@ -106,9 +109,12 @@ export default function PDFManagement() {
     setCategory(pdf.category);
   };
 
+  const filteredPdfs =
+    filter === 'all' ? pdfs : pdfs.filter((pdf) => pdf.category === filter);
+
   return (
     <div style={{ padding: '20px', color: 'white' }}>
-      <h1>PDF Management</h1>
+      <h1 style={{ color: 'white' }}>PDF Management</h1>
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
         <input
@@ -133,12 +139,22 @@ export default function PDFManagement() {
         </button>
       </form>
 
-      <h2 style={{ marginTop: '40px', color: 'white' }}>Uploaded PDFs</h2>
-      {pdfs.length === 0 ? (
-        <p>No PDFs yet.</p>
+      <div style={{ marginTop: '30px' }}>
+        <label style={{ color: 'white' }}>Filter by Category:</label>{' '}
+        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <option value="all">All</option>
+          <option value="free">Free</option>
+          <option value="premium">Premium</option>
+        </select>
+      </div>
+
+      <h2 style={{ marginTop: '30px', color: 'white' }}>Uploaded PDFs</h2>
+
+      {filteredPdfs.length === 0 ? (
+        <p>No PDFs available.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
-          {pdfs.map((pdf) => (
+          {filteredPdfs.map((pdf) => (
             <li
               key={pdf._id}
               style={{
@@ -146,11 +162,11 @@ export default function PDFManagement() {
                 border: '1px solid #ccc',
                 padding: '10px',
                 borderRadius: '8px',
-                background: '#f8f8f8',
+                background: '#1e1e1e',
               }}
             >
-              <h3>{pdf.title}</h3>
-              <p>Category: {pdf.category}</p>
+              <h3 style={{ color: 'white' }}>{pdf.title}</h3>
+              <p style={{ color: 'white' }}>Category: {pdf.category}</p>
 
               <div style={{ minHeight: '100px' }}>
                 {pdf.originalLink ? (
