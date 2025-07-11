@@ -12,7 +12,6 @@ export default function PDFManagement() {
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
-  const [filter, setFilter] = useState('all');
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -45,12 +44,17 @@ export default function PDFManagement() {
     setLoading(true);
 
     try {
-      if (!file) {
+      if (!file && !editingPdf) {
         toast.error('Please select a PDF file');
         return;
       }
 
-      const fileUrl = await uploadToSupabase(file);
+      let fileUrl = editingPdf?.originalLink;
+
+      if (file) {
+        fileUrl = await uploadToSupabase(file);
+      }
+
       const payload = {
         title,
         originalLink: fileUrl,
@@ -82,10 +86,10 @@ export default function PDFManagement() {
   const handleDelete = async (id, fileUrl) => {
     if (confirm('Are you sure you want to delete this PDF?')) {
       try {
-        const relativePath = fileUrl.replace(
-          'https://owmdhrvscnbiuvoihozb.supabase.co/storage/v1/object/public/',
-          ''
-        );
+        // ✅ Extract relative path correctly
+        const fileName = fileUrl.split('/pdfs/')[1]; // only second pdfs/
+        const relativePath = `pdfs/${fileName}`;
+
         const { error: deleteError } = await supabase.storage.from('pdfs').remove([relativePath]);
 
         if (deleteError) {
@@ -109,12 +113,9 @@ export default function PDFManagement() {
     setCategory(pdf.category);
   };
 
-  const filteredPdfs =
-    filter === 'all' ? pdfs : pdfs.filter((pdf) => pdf.category === filter);
-
   return (
-    <div style={{ padding: '20px', color: 'white' }}>
-      <h1 style={{ color: 'white' }}>PDF Management</h1>
+    <div style={{ padding: '20px', color: '#fff' }}>
+      <h1 style={{ color: '#fff' }}>PDF Management</h1>
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
         <input
@@ -128,7 +129,7 @@ export default function PDFManagement() {
           type="file"
           accept="application/pdf"
           onChange={(e) => setFile(e.target.files[0])}
-          required
+          required={!editingPdf}
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="free">Free</option>
@@ -139,22 +140,12 @@ export default function PDFManagement() {
         </button>
       </form>
 
-      <div style={{ marginTop: '30px' }}>
-        <label style={{ color: 'white' }}>Filter by Category:</label>{' '}
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="all">All</option>
-          <option value="free">Free</option>
-          <option value="premium">Premium</option>
-        </select>
-      </div>
-
-      <h2 style={{ marginTop: '30px', color: 'white' }}>Uploaded PDFs</h2>
-
-      {filteredPdfs.length === 0 ? (
-        <p>No PDFs available.</p>
+      <h2 style={{ marginTop: '40px', color: '#fff' }}>Uploaded PDFs</h2>
+      {pdfs.length === 0 ? (
+        <p style={{ color: '#ccc' }}>No PDFs yet.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
-          {filteredPdfs.map((pdf) => (
+          {pdfs.map((pdf) => (
             <li
               key={pdf._id}
               style={{
@@ -162,11 +153,12 @@ export default function PDFManagement() {
                 border: '1px solid #ccc',
                 padding: '10px',
                 borderRadius: '8px',
-                background: '#1e1e1e',
+                background: '#1f1f1f',
+                color: '#fff',
               }}
             >
-              <h3 style={{ color: 'white' }}>{pdf.title}</h3>
-              <p style={{ color: 'white' }}>Category: {pdf.category}</p>
+              <h3 style={{ color: '#fff' }}>{pdf.title}</h3>
+              <p style={{ color: '#fff' }}>Category: {pdf.category}</p>
 
               <div style={{ minHeight: '100px' }}>
                 {pdf.originalLink ? (
