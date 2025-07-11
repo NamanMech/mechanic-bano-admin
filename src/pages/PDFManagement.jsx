@@ -12,7 +12,6 @@ export default function PDFManagement() {
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
-  const [filter, setFilter] = useState('all');
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -29,11 +28,18 @@ export default function PDFManagement() {
     fetchPdfs();
   }, []);
 
+  const extractSupabasePath = (url) => {
+    const parts = url.split('/storage/v1/object/public/');
+    return parts[1] || '';
+  };
+
   const uploadToSupabase = async (file) => {
     const fileName = `${uuidv4()}-${file.name}`;
     const filePath = `pdfs/${fileName}`;
+
     const { error } = await supabase.storage.from('pdfs').upload(filePath, file);
     if (error) throw new Error('Upload failed');
+
     const { data } = supabase.storage.from('pdfs').getPublicUrl(filePath);
     return data.publicUrl;
   };
@@ -43,12 +49,26 @@ export default function PDFManagement() {
     setLoading(true);
 
     try {
-      if (!file) {
+      if (!file && !editingPdf) {
         toast.error('Please select a PDF file');
         return;
       }
 
-      const fileUrl = await uploadToSupabase(file);
+      let fileUrl = editingPdf?.originalLink || '';
+
+      if (file) {
+        // If editing and uploading new file, delete old one
+        if (editingPdf) {
+          const oldPath = extractSupabasePath(editingPdf.originalLink);
+          if (oldPath) {
+            const { error } = await supabase.storage.from('pdfs').remove([oldPath]);
+            if (error) console.warn('Old Supabase delete error:', error.message);
+          }
+        }
+
+        fileUrl = await uploadToSupabase(file);
+      }
+
       const payload = {
         title,
         originalLink: fileUrl,
@@ -77,9 +97,15 @@ export default function PDFManagement() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, fileUrl) => {
     if (confirm('Are you sure?')) {
       try {
+        const filePath = extractSupabasePath(fileUrl);
+        if (filePath) {
+          const { error } = await supabase.storage.from('pdfs').remove([filePath]);
+          if (error) console.warn('Supabase delete error:', error.message);
+        }
+
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
         toast.success('Deleted');
         fetchPdfs();
@@ -95,23 +121,13 @@ export default function PDFManagement() {
     setCategory(pdf.category);
   };
 
-  const filteredPdfs = pdfs.filter((pdf) => {
-    if (filter === 'all') return true;
-    return pdf.category === filter;
-  });
-
   return (
-    <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '20px', color: '#fff' }}>PDF Management</h1>
+    <div style={{ padding: '20px', color: 'white' }}>
+      <h1 style={{ color: 'white' }}>PDF Management</h1>
 
       <form
         onSubmit={handleSubmit}
-        style={{
-          display: 'grid',
-          gap: '10px',
-          maxWidth: '400px',
-          marginBottom: '30px',
-        }}
+        style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}
       >
         <input
           type="text"
@@ -124,7 +140,7 @@ export default function PDFManagement() {
           type="file"
           accept="application/pdf"
           onChange={(e) => setFile(e.target.files[0])}
-          required
+          required={!editingPdf}
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="free">Free</option>
@@ -141,42 +157,43 @@ export default function PDFManagement() {
         </button>
       </form>
 
-      {/* Filter Dropdown */}
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ marginRight: '10px', fontWeight: 'bold', color: '#fff' }}>
-          Filter by category:
-        </label>
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="all">All</option>
-          <option value="free">Free</option>
-          <option value="premium">Premium</option>
-        </select>
-      </div>
-
-      <h2 style={{ marginBottom: '10px', color: '#fff' }}>Uploaded PDFs</h2>
-
-      {filteredPdfs.length === 0 ? (
-        <p style={{ color: '#ccc' }}>No PDFs found.</p>
+      <h2 style={{ marginTop: '40px', color: 'white' }}>Uploaded PDFs</h2>
+      {pdfs.length === 0 ? (
+        <p>No PDFs yet.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
-          {filteredPdfs.map((pdf) => (
+          {pdfs.map((pdf) => (
             <li
               key={pdf._id}
               style={{
-                marginBottom: '40px',
+                marginBottom: '20px',
                 border: '1px solid #ccc',
-                padding: '15px',
+                padding: '10px',
                 borderRadius: '8px',
-                background: '#f9f9f9',
+                background: '#1e1e1e',
               }}
             >
-              <PDFViewer url={pdf.originalLink} title={pdf.title} category={pdf.category} />
+              <h3 style={{ color: 'white' }}>{pdf.title}</h3>
+              <p style={{ color: 'white' }}>Category: {pdf.category}</p>
 
-              <div style={{ marginTop: '15px' }}>
-                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
+              <div style={{ minHeight: '100px' }}>
+                {pdf.originalLink ? (
+                  <PDFViewer url={pdf.originalLink} />
+                ) : (
+                  <p style={{ color: 'gray' }}>No preview available</p>
+                )}
+              </div>
+
+              <div style={{ marginTop: '10px' }}>
+                <button
+                  onClick={() => handleEdit(pdf)}
+                  style={{ marginRight: '10px' }}
+                >
                   Edit
                 </button>
-                <button onClick={() => handleDelete(pdf._id)}>Delete</button>
+                <button onClick={() => handleDelete(pdf._id, pdf.originalLink)}>
+                  Delete
+                </button>
               </div>
             </li>
           ))}
