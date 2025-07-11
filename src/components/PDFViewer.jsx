@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.js?worker'; // ✅ LOCAL worker import
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // ✅ Local static file path
 
 const PDFViewer = ({ url }) => {
   const canvasRef = useRef();
