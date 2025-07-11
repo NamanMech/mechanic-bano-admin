@@ -37,19 +37,6 @@ export default function PDFManagement() {
     return data.publicUrl;
   };
 
-  const deleteFromSupabase = async (publicUrl) => {
-    try {
-      if (!publicUrl.includes('/storage/v1/object/public/')) return;
-      const relativePath = publicUrl.split('/storage/v1/object/public/')[1];
-      const { error } = await supabase.storage.from('pdfs').remove([relativePath]);
-      if (error) throw new Error(error.message);
-      toast.success('PDF deleted from Supabase');
-    } catch (err) {
-      console.error('Supabase delete error:', err.message);
-      toast.error('Failed to delete from Supabase');
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -67,7 +54,6 @@ export default function PDFManagement() {
       };
 
       if (editingPdf) {
-        await deleteFromSupabase(editingPdf.originalLink); // delete old file
         await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
         toast.success('PDF updated');
       } else {
@@ -88,11 +74,10 @@ export default function PDFManagement() {
     }
   };
 
-  const handleDelete = async (id, publicUrl) => {
+  const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this PDF?')) {
       try {
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
-        await deleteFromSupabase(publicUrl);
         toast.success('PDF deleted');
         fetchPdfs();
       } catch (err) {
@@ -165,7 +150,7 @@ export default function PDFManagement() {
                 <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
                   Edit
                 </button>
-                <button onClick={() => handleDelete(pdf._id, pdf.originalLink)}>Delete</button>
+                <button onClick={() => handleDelete(pdf._id)}>Delete</button>
               </div>
             </li>
           ))}
