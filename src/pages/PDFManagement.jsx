@@ -12,6 +12,7 @@ export default function PDFManagement() {
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
+  const [filter, setFilter] = useState('all');
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -31,10 +32,8 @@ export default function PDFManagement() {
   const uploadToSupabase = async (file) => {
     const fileName = `${uuidv4()}-${file.name}`;
     const filePath = `pdfs/${fileName}`;
-
     const { error } = await supabase.storage.from('pdfs').upload(filePath, file);
     if (error) throw new Error('Upload failed');
-
     const { data } = supabase.storage.from('pdfs').getPublicUrl(filePath);
     return data.publicUrl;
   };
@@ -86,17 +85,13 @@ export default function PDFManagement() {
   const handleDelete = async (id, fileUrl) => {
     if (confirm('Are you sure you want to delete this PDF?')) {
       try {
-        // ✅ Extract relative path correctly
-        const fileName = fileUrl.split('/pdfs/')[1]; // only second pdfs/
+        // ✅ First delete from Supabase
+        const fileName = fileUrl.split('/pdfs/')[1];
         const relativePath = `pdfs/${fileName}`;
-
         const { error: deleteError } = await supabase.storage.from('pdfs').remove([relativePath]);
+        if (deleteError) throw new Error('Supabase delete failed');
 
-        if (deleteError) {
-          console.error('Supabase delete error:', deleteError.message);
-          throw new Error('Supabase delete failed');
-        }
-
+        // ✅ Then delete from MongoDB
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
         toast.success('Deleted from Supabase and database');
         fetchPdfs();
@@ -113,8 +108,12 @@ export default function PDFManagement() {
     setCategory(pdf.category);
   };
 
+  const filteredPdfs = pdfs.filter((pdf) =>
+    filter === 'all' ? true : pdf.category === filter
+  );
+
   return (
-    <div style={{ padding: '20px', color: '#fff' }}>
+    <div style={{ padding: '20px' }}>
       <h1 style={{ color: '#fff' }}>PDF Management</h1>
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
@@ -140,44 +139,55 @@ export default function PDFManagement() {
         </button>
       </form>
 
-      <h2 style={{ marginTop: '40px', color: '#fff' }}>Uploaded PDFs</h2>
-      {pdfs.length === 0 ? (
-        <p style={{ color: '#ccc' }}>No PDFs yet.</p>
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {pdfs.map((pdf) => (
-            <li
-              key={pdf._id}
-              style={{
-                marginBottom: '20px',
-                border: '1px solid #ccc',
-                padding: '10px',
-                borderRadius: '8px',
-                background: '#1f1f1f',
-                color: '#fff',
-              }}
-            >
-              <h3 style={{ color: '#fff' }}>{pdf.title}</h3>
-              <p style={{ color: '#fff' }}>Category: {pdf.category}</p>
+      <div style={{ marginTop: '30px' }}>
+        <h2 style={{ color: '#fff' }}>Uploaded PDFs</h2>
+        <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="filter" style={{ color: '#fff', marginRight: '10px' }}>
+            Filter:
+          </label>
+          <select id="filter" value={filter} onChange={(e) => setFilter(e.target.value)}>
+            <option value="all">All</option>
+            <option value="free">Free</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
+        {filteredPdfs.length === 0 ? (
+          <p style={{ color: '#ccc' }}>No PDFs yet.</p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {filteredPdfs.map((pdf) => (
+              <li
+                key={pdf._id}
+                style={{
+                  marginBottom: '30px',
+                  border: '1px solid #ccc',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  background: '#f8f8f8',
+                }}
+              >
+                <h3 style={{ color: '#000' }}>{pdf.title}</h3>
+                <p style={{ color: '#000' }}>Category: {pdf.category}</p>
 
-              <div style={{ minHeight: '100px' }}>
-                {pdf.originalLink ? (
-                  <PDFViewer url={pdf.originalLink} />
-                ) : (
-                  <p style={{ color: 'gray' }}>No preview available</p>
-                )}
-              </div>
+                <div style={{ minHeight: '100px' }}>
+                  {pdf.originalLink ? (
+                    <PDFViewer url={pdf.originalLink} />
+                  ) : (
+                    <p style={{ color: 'gray' }}>No preview available</p>
+                  )}
+                </div>
 
-              <div style={{ marginTop: '10px' }}>
-                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(pdf._id, pdf.originalLink)}>Delete</button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+                <div style={{ marginTop: '10px' }}>
+                  <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
+                    Edit
+                  </button>
+                  <button onClick={() => handleDelete(pdf._id, pdf.originalLink)}>Delete</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
