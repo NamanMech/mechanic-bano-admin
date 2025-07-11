@@ -29,13 +29,15 @@ export default function PDFManagement() {
   }, []);
 
   const uploadToSupabase = async (file) => {
-    const fileName = `${uuidv4()}-${file.name}`;
-    const filePath = `pdfs/${fileName}`;
-    const { error } = await supabase.storage.from('pdfs').upload(filePath, file);
-    if (error) throw new Error('Upload failed');
-    const { data } = supabase.storage.from('pdfs').getPublicUrl(filePath);
-    return data.publicUrl;
-  };
+  const fileName = `${uuidv4()}-${file.name}`;
+  const filePath = `pdfs/${fileName}`; // ✅ already has 'pdfs/' prefix
+
+  const { error } = await supabase.storage.from('pdfs').upload(filePath, file);
+  if (error) throw new Error('Upload failed');
+
+  const { data } = supabase.storage.from('pdfs').getPublicUrl(filePath);
+  return data.publicUrl;
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
