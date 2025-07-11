@@ -1,8 +1,11 @@
+// src/components/PDFViewer.jsx
+
 import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // Local worker from public folder
+// Worker source: public folder
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 const PDFViewer = ({ url }) => {
   const canvasRef = useRef();
@@ -30,7 +33,6 @@ const PDFViewer = ({ url }) => {
 
         await page.render({ canvasContext: context, viewport }).promise;
       } catch (err) {
-        alert("PDF Error: " + err.message);
         console.error('PDF Render Error:', err.message);
         setError('PDF cannot be rendered. Please check the link or file format.');
       }
