@@ -2,131 +2,102 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // Local worker from public folder
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // Make sure this is in public/
 
-const PDFViewer = ({ url, title, category }) => {
+const PDFViewer = ({ url }) => {
   const canvasRef = useRef();
   const [error, setError] = useState('');
   const [pdfDoc, setPdfDoc] = useState(null);
-  const [pageNum, setPageNum] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const scale = 1.2;
-
-  const renderPage = async (num) => {
-    try {
-      const page = await pdfDoc.getPage(num);
-      const viewport = page.getViewport({ scale });
-
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-
-      await page.render({ canvasContext: context, viewport }).promise;
-    } catch (err) {
-      setError('Failed to render page.');
-      console.error('Page render error:', err.message);
-    }
-  };
+  const [scale, setScale] = useState(1.1); // Slightly smaller for mobile
 
   useEffect(() => {
-    const renderPDF = async () => {
+    const loadPDF = async () => {
       try {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch PDF');
-
         const buffer = await response.arrayBuffer();
         const pdfData = new Uint8Array(buffer);
 
         const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
         setPdfDoc(pdf);
         setTotalPages(pdf.numPages);
-        setPageNum(1);
+        setCurrentPage(1);
       } catch (err) {
         alert('PDF Error: ' + err.message);
+        console.error('PDF Render Error:', err.message);
         setError('PDF cannot be rendered. Please check the link or file format.');
       }
     };
 
-    renderPDF();
+    loadPDF();
   }, [url]);
 
   useEffect(() => {
-    if (pdfDoc) renderPage(pageNum);
-  }, [pdfDoc, pageNum]);
+    const renderPage = async () => {
+      if (!pdfDoc) return;
 
-  const nextPage = () => {
-    if (pageNum < totalPages) setPageNum(pageNum + 1);
+      try {
+        const page = await pdfDoc.getPage(currentPage);
+        const viewport = page.getViewport({ scale });
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({ canvasContext: context, viewport }).promise;
+      } catch (err) {
+        console.error('Render page error:', err.message);
+      }
+    };
+
+    renderPage();
+  }, [pdfDoc, currentPage, scale]);
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  const prevPage = () => {
-    if (pageNum > 1) setPageNum(pageNum - 1);
+  const goToNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
   return (
-    <div style={{ marginTop: '10px', padding: '10px' }}>
+    <div style={{ marginTop: '10px', textAlign: 'center' }}>
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
       ) : (
         <>
-          {/* Title and Category */}
-          <div style={{ marginBottom: '10px', color: '#222', fontWeight: '600' }}>
-            <div>Title: <span style={{ fontWeight: 'normal' }}>{title || 'N/A'}</span></div>
-            <div>Category: <span style={{ fontWeight: 'normal' }}>{category || 'N/A'}</span></div>
-          </div>
-
-          {/* PDF Canvas */}
           <div
             style={{
+              overflowX: 'auto',
+              padding: '10px',
               border: '1px solid #ccc',
               borderRadius: '8px',
-              backgroundColor: '#f9f9f9',
-              boxShadow: '0 0 8px rgba(0,0,0,0.1)',
-              padding: '10px',
-              textAlign: 'center',
+              background: '#fff',
               maxWidth: '100%',
-              overflowX: 'auto',
+              margin: '0 auto',
             }}
           >
-            <canvas ref={canvasRef} style={{ width: '100%', maxHeight: '80vh' }} />
+            <canvas ref={canvasRef} />
           </div>
 
-          {/* Navigation */}
-          <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#222' }}>
-            <button
-              onClick={prevPage}
-              disabled={pageNum === 1}
-              style={{
-                padding: '8px 12px',
-                backgroundColor: '#333',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-              }}
-            >
-              ◀ Prev
-            </button>
-
-            <span style={{ fontWeight: 'bold' }}>
-              Page {pageNum} of {totalPages}
-            </span>
-
-            <button
-              onClick={nextPage}
-              disabled={pageNum === totalPages}
-              style={{
-                padding: '8px 12px',
-                backgroundColor: '#333',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-              }}
-            >
-              Next ▶
-            </button>
-          </div>
+          {/* Page Controls */}
+          {totalPages > 1 && (
+            <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center' }}>
+              <button onClick={goToPrevPage} disabled={currentPage === 1}>
+                ◀ Prev
+              </button>
+              <span style={{ fontWeight: 'bold' }}>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button onClick={goToNextPage} disabled={currentPage === totalPages}>
+                Next ▶
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
