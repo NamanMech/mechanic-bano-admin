@@ -2,10 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // local worker
 
-const PDFViewer = ({ url, title = 'Untitled', category = 'N/A' }) => {
+const PDFViewer = ({ url, title, category }) => {
   const canvasRef = useRef();
+  const containerRef = useRef();
   const [error, setError] = useState('');
   const [pdfDoc, setPdfDoc] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -62,26 +63,29 @@ const PDFViewer = ({ url, title = 'Untitled', category = 'N/A' }) => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
+  const openFullScreen = () => {
+    const el = containerRef.current;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (el.msRequestFullscreen) el.msRequestFullscreen();
+  };
+
   return (
-    <div style={{ marginTop: '20px' }}>
-      {/* Title + Category */}
-      <div style={{ color: '#333', marginBottom: '10px', textAlign: 'left' }}>
-        <h3 style={{ margin: '0 0 5px' }}>📄 {title}</h3>
-        <p style={{ margin: 0 }}>📁 Category: {category}</p>
-      </div>
+    <div ref={containerRef} style={{ marginTop: '10px', textAlign: 'center' }}>
+      <h3 style={{ color: '#333', marginBottom: '4px' }}>{title}</h3>
+      <p style={{ color: '#555', fontSize: '14px', marginBottom: '8px' }}>Category: {category}</p>
 
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
       ) : (
         <>
-          {/* PDF Box */}
           <div
             style={{
               overflowX: 'auto',
               padding: '10px',
               border: '1px solid #ccc',
               borderRadius: '8px',
-              background: '#f9f9f9',
+              background: '#fff',
               maxWidth: '100%',
               maxHeight: '90vh',
               margin: '0 auto',
@@ -89,13 +93,7 @@ const PDFViewer = ({ url, title = 'Untitled', category = 'N/A' }) => {
               justifyContent: 'center',
             }}
           >
-            <canvas
-              ref={canvasRef}
-              style={{
-                maxWidth: '100%',
-                height: 'auto',
-              }}
-            />
+            <canvas ref={canvasRef} style={{ maxWidth: '100%', height: 'auto' }} />
           </div>
 
           {/* Page Controls */}
@@ -119,6 +117,7 @@ const PDFViewer = ({ url, title = 'Untitled', category = 'N/A' }) => {
               <button onClick={goToNextPage} disabled={currentPage === totalPages}>
                 Next ▶
               </button>
+              <button onClick={openFullScreen}>⛶ Fullscreen</button>
             </div>
           )}
         </>
