@@ -1,5 +1,3 @@
-// src/components/PDFViewer.jsx
-
 import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
@@ -7,11 +5,11 @@ import 'pdfjs-dist/web/pdf_viewer.css';
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 const PDFViewer = ({ url }) => {
-  const containerRef = useRef();
-  const [pdf, setPdf] = useState(null);
-  const [scale, setScale] = useState(1.2);
+  const canvasRef = useRef();
   const [error, setError] = useState('');
-  const [numPages, setNumPages] = useState(0);
+  const [pdfDoc, setPdfDoc] = useState(null);
+  const [pageNum, setPageNum] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     const loadPDF = async () => {
@@ -21,10 +19,11 @@ const PDFViewer = ({ url }) => {
 
         const buffer = await response.arrayBuffer();
         const pdfData = new Uint8Array(buffer);
-        const loadedPdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+        const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
 
-        setPdf(loadedPdf);
-        setNumPages(loadedPdf.numPages);
+        setPdfDoc(pdf);
+        setTotalPages(pdf.numPages);
+        setPageNum(1); // Start from page 1
       } catch (err) {
         console.error('PDF Load Error:', err.message);
         setError('PDF cannot be rendered. Please check the link or file format.');
@@ -35,62 +34,95 @@ const PDFViewer = ({ url }) => {
   }, [url]);
 
   useEffect(() => {
-    const renderPages = async () => {
-      if (!pdf || !containerRef.current) return;
+    const renderPage = async () => {
+      if (!pdfDoc) return;
 
-      const container = containerRef.current;
-      container.innerHTML = ''; // Clear previous renders
+      try {
+        const page = await pdfDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 1.2 });
 
-      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale });
-
-        const canvas = document.createElement('canvas');
-        canvas.style.marginBottom = '15px';
+        const canvas = canvasRef.current;
+        if (!canvas) throw new Error("Canvas not found");
         const context = canvas.getContext('2d');
 
         canvas.width = viewport.width;
         canvas.height = viewport.height;
 
         await page.render({ canvasContext: context, viewport }).promise;
-        container.appendChild(canvas);
+      } catch (err) {
+        console.error('PDF Page Render Error:', err.message);
+        setError('Failed to render page.');
       }
     };
 
-    renderPages();
-  }, [pdf, scale, numPages]);
+    renderPage();
+  }, [pdfDoc, pageNum]);
 
-  const handleZoomIn = () => setScale((prev) => prev + 0.2);
-  const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.2, 0.6));
-  const handleFullScreen = () => {
-    const elem = containerRef.current;
-    if (elem.requestFullscreen) elem.requestFullscreen();
-    else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-    else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+  const nextPage = () => {
+    if (pageNum < totalPages) setPageNum(pageNum + 1);
+  };
+
+  const prevPage = () => {
+    if (pageNum > 1) setPageNum(pageNum - 1);
   };
 
   return (
-    <div style={{ marginTop: '10px' }}>
-      <div style={{ marginBottom: '10px', display: 'flex', gap: '10px' }}>
-        <button onClick={handleZoomIn}>➕ Zoom In</button>
-        <button onClick={handleZoomOut}>➖ Zoom Out</button>
-        <button onClick={handleFullScreen}>⛶ Full Screen</button>
-      </div>
-
+    <div style={{ marginTop: '10px', padding: '10px' }}>
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
       ) : (
-        <div
-          ref={containerRef}
-          style={{
-            overflowX: 'auto',
-            maxWidth: '100%',
-            border: '1px solid #ccc',
-            padding: '10px',
-            borderRadius: '8px',
-            background: '#f9f9f9'
-          }}
-        />
+        <>
+          <div
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: '8px',
+              padding: '10px',
+              backgroundColor: '#fff',
+              maxWidth: '100%',
+              overflowX: 'auto',
+              textAlign: 'center',
+            }}
+          >
+            <canvas ref={canvasRef} style={{ width: '100%', maxHeight: '80vh' }} />
+          </div>
+
+          {/* Pagination Controls */}
+          <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between' }}>
+            <button
+              onClick={prevPage}
+              disabled={pageNum === 1}
+              style={{
+                padding: '8px 12px',
+                backgroundColor: '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+              }}
+            >
+              ◀ Prev
+            </button>
+
+            <span style={{ alignSelf: 'center' }}>
+              Page {pageNum} of {totalPages}
+            </span>
+
+            <button
+              onClick={nextPage}
+              disabled={pageNum === totalPages}
+              style={{
+                padding: '8px 12px',
+                backgroundColor: '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+              }}
+            >
+              Next ▶
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
