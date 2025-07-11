@@ -97,10 +97,18 @@ export default function PDFManagement() {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>PDF Management</h1>
+    <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
+      <h1 style={{ color: '#222' }}>PDF Management</h1>
 
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: 'grid',
+          gap: '10px',
+          maxWidth: '400px',
+          marginBottom: '30px',
+        }}
+      >
         <input
           type="text"
           placeholder="PDF Title"
@@ -119,38 +127,39 @@ export default function PDFManagement() {
           <option value="premium">Premium</option>
         </select>
         <button type="submit" disabled={loading}>
-          {loading ? (editingPdf ? 'Updating...' : 'Uploading...') : editingPdf ? 'Update PDF' : 'Upload PDF'}
+          {loading
+            ? editingPdf
+              ? 'Updating...'
+              : 'Uploading...'
+            : editingPdf
+            ? 'Update PDF'
+            : 'Upload PDF'}
         </button>
       </form>
 
-      <h2 style={{ marginTop: '40px' }}>Uploaded PDFs</h2>
+      <h2 style={{ color: '#222' }}>Uploaded PDFs</h2>
       {pdfs.length === 0 ? (
-        <p>No PDFs yet.</p>
+        <p style={{ color: '#666' }}>No PDFs yet.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {pdfs.map((pdf) => (
             <li
               key={pdf._id}
               style={{
-                marginBottom: '20px',
+                marginBottom: '40px',
                 border: '1px solid #ccc',
-                padding: '10px',
+                padding: '15px',
                 borderRadius: '8px',
-                background: '#f8f8f8',
+                background: '#f9f9f9',
               }}
             >
-              <h3>{pdf.title}</h3>
-              <p>Category: {pdf.category}</p>
+              <PDFViewer
+                url={pdf.originalLink}
+                title={pdf.title}
+                category={pdf.category}
+              />
 
-              <div style={{ minHeight: '100px' }}>
-                {pdf.originalLink ? (
-                  <PDFViewer url={pdf.originalLink} />
-                ) : (
-                  <p style={{ color: 'gray' }}>No preview available</p>
-                )}
-              </div>
-
-              <div style={{ marginTop: '10px' }}>
+              <div style={{ marginTop: '15px' }}>
                 <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
                   Edit
                 </button>
