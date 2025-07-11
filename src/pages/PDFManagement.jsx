@@ -3,6 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { supabase } from '../utils/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
+// rest of the imports same...
 import PDFViewer from '../components/PDFViewer';
 
 export default function PDFManagement() {
@@ -79,6 +80,113 @@ export default function PDFManagement() {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (confirm('Are you sure?')) {
+      try {
+        await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
+        toast.success('Deleted');
+        fetchPdfs();
+      } catch {
+        toast.error('Delete failed');
+      }
+    }
+  };
+
+  const handleEdit = (pdf) => {
+    setEditingPdf(pdf);
+    setTitle(pdf.title);
+    setCategory(pdf.category);
+  };
+
+  const filteredPdfs = pdfs.filter((pdf) => {
+    if (filter === 'all') return true;
+    return pdf.category === filter;
+  });
+
+  return (
+    <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
+      <h1 style={{ marginBottom: '20px' }}>PDF Management</h1>
+
+      {/* Upload Form */}
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: 'grid',
+          gap: '10px',
+          maxWidth: '400px',
+          marginBottom: '30px',
+        }}
+      >
+        <input
+          type="text"
+          placeholder="PDF Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => setFile(e.target.files[0])}
+          required
+        />
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option value="free">Free</option>
+          <option value="premium">Premium</option>
+        </select>
+        <button type="submit" disabled={loading}>
+          {loading
+            ? editingPdf
+              ? 'Updating...'
+              : 'Uploading...'
+            : editingPdf
+            ? 'Update PDF'
+            : 'Upload PDF'}
+        </button>
+      </form>
+
+      {/* Filter Dropdown */}
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ marginRight: '10px', fontWeight: 'bold' }}>Filter by category:</label>
+        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <option value="all">All</option>
+          <option value="free">Free</option>
+          <option value="premium">Premium</option>
+        </select>
+      </div>
+
+      {/* PDF List */}
+      <h2 style={{ marginBottom: '10px' }}>Uploaded PDFs</h2>
+      {filteredPdfs.length === 0 ? (
+        <p style={{ color: '#666' }}>No PDFs found.</p>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {filteredPdfs.map((pdf) => (
+            <li
+              key={pdf._id}
+              style={{
+                marginBottom: '40px',
+                border: '1px solid #ccc',
+                padding: '15px',
+                borderRadius: '8px',
+                background: '#f9f9f9',
+              }}
+            >
+              <PDFViewer url={pdf.originalLink} title={pdf.title} category={pdf.category} />
+
+              <div style={{ marginTop: '15px' }}>
+                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
+                  Edit
+                </button>
+                <button onClick={() => handleDelete(pdf._id)}>Delete</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
   const handleDelete = async (id) => {
     if (confirm('Are you sure?')) {
       try {
