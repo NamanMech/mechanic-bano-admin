@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // Make sure this is in public/
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // local worker
 
 const PDFViewer = ({ url }) => {
   const canvasRef = useRef();
@@ -10,7 +10,6 @@ const PDFViewer = ({ url }) => {
   const [pdfDoc, setPdfDoc] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [scale, setScale] = useState(1.1); // Slightly smaller for mobile
 
   useEffect(() => {
     const loadPDF = async () => {
@@ -26,7 +25,6 @@ const PDFViewer = ({ url }) => {
         setCurrentPage(1);
       } catch (err) {
         alert('PDF Error: ' + err.message);
-        console.error('PDF Render Error:', err.message);
         setError('PDF cannot be rendered. Please check the link or file format.');
       }
     };
@@ -40,7 +38,7 @@ const PDFViewer = ({ url }) => {
 
       try {
         const page = await pdfDoc.getPage(currentPage);
-        const viewport = page.getViewport({ scale });
+        const viewport = page.getViewport({ scale: 1.1 });
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
 
@@ -54,7 +52,7 @@ const PDFViewer = ({ url }) => {
     };
 
     renderPage();
-  }, [pdfDoc, currentPage, scale]);
+  }, [pdfDoc, currentPage]);
 
   const goToPrevPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
@@ -78,15 +76,27 @@ const PDFViewer = ({ url }) => {
               borderRadius: '8px',
               background: '#fff',
               maxWidth: '100%',
+              maxHeight: '90vh',
               margin: '0 auto',
+              display: 'flex',
+              justifyContent: 'center',
             }}
           >
-            <canvas ref={canvasRef} />
+            <canvas ref={canvasRef} style={{ maxWidth: '100%', height: 'auto' }} />
           </div>
 
           {/* Page Controls */}
           {totalPages > 1 && (
-            <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center' }}>
+            <div
+              style={{
+                marginTop: '10px',
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '20px',
+                alignItems: 'center',
+                color: '#333',
+              }}
+            >
               <button onClick={goToPrevPage} disabled={currentPage === 1}>
                 ◀ Prev
               </button>
