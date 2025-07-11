@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // local worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
-const PDFViewer = ({ url }) => {
+const PDFViewer = ({ url, title = 'Untitled', category = 'N/A' }) => {
   const canvasRef = useRef();
   const [error, setError] = useState('');
   const [pdfDoc, setPdfDoc] = useState(null);
@@ -24,7 +24,7 @@ const PDFViewer = ({ url }) => {
         setTotalPages(pdf.numPages);
         setCurrentPage(1);
       } catch (err) {
-        alert('PDF Error: ' + err.message);
+        console.error('PDF Error:', err.message);
         setError('PDF cannot be rendered. Please check the link or file format.');
       }
     };
@@ -63,18 +63,25 @@ const PDFViewer = ({ url }) => {
   };
 
   return (
-    <div style={{ marginTop: '10px', textAlign: 'center' }}>
+    <div style={{ marginTop: '20px' }}>
+      {/* Title + Category */}
+      <div style={{ color: '#333', marginBottom: '10px', textAlign: 'left' }}>
+        <h3 style={{ margin: '0 0 5px' }}>📄 {title}</h3>
+        <p style={{ margin: 0 }}>📁 Category: {category}</p>
+      </div>
+
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
       ) : (
         <>
+          {/* PDF Box */}
           <div
             style={{
               overflowX: 'auto',
               padding: '10px',
               border: '1px solid #ccc',
               borderRadius: '8px',
-              background: '#fff',
+              background: '#f9f9f9',
               maxWidth: '100%',
               maxHeight: '90vh',
               margin: '0 auto',
@@ -82,7 +89,13 @@ const PDFViewer = ({ url }) => {
               justifyContent: 'center',
             }}
           >
-            <canvas ref={canvasRef} style={{ maxWidth: '100%', height: 'auto' }} />
+            <canvas
+              ref={canvasRef}
+              style={{
+                maxWidth: '100%',
+                height: 'auto',
+              }}
+            />
           </div>
 
           {/* Page Controls */}
