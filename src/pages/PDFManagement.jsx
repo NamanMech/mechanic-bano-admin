@@ -28,11 +28,6 @@ export default function PDFManagement() {
     fetchPdfs();
   }, []);
 
-  const extractSupabasePath = (url) => {
-    const parts = url.split('/storage/v1/object/public/');
-    return parts[1] || '';
-  };
-
   const uploadToSupabase = async (file) => {
     const fileName = `${uuidv4()}-${file.name}`;
     const filePath = `pdfs/${fileName}`;
@@ -49,26 +44,12 @@ export default function PDFManagement() {
     setLoading(true);
 
     try {
-      if (!file && !editingPdf) {
+      if (!file) {
         toast.error('Please select a PDF file');
         return;
       }
 
-      let fileUrl = editingPdf?.originalLink || '';
-
-      if (file) {
-        // If editing and uploading new file, delete old one
-        if (editingPdf) {
-          const oldPath = extractSupabasePath(editingPdf.originalLink);
-          if (oldPath) {
-            const { error } = await supabase.storage.from('pdfs').remove([oldPath]);
-            if (error) console.warn('Old Supabase delete error:', error.message);
-          }
-        }
-
-        fileUrl = await uploadToSupabase(file);
-      }
-
+      const fileUrl = await uploadToSupabase(file);
       const payload = {
         title,
         originalLink: fileUrl,
@@ -100,16 +81,20 @@ export default function PDFManagement() {
   const handleDelete = async (id, fileUrl) => {
     if (confirm('Are you sure?')) {
       try {
-        const filePath = extractSupabasePath(fileUrl);
-        if (filePath) {
-          const { error } = await supabase.storage.from('pdfs').remove([filePath]);
-          if (error) console.warn('Supabase delete error:', error.message);
+        // Extract Supabase relative path
+        const relativePath = fileUrl.split('/storage/v1/object/public/')[1];
+
+        const { error: deleteError } = await supabase.storage.from('pdfs').remove([relativePath]);
+        if (deleteError) {
+          console.error('Supabase delete error:', deleteError.message);
+          throw new Error('Supabase delete failed');
         }
 
         await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
         toast.success('Deleted');
         fetchPdfs();
-      } catch {
+      } catch (err) {
+        console.error(err);
         toast.error('Delete failed');
       }
     }
@@ -123,12 +108,9 @@ export default function PDFManagement() {
 
   return (
     <div style={{ padding: '20px', color: 'white' }}>
-      <h1 style={{ color: 'white' }}>PDF Management</h1>
+      <h1>PDF Management</h1>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}
-      >
+      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
         <input
           type="text"
           placeholder="PDF Title"
@@ -140,20 +122,14 @@ export default function PDFManagement() {
           type="file"
           accept="application/pdf"
           onChange={(e) => setFile(e.target.files[0])}
-          required={!editingPdf}
+          required
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="free">Free</option>
           <option value="premium">Premium</option>
         </select>
         <button type="submit" disabled={loading}>
-          {loading
-            ? editingPdf
-              ? 'Updating...'
-              : 'Uploading...'
-            : editingPdf
-            ? 'Update PDF'
-            : 'Upload PDF'}
+          {loading ? (editingPdf ? 'Updating...' : 'Uploading...') : editingPdf ? 'Update PDF' : 'Upload PDF'}
         </button>
       </form>
 
@@ -170,11 +146,11 @@ export default function PDFManagement() {
                 border: '1px solid #ccc',
                 padding: '10px',
                 borderRadius: '8px',
-                background: '#1e1e1e',
+                background: '#f8f8f8',
               }}
             >
-              <h3 style={{ color: 'white' }}>{pdf.title}</h3>
-              <p style={{ color: 'white' }}>Category: {pdf.category}</p>
+              <h3>{pdf.title}</h3>
+              <p>Category: {pdf.category}</p>
 
               <div style={{ minHeight: '100px' }}>
                 {pdf.originalLink ? (
@@ -185,15 +161,10 @@ export default function PDFManagement() {
               </div>
 
               <div style={{ marginTop: '10px' }}>
-                <button
-                  onClick={() => handleEdit(pdf)}
-                  style={{ marginRight: '10px' }}
-                >
+                <button onClick={() => handleEdit(pdf)} style={{ marginRight: '10px' }}>
                   Edit
                 </button>
-                <button onClick={() => handleDelete(pdf._id, pdf.originalLink)}>
-                  Delete
-                </button>
+                <button onClick={() => handleDelete(pdf._id, pdf.originalLink)}>Delete</button>
               </div>
             </li>
           ))}
