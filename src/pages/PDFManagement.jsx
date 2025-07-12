@@ -10,6 +10,7 @@ export default function PDFManagement() {
   const [title, setTitle] = useState('');
   const [file, setFile] = useState(null);
   const [category, setCategory] = useState('free');
+  const [price, setPrice] = useState('');
   const [loading, setLoading] = useState(false);
   const [editingPdf, setEditingPdf] = useState(null);
 
@@ -29,30 +30,31 @@ export default function PDFManagement() {
   }, []);
 
   const uploadToSupabase = async (file) => {
-  const fileName = `${uuidv4()}-${file.name}`;
-  const filePath = `pdfs/${fileName}`; // ✅ already has 'pdfs/' prefix
-
-  const { error } = await supabase.storage.from('pdfs').upload(filePath, file);
-  if (error) throw new Error('Upload failed');
-
-  const { data } = supabase.storage.from('pdfs').getPublicUrl(filePath);
-  return data.publicUrl;
-};
+    const fileName = `${uuidv4()}-${file.name}`;
+    const filePath = `pdfs/${fileName}`;
+    const { error } = await supabase.storage.from('pdfs').upload(filePath, file);
+    if (error) throw new Error('Upload failed');
+    const { data } = supabase.storage.from('pdfs').getPublicUrl(filePath);
+    return data.publicUrl;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      if (!file) {
+      if (!file && !editingPdf) {
         toast.error('Please select a PDF file');
         return;
       }
-      const fileUrl = await uploadToSupabase(file);
+
+      const fileUrl = file ? await uploadToSupabase(file) : editingPdf.originalLink;
+
       const payload = {
         title,
         originalLink: fileUrl,
         embedLink: '',
         category,
+        price: category === 'premium' ? parseFloat(price || 0) : 0,
       };
 
       if (editingPdf) {
@@ -66,6 +68,7 @@ export default function PDFManagement() {
       setTitle('');
       setFile(null);
       setCategory('free');
+      setPrice('');
       setEditingPdf(null);
       fetchPdfs();
     } catch (err) {
@@ -92,6 +95,7 @@ export default function PDFManagement() {
     setEditingPdf(pdf);
     setTitle(pdf.title);
     setCategory(pdf.category);
+    setPrice(pdf.price?.toString() || '');
   };
 
   return (
@@ -110,12 +114,24 @@ export default function PDFManagement() {
           type="file"
           accept="application/pdf"
           onChange={(e) => setFile(e.target.files[0])}
-          required
+          required={!editingPdf}
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="free">Free</option>
           <option value="premium">Premium</option>
         </select>
+
+        {category === 'premium' && (
+          <input
+            type="number"
+            step="0.01"
+            placeholder="Price (₹)"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            required
+          />
+        )}
+
         <button type="submit" disabled={loading}>
           {loading ? (editingPdf ? 'Updating...' : 'Uploading...') : editingPdf ? 'Update PDF' : 'Upload PDF'}
         </button>
@@ -138,7 +154,10 @@ export default function PDFManagement() {
               }}
             >
               <h3 style={{ color: '#222' }}>{pdf.title}</h3>
-              <p style={{ color: '#444' }}>Category: {pdf.category}</p>
+              <p style={{ color: '#444' }}>
+                Category: {pdf.category}{' '}
+                {pdf.category === 'premium' && pdf.price ? ` | Price: ₹${pdf.price}` : ''}
+              </p>
 
               <div style={{ minHeight: '100px' }}>
                 {pdf.originalLink ? (
