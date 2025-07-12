@@ -4,13 +4,13 @@ import 'pdfjs-dist/web/pdf_viewer.css';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // local worker path
 
-const PDFViewer = ({ url, title, category }) => {
+const PDFViewer = ({ url }) => {
   const canvasRef = useRef();
+  const containerRef = useRef();
   const [pdfDoc, setPdfDoc] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [error, setError] = useState('');
-  const containerRef = useRef();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
@@ -101,11 +101,6 @@ const PDFViewer = ({ url, title, category }) => {
 
   return (
     <div ref={containerRef} style={{ marginTop: '10px', textAlign: 'center' }}>
-      <h3 style={{ color: '#000' }}>{title}</h3>
-      <p style={{ color: '#000', marginTop: '-5px', fontSize: '14px' }}>
-        Category: {category}
-      </p>
-
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
       ) : (
@@ -127,7 +122,6 @@ const PDFViewer = ({ url, title, category }) => {
             <canvas ref={canvasRef} style={{ maxWidth: '100%', height: 'auto' }} />
           </div>
 
-          {/* Page Controls */}
           {totalPages > 1 && (
             <div
               style={{
@@ -137,7 +131,7 @@ const PDFViewer = ({ url, title, category }) => {
                 gap: '20px',
                 alignItems: 'center',
                 color: '#333',
-                fontSize: '14px', // made smaller
+                fontSize: '14px',
               }}
             >
               <button onClick={goToPrevPage} disabled={currentPage === 1}>
@@ -152,7 +146,6 @@ const PDFViewer = ({ url, title, category }) => {
             </div>
           )}
 
-          {/* Fullscreen Toggle */}
           <div style={{ marginTop: '8px' }}>
             <button onClick={toggleFullScreen}>
               {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
