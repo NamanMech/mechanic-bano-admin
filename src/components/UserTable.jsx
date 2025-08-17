@@ -21,15 +21,13 @@ export default function UserTable({
       user.isSubscribed ? 'Yes' : 'No',
       user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'
     ]);
-
     const csvContent = [
       headers.join(','),
       ...rows.map(row => row.join(','))
     ].join('\n');
-
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = 'users_export.csv';
@@ -42,7 +40,6 @@ export default function UserTable({
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
         <button className="btn-primary" onClick={exportToCSV}>Export CSV</button>
       </div>
-
       <table className="custom-table">
         <thead>
           <tr>
@@ -56,8 +53,13 @@ export default function UserTable({
         <tbody>
           {users.map((user) => {
             const isEditing = editingUserEmail === user.email;
+            const daysLeft = user.subscriptionEnd
+              ? Math.ceil((new Date(user.subscriptionEnd) - new Date()) / (1000 * 60 * 60 * 24))
+              : null;
+            const displayDaysLeft = daysLeft > 0 ? `${daysLeft} days left` : 'Expired';
+
             return (
-              <tr key={user._id}>
+              <tr key={user._id || user.email}>
                 <td>
                   {isEditing ? (
                     <input
@@ -92,18 +94,18 @@ export default function UserTable({
                   )}
                 </td>
                 <td>
-  {user.subscriptionEnd ? (
-    <>
-      {new Date(user.subscriptionEnd).toLocaleDateString()}
-      <br />
-      <span style={{ fontSize: '12px', color: '#ffa726' }}>
-        {Math.ceil((new Date(user.subscriptionEnd) - new Date()) / (1000 * 60 * 60 * 24))} days left
-      </span>
-    </>
-  ) : (
-    '-'
-  )}
-</td>
+                  {user.subscriptionEnd ? (
+                    <>
+                      {new Date(user.subscriptionEnd).toLocaleDateString()}
+                      <br />
+                      <span style={{ fontSize: '12px', color: daysLeft > 0 ? '#ffa726' : '#d32f2f' }}>
+                        {displayDaysLeft}
+                      </span>
+                    </>
+                  ) : (
+                    '-'
+                  )}
+                </td>
                 <td>
                   {isEditing ? (
                     <>
@@ -117,6 +119,7 @@ export default function UserTable({
                       <button
                         className="cancel-button"
                         onClick={handleCancelInlineEdit}
+                        disabled={processing}
                       >
                         Cancel
                       </button>
