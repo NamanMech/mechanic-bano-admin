@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner.jsx';
-import UserForm from '../components/UserForm.jsx';
 import SearchBar from '../components/SearchBar.jsx';
 import Pagination from '../components/Pagination.jsx';
 import UserTable from '../components/UserTable.jsx';
@@ -16,8 +15,6 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '' });
 
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
@@ -30,7 +27,6 @@ export default function UserManagement() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
-
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchUsers = async () => {
@@ -78,38 +74,9 @@ export default function UserManagement() {
     }
   };
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.email) {
-      showWarningToast('Name and email are required');
-      return;
-    }
-
-    setProcessing(true);
-    try {
-      if (editingUserEmail) {
-        await axios.put(`${API_URL}user?email=${editingUserEmail}&type=update`, formData);
-        showSuccessToast('User updated successfully');
-      } else {
-        await axios.post(`${API_URL}user`, formData);
-        showSuccessToast('User added successfully');
-      }
-      fetchUsers();
-      setIsFormOpen(false);
-      setFormData({ name: '', email: '' });
-      setEditingUserEmail(null);
-    } catch (error) {
-      showErrorToast('Error saving user');
-    } finally {
-      setProcessing(false);
-    }
-  };
-
   const handleEditClick = (user) => {
     setEditingUserEmail(user.email);
-    setFormData({ name: user.name, email: user.email });
-    setIsFormOpen(true);
+    setEditingFormData({ name: user.name, email: user.email });
   };
 
   const handleCancelInlineEdit = () => {
@@ -122,10 +89,12 @@ export default function UserManagement() {
       showWarningToast('Name and Email are required');
       return;
     }
-
     setProcessing(true);
     try {
-      await axios.put(`${API_URL}user?email=${originalEmail}&type=update`, editingFormData);
+      await axios.put(
+        `${API_URL}user?email=${originalEmail}&type=update`,
+        editingFormData
+      );
       showSuccessToast('User updated successfully');
       fetchUsers();
       handleCancelInlineEdit();
@@ -175,20 +144,7 @@ export default function UserManagement() {
   return (
     <div className="container">
       <h2>All Users</h2>
-
       <UserStats users={users} />
-      
-      <button
-        onClick={() => {
-          setFormData({ name: '', email: '' });
-          setEditingUserEmail(null);
-          setIsFormOpen(true);
-        }}
-        className="btn-primary"
-        style={{ marginBottom: '20px' }}
-      >
-        Add User
-      </button>
 
       <SearchBar
         searchQuery={searchQuery}
@@ -202,17 +158,6 @@ export default function UserManagement() {
         filterEndDate={filterEndDate}
         setFilterEndDate={setFilterEndDate}
       />
-
-      {isFormOpen && (
-        <UserForm
-          formData={formData}
-          setFormData={setFormData}
-          handleFormSubmit={handleFormSubmit}
-          isEditing={Boolean(editingUserEmail)}
-          processing={processing}
-          setIsFormOpen={setIsFormOpen}
-        />
-      )}
 
       {filteredUsers.length === 0 ? (
         <p>No users found.</p>
@@ -230,7 +175,6 @@ export default function UserManagement() {
             editingFormData={editingFormData}
             setEditingFormData={setEditingFormData}
           />
-
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
