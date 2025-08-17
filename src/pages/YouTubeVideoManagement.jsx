@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import '../components/YouTubeVideoManagement.css'; // Import the CSS file
+import '../components/YouTubeVideoManagement.css'; // Make sure path is correct
 
 export default function YouTubeVideoManagement() {
   const [videos, setVideos] = useState([]);
@@ -121,7 +121,9 @@ export default function YouTubeVideoManagement() {
         }}
         aria-label={editingVideo ? 'Edit Video Form' : 'Add Video Form'}
       >
-        <label htmlFor="videoTitle" style={{ fontWeight: 'bold' }}>Video Title</label>
+        <label htmlFor="videoTitle" style={{ fontWeight: 'bold', color: '#222' }}>
+          Video Title
+        </label>
         <input
           id="videoTitle"
           type="text"
@@ -132,7 +134,9 @@ export default function YouTubeVideoManagement() {
           disabled={loading}
           style={{ padding: '8px' }}
         />
-        <label htmlFor="videoDescription" style={{ fontWeight: 'bold' }}>Video Description</label>
+        <label htmlFor="videoDescription" style={{ fontWeight: 'bold', color: '#222' }}>
+          Video Description
+        </label>
         <textarea
           id="videoDescription"
           placeholder="Video Description"
@@ -142,7 +146,9 @@ export default function YouTubeVideoManagement() {
           disabled={loading}
           style={{ padding: '8px', minHeight: '80px' }}
         />
-        <label htmlFor="youtubeLink" style={{ fontWeight: 'bold' }}>YouTube Link</label>
+        <label htmlFor="youtubeLink" style={{ fontWeight: 'bold', color: '#222' }}>
+          YouTube Link
+        </label>
         <input
           id="youtubeLink"
           type="text"
@@ -153,7 +159,9 @@ export default function YouTubeVideoManagement() {
           disabled={loading}
           style={{ padding: '8px' }}
         />
-        <label htmlFor="videoCategory" style={{ fontWeight: 'bold' }}>Category</label>
+        <label htmlFor="videoCategory" style={{ fontWeight: 'bold', color: '#222' }}>
+          Category
+        </label>
         <select
           id="videoCategory"
           value={category}
