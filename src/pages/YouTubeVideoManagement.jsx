@@ -48,6 +48,7 @@ export default function YouTubeVideoManagement() {
     }
 
     const cleanedLink = `https://www.youtube.com/embed/${videoId}`;
+    const isPremium = category === 'premium'; // Now premium flag
 
     try {
       if (editingVideo) {
@@ -56,7 +57,8 @@ export default function YouTubeVideoManagement() {
           description,
           embedLink: cleanedLink,
           originalLink: link,
-          category
+          category,
+          isPremium,
         });
         toast.success('Video updated successfully');
         setEditingVideo(null);
@@ -66,7 +68,8 @@ export default function YouTubeVideoManagement() {
           description,
           embedLink: cleanedLink,
           originalLink: link,
-          category
+          category,
+          isPremium,
         });
         toast.success('Video added successfully');
       }
@@ -174,7 +177,14 @@ export default function YouTubeVideoManagement() {
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {videos.map((video) => (
             <li key={video._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
-              <h3>{video.title}</h3>
+              <h3>
+                {video.title}{' '}
+                {video.isPremium && (
+                  <span style={{ color: 'red', fontWeight: 'bold', marginLeft: '8px' }}>
+                    (Premium)
+                  </span>
+                )}
+              </h3>
               <iframe
                 width="100%"
                 height="315"
