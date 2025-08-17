@@ -39,9 +39,9 @@ export default function WelcomeNoteManagement() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '460px', margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '20px', color: '#2c3e50' }}>Welcome Note Management</h1>
+      <h1 style={{ marginBottom: '20px', color: '#fff' }}>Welcome Note Management</h1>
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '16px' }} aria-label="Update Welcome Note Form">
-        <label htmlFor="welcome-title">
+        <label htmlFor="welcome-title" style={{ color: '#fff' }}>
           Welcome Note Title
         </label>
         <input
@@ -54,7 +54,7 @@ export default function WelcomeNoteManagement() {
           disabled={loading}
           style={{ padding: '8px', fontSize: '16px' }}
         />
-        <label htmlFor="welcome-message">
+        <label htmlFor="welcome-message" style={{ color: '#fff' }}>
           Welcome Note Message
         </label>
         <textarea
