@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Spinner from '../components/Spinner.jsx'; // Import your spinner component
 import { toast } from 'react-toastify';
 
 export default function PageControlManagement({ fetchPageStatus }) {
@@ -27,7 +28,6 @@ export default function PageControlManagement({ fetchPageStatus }) {
       `Are you sure you want to ${currentStatus ? 'disable' : 'enable'} "${formatPageName(pageName)}"?`
     );
     if (!confirmToggle) return;
-
     try {
       await axios.put(`${API_URL}general?type=pagecontrol&id=${id}`, {
         enabled: !currentStatus,
@@ -50,7 +50,7 @@ export default function PageControlManagement({ fetchPageStatus }) {
     loadPages();
   }, []);
 
-  if (loading) return <div className="spinner" aria-label="Loading pages"></div>;
+  if (loading) return <Spinner />; // <-- Use your custom spinner
 
   return (
     <div>
