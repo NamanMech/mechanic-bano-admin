@@ -441,14 +441,15 @@ button:disabled {
 }
 
 form label {
-  color: #000 !important;        /* Pure black for maximum contrast */
-  font-weight: 700 !important;   /* Bold */
-  font-size: 18px !important;    /* Larger for visibility */
+  color: #fff !important;      /* Pure white for maximum contrast on dark background */
+  font-weight: 700 !important; /* Bold */
+  font-size: 18px !important;  /* Larger for visibility */
   opacity: 1 !important;
   display: block !important;
   margin-bottom: 6px;
-  background: transparent !important; /* in case a background is present */
+  background: transparent !important;
 }
+
 
 
 
