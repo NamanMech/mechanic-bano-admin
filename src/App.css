@@ -440,15 +440,6 @@ button:disabled {
   margin: 10px 0;
 }
 
-form label {
-  color: #fff !important;      /* Pure white for maximum contrast on dark background */
-  font-weight: 700 !important; /* Bold */
-  font-size: 18px !important;  /* Larger for visibility */
-  opacity: 1 !important;
-  display: block !important;
-  margin-bottom: 6px;
-  background: transparent !important;
-}
 
 
 
