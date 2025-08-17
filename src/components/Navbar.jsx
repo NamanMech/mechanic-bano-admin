@@ -1,20 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 
 export default function Navbar({ pageStatus }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth <= 768);
-      if (window.innerWidth > 768) {
+  useLayoutEffect(() => {
+    // Set initial value safely for SSR/ hydration
+    const checkScreenSize = () => window.innerWidth <= 768;
+    setIsMobile(checkScreenSize());
+
+    const handleResize = () => {
+      const mobile = checkScreenSize();
+      setIsMobile(mobile);
+      if (!mobile) {
         setMenuOpen(false); // Close menu when resizing to desktop
       }
     };
 
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const navLinkStyle = ({ isActive }) => ({
@@ -42,7 +47,6 @@ export default function Navbar({ pageStatus }) {
           </button>
         )}
       </div>
-
       {(menuOpen || !isMobile) && (
         <nav
           style={{
@@ -56,47 +60,79 @@ export default function Navbar({ pageStatus }) {
             Home
           </NavLink>
           {pageStatus.videos && (
-            <NavLink to="/videos" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+            <NavLink
+              to="/videos"
+              style={navLinkStyle}
+              onClick={() => isMobile && setMenuOpen(false)}
+            >
               Videos
             </NavLink>
           )}
           {pageStatus.pdfs && (
-            <NavLink to="/pdfs" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+            <NavLink
+              to="/pdfs"
+              style={navLinkStyle}
+              onClick={() => isMobile && setMenuOpen(false)}
+            >
               PDFs
             </NavLink>
           )}
           {pageStatus.welcome && (
-            <NavLink to="/welcome" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+            <NavLink
+              to="/welcome"
+              style={navLinkStyle}
+              onClick={() => isMobile && setMenuOpen(false)}
+            >
               Welcome Note
             </NavLink>
           )}
           {pageStatus.sitename && (
-            <NavLink to="/sitename" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+            <NavLink
+              to="/sitename"
+              style={navLinkStyle}
+              onClick={() => isMobile && setMenuOpen(false)}
+            >
               Site Name
             </NavLink>
           )}
           {pageStatus.pagecontrol && (
-            <NavLink to="/pagecontrol" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+            <NavLink
+              to="/pagecontrol"
+              style={navLinkStyle}
+              onClick={() => isMobile && setMenuOpen(false)}
+            >
               Page Control
             </NavLink>
           )}
           {pageStatus['subscription-plans'] && (
-            <NavLink to="/subscription-plans" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+            <NavLink
+              to="/subscription-plans"
+              style={navLinkStyle}
+              onClick={() => isMobile && setMenuOpen(false)}
+            >
               Subscription Plans
             </NavLink>
           )}
           {pageStatus.users && (
-            <NavLink to="/users" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+            <NavLink
+              to="/users"
+              style={navLinkStyle}
+              onClick={() => isMobile && setMenuOpen(false)}
+            >
               Users
             </NavLink>
           )}
         </nav>
       )}
-
       <style>{`
         @keyframes slideDown {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        button:focus,
+        a:focus {
+          outline: 2px solid #ff9800;
+          outline-offset: 2px;
         }
       `}</style>
     </header>
