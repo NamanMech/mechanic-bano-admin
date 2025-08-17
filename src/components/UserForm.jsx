@@ -1,5 +1,5 @@
 import React from 'react';
-import { showSuccessToast, showErrorToast, showWarningToast } from '../utils/toastUtils';
+import { showWarningToast } from '../utils/toastUtils';
 
 export default function UserForm({
   formData,
@@ -11,22 +11,25 @@ export default function UserForm({
 }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Trim leading spaces on input change but allow spaces inside string
+    setFormData((prev) => ({ ...prev, [name]: value.replace(/^\s+/, '') }));
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
+    const trimmedName = formData.name.trim();
+    const trimmedEmail = formData.email.trim();
 
-    if (!formData.name || !formData.email) {
+    if (!trimmedName || !trimmedEmail) {
       showWarningToast('Name and Email are required');
       return;
     }
-
-    handleFormSubmit(e); // actual API call with toasts already handled in UserManagement
+    // Pass trimmed values to handler
+    handleFormSubmit({ ...formData, name: trimmedName, email: trimmedEmail });
   };
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} aria-label={isEditing ? "Edit User Form" : "Add User Form"}>
       <input
         type="text"
         name="name"
@@ -34,6 +37,8 @@ export default function UserForm({
         value={formData.name}
         onChange={handleChange}
         disabled={processing}
+        aria-label="Name"
+        required
       />
       <input
         type="email"
@@ -42,6 +47,8 @@ export default function UserForm({
         value={formData.email}
         onChange={handleChange}
         disabled={processing}
+        aria-label="Email"
+        required
       />
       <button type="submit" className="save-button" disabled={processing}>
         {isEditing ? 'Update' : 'Add'}
