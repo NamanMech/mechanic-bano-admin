@@ -440,9 +440,11 @@ button:disabled {
   margin: 10px 0;
 }
 
-form label {
+/* In WelcomeNoteManagement.css or your global CSS */
+.welcome-form-label {
   color: #222 !important;
-  font-weight: 600 !important;
+  font-weight: 600;
 }
+
 
 
