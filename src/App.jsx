@@ -8,6 +8,7 @@ import SiteNameManagement from './pages/SiteNameManagement';
 import PageControlManagement from './pages/PageControlManagement';
 import SubscriptionPlans from './pages/SubscriptionPlans';
 import Navbar from './components/Navbar';
+import Spinner from './components/Spinner';  // Use your Spinner component
 import axios from 'axios';
 import UserManagement from './pages/UserManagement';
 import { ToastContainer, toast } from 'react-toastify';
@@ -16,15 +17,14 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
   const [loading, setLoading] = useState(true);
-
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchPageStatus = async () => {
     try {
       const response = await axios.get(`${API_URL}general?type=pagecontrol`);
       const statusMap = {};
-      response.data.forEach(item => {
-        statusMap[item.page] = item.enabled;
+      (response.data ?? []).forEach(({ page, enabled }) => {
+        statusMap[page] = enabled;
       });
       setPageStatus(statusMap);
     } catch (error) {
@@ -38,7 +38,13 @@ export default function App() {
     fetchPageStatus();
   }, []);
 
-  if (loading) return <div className="spinner"></div>;
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <Router>
