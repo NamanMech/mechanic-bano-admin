@@ -1,19 +1,11 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
-import {
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Button,
-  Box,
-  CircularProgress,
-} from "@mui/material";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner'; // Import your spinner component
 
 export default function WelcomeNoteManagement() {
-  const [title, setTitle] = useState("");
-  const [message, setMessage] = useState("");
+  const [title, setTitle] = useState('');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -25,7 +17,7 @@ export default function WelcomeNoteManagement() {
         setMessage(response.data.message);
       }
     } catch (error) {
-      toast.error("Error fetching welcome note");
+      toast.error('Error fetching welcome note');
     }
   };
 
@@ -41,61 +33,63 @@ export default function WelcomeNoteManagement() {
         title: title.trim(),
         message: message.trim(),
       });
-      toast.success("Welcome note updated successfully");
+      toast.success('Welcome note updated successfully');
     } catch (error) {
-      toast.error("Error saving welcome note");
+      toast.error('Error saving welcome note');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      sx={{ background: "linear-gradient(135deg, #667eea, #764ba2)" }}
-    >
-      <Card sx={{ maxWidth: 500, width: "100%", boxShadow: 5, borderRadius: 3 }}>
-        <CardContent>
-          <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: "bold", color: "#333" }}>
-            Welcome Note Management
-          </Typography>
-          <form onSubmit={handleSubmit} style={{ display: "grid", gap: "20px" }}>
-            <TextField
-              id="welcome-title"
-              label="Welcome Note Title"
-              variant="outlined"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={loading}
-              required
-              fullWidth
-            />
-            <TextField
-              id="welcome-message"
-              label="Welcome Note Message"
-              variant="outlined"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              disabled={loading}
-              required
-              multiline
-              rows={6}
-              fullWidth
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={loading}
-              sx={{ py: 1.5, fontWeight: "bold" }}
-            >
-              {loading ? <CircularProgress size={24} color="inherit" /> : "Update Welcome Note"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </Box>
+    <div style={{
+      padding: '20px',
+      maxWidth: '460px',
+      margin: '0 auto',
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #667eea, #764ba2)'
+    }}>
+      <h1 style={{ marginBottom: '20px', color: '#fff', textAlign: 'center' }}>Welcome Note Management</h1>
+      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '16px' }} aria-label="Update Welcome Note Form">
+        <label htmlFor="welcome-title" style={{ color: '#fff' }}>
+          Welcome Note Title
+        </label>
+        <input
+          id="welcome-title"
+          type="text"
+          placeholder="Welcome Note Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          disabled={loading}
+          style={{ padding: '8px', fontSize: '16px' }}
+        />
+        <label htmlFor="welcome-message" style={{ color: '#fff' }}>
+          Welcome Note Message
+        </label>
+        <textarea
+          id="welcome-message"
+          placeholder="Welcome Note Message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          required
+          disabled={loading}
+          rows={6}
+          style={{ padding: '8px', fontSize: '16px', resize: 'vertical' }}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            padding: '12px',
+            fontWeight: 'bold',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            position: 'relative'
+          }}
+        >
+          {loading ? <Spinner /> : 'Update Welcome Note'}
+        </button>
+      </form>
+    </div>
   );
 }
