@@ -41,6 +41,12 @@
   color: #444 !important;
 }
 
+/* Form labels color fix */
+form label {
+  color: #222;
+  font-weight: bold;
+}
+
 /* Desktop: flex row and small preview box */
 @media (min-width: 768px) {
   .video-row-inner {
@@ -65,9 +71,4 @@
     border-radius: 6px;
     background: #111;
   }
-}
-
-/* Force labels in form to use dark color on white background */
-form label {
-  color: #222;
 }
