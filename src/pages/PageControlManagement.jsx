@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 export default function PageControlManagement({ fetchPageStatus }) {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const API_URL = import.meta.env.VITE_API_URL;
 
   const loadPages = async () => {
@@ -24,6 +23,10 @@ export default function PageControlManagement({ fetchPageStatus }) {
       toast.warning("This page can't be disabled");
       return;
     }
+    const confirmToggle = window.confirm(
+      `Are you sure you want to ${currentStatus ? 'disable' : 'enable'} "${formatPageName(pageName)}"?`
+    );
+    if (!confirmToggle) return;
 
     try {
       await axios.put(`${API_URL}general?type=pagecontrol&id=${id}`, {
@@ -47,17 +50,21 @@ export default function PageControlManagement({ fetchPageStatus }) {
     loadPages();
   }, []);
 
-  if (loading) return <div className="spinner"></div>;
+  if (loading) return <div className="spinner" aria-label="Loading pages"></div>;
 
   return (
     <div>
       <h2 style={styles.heading}>Page Visibility Control</h2>
-      <table style={styles.table}>
+      <table
+        style={styles.table}
+        role="table"
+        aria-label="Page visibility control table"
+      >
         <thead>
           <tr>
-            <th style={styles.th}>Page</th>
-            <th style={styles.th}>Status</th>
-            <th style={styles.th}>Action</th>
+            <th style={styles.th} scope="col">Page</th>
+            <th style={styles.th} scope="col">Status</th>
+            <th style={styles.th} scope="col">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -67,7 +74,11 @@ export default function PageControlManagement({ fetchPageStatus }) {
               <td style={styles.td}>{page.enabled ? 'Enabled' : 'Disabled'}</td>
               <td style={styles.td}>
                 {page.page === 'pagecontrol' ? (
-                  <button style={{ ...styles.button, backgroundColor: '#95a5a6', cursor: 'not-allowed' }} disabled>
+                  <button
+                    style={{ ...styles.button, backgroundColor: '#95a5a6', cursor: 'not-allowed' }}
+                    disabled
+                    aria-label={`${formatPageName(page.page)} page is locked and cannot be changed`}
+                  >
                     Locked
                   </button>
                 ) : (
@@ -77,6 +88,8 @@ export default function PageControlManagement({ fetchPageStatus }) {
                       ...styles.button,
                       backgroundColor: page.enabled ? '#e74c3c' : '#2ecc71',
                     }}
+                    aria-pressed={page.enabled}
+                    aria-label={`${page.enabled ? 'Disable' : 'Enable'} ${formatPageName(page.page)} page`}
                   >
                     {page.enabled ? 'Disable' : 'Enable'}
                   </button>
