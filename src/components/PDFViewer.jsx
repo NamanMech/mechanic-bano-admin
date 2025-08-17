@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
-
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // local worker path
 
 const PDFViewer = ({ url }) => {
@@ -20,17 +19,16 @@ const PDFViewer = ({ url }) => {
         if (!response.ok) throw new Error('Failed to fetch PDF');
         const buffer = await response.arrayBuffer();
         const pdfData = new Uint8Array(buffer);
-
         const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
         setPdfDoc(pdf);
         setTotalPages(pdf.numPages);
         setCurrentPage(1);
+        setError('');
       } catch (err) {
         console.error('PDF Error:', err.message);
         setError('PDF cannot be rendered. Please check the link or file format.');
       }
     };
-
     loadPDF();
   }, [url]);
 
@@ -47,20 +45,18 @@ const PDFViewer = ({ url }) => {
         await page.render({ canvasContext: context, viewport }).promise;
       } catch (err) {
         console.error('Render page error:', err.message);
+        setError('Failed to render page.');
       }
     };
-
     renderPage();
   }, [pdfDoc, currentPage]);
 
   const goToPrevPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
-
   const goToNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
-
   const toggleFullScreen = () => {
     if (!isFullscreen) {
       if (containerRef.current.requestFullscreen) {
@@ -89,10 +85,8 @@ const PDFViewer = ({ url }) => {
         setIsFullscreen(false);
       }
     };
-
     document.addEventListener('fullscreenchange', handleFullScreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
-
     return () => {
       document.removeEventListener('fullscreenchange', handleFullScreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullScreenChange);
@@ -100,9 +94,15 @@ const PDFViewer = ({ url }) => {
   }, []);
 
   return (
-    <div ref={containerRef} style={{ marginTop: '10px', textAlign: 'center' }}>
+    <div
+      ref={containerRef}
+      style={{ marginTop: '10px', textAlign: 'center', outline: isFullscreen ? '2px solid #2196f3' : 'none' }}
+      aria-live="polite"
+      aria-label="PDF Viewer"
+      role="region"
+    >
       {error ? (
-        <p style={{ color: 'red' }}>{error}</p>
+        <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>
       ) : (
         <>
           <div
@@ -119,9 +119,12 @@ const PDFViewer = ({ url }) => {
               justifyContent: 'center',
             }}
           >
-            <canvas ref={canvasRef} style={{ maxWidth: '100%', height: 'auto' }} />
+            <canvas
+              ref={canvasRef}
+              style={{ maxWidth: '100%', height: 'auto', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', borderRadius: '4px' }}
+              aria-label={`PDF page ${currentPage}`}
+            />
           </div>
-
           {totalPages > 1 && (
             <div
               style={{
@@ -134,20 +137,19 @@ const PDFViewer = ({ url }) => {
                 fontSize: '14px',
               }}
             >
-              <button onClick={goToPrevPage} disabled={currentPage === 1}>
+              <button onClick={goToPrevPage} disabled={currentPage === 1} aria-label="Previous page">
                 ◀ Prev
               </button>
               <span>
                 Page {currentPage} of {totalPages}
               </span>
-              <button onClick={goToNextPage} disabled={currentPage === totalPages}>
+              <button onClick={goToNextPage} disabled={currentPage === totalPages} aria-label="Next page">
                 Next ▶
               </button>
             </div>
           )}
-
           <div style={{ marginTop: '8px' }}>
-            <button onClick={toggleFullScreen}>
+            <button onClick={toggleFullScreen} aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}>
               {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
             </button>
           </div>
