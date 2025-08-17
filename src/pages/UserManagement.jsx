@@ -112,8 +112,9 @@ export default function UserManagement() {
 
   // Filtering Logic with Date + Status
   const filteredUsers = users.filter((user) => {
-    const name = user.name || '';
-    const email = user.email || '';
+    if (!user) return false;
+    const name = user.name ? user.name : '';
+    const email = user.email ? user.email : '';
     const matchesSearch =
       name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       email.toLowerCase().includes(searchQuery.toLowerCase());
@@ -131,8 +132,10 @@ export default function UserManagement() {
   });
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
-    if (sortOrder === 'asc') return a.name.localeCompare(b.name);
-    else return b.name.localeCompare(a.name);
+    const nameA = a && a.name ? a.name : '';
+    const nameB = b && b.name ? b.name : '';
+    if (sortOrder === 'asc') return nameA.localeCompare(nameB);
+    else return nameB.localeCompare(nameA);
   });
 
   const totalPages = Math.ceil(sortedUsers.length / pageSize);
