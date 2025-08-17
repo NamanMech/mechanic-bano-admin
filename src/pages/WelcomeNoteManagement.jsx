@@ -6,7 +6,6 @@ export default function WelcomeNoteManagement() {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchNote = async () => {
@@ -28,9 +27,8 @@ export default function WelcomeNoteManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      await axios.put(`${API_URL}welcome`, { title, message });
+      await axios.put(`${API_URL}welcome`, { title: title.trim(), message: message.trim() });
       toast.success('Welcome note updated successfully');
     } catch (error) {
       toast.error('Error saving welcome note');
@@ -40,23 +38,36 @@ export default function WelcomeNoteManagement() {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Welcome Note Management</h1>
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
+    <div style={{ padding: '20px', maxWidth: '460px', margin: '0 auto' }}>
+      <h1 style={{ marginBottom: '20px', color: '#2c3e50' }}>Welcome Note Management</h1>
+      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '16px' }} aria-label="Update Welcome Note Form">
+        <label htmlFor="welcome-title" style={{ fontWeight: '600' }}>Welcome Note Title</label>
         <input
+          id="welcome-title"
           type="text"
           placeholder="Welcome Note Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
+          disabled={loading}
+          style={{ padding: '8px', fontSize: '16px' }}
         />
+        <label htmlFor="welcome-message" style={{ fontWeight: '600' }}>Welcome Note Message</label>
         <textarea
+          id="welcome-message"
           placeholder="Welcome Note Message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required
+          disabled={loading}
+          rows={6}
+          style={{ padding: '8px', fontSize: '16px', resize: 'vertical' }}
         />
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ padding: '12px', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}
+        >
           {loading ? 'Saving...' : 'Update Welcome Note'}
         </button>
       </form>
