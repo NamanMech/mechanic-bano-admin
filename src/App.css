@@ -440,11 +440,14 @@ button:disabled {
   margin: 10px 0;
 }
 
-/* In WelcomeNoteManagement.css or your global CSS */
-.welcome-form-label {
+form label {
   color: #222 !important;
-  font-weight: 600;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+  display: block !important;
+  margin-bottom: 4px;
 }
+
 
 
 
