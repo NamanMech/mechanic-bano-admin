@@ -10,16 +10,13 @@ export default function YouTubeVideoManagement() {
   const [category, setCategory] = useState('free');
   const [loading, setLoading] = useState(false);
   const [editingVideo, setEditingVideo] = useState(null);
-
   const API_URL = import.meta.env.VITE_API_URL;
 
   const extractVideoId = (url) => {
     let videoId = '';
     const youtubeRegex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/;
     const match = url.match(youtubeRegex);
-    if (match && match[1]) {
-      videoId = match[1];
-    }
+    if (match && match[1]) videoId = match;
     return videoId;
   };
 
@@ -39,24 +36,21 @@ export default function YouTubeVideoManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     const videoId = extractVideoId(link);
     if (!videoId) {
       toast.error('Invalid YouTube link');
       setLoading(false);
       return;
     }
-
     const cleanedLink = `https://www.youtube.com/embed/${videoId}`;
-    const isPremium = category === 'premium'; // Now premium flag
-
+    const isPremium = category === 'premium';
     try {
       if (editingVideo) {
         await axios.put(`${API_URL}general?type=youtube&id=${editingVideo._id}`, {
-          title,
-          description,
+          title: title.trim(),
+          description: description.trim(),
           embedLink: cleanedLink,
-          originalLink: link,
+          originalLink: link.trim(),
           category,
           isPremium,
         });
@@ -64,16 +58,15 @@ export default function YouTubeVideoManagement() {
         setEditingVideo(null);
       } else {
         await axios.post(`${API_URL}general?type=youtube`, {
-          title,
-          description,
+          title: title.trim(),
+          description: description.trim(),
           embedLink: cleanedLink,
-          originalLink: link,
+          originalLink: link.trim(),
           category,
           isPremium,
         });
         toast.success('Video added successfully');
       }
-
       setTitle('');
       setDescription('');
       setLink('');
@@ -114,37 +107,88 @@ export default function YouTubeVideoManagement() {
     setCategory('free');
   };
 
+  // Responsive style
+  const videoRowStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+    alignItems: 'stretch',
+  };
+  const videoRowDesktop = {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '22px',
+  };
+  const videoPreviewMobile = {
+    width: '100%',
+    height: '180px',
+    borderRadius: '6px',
+    background: '#111',
+  };
+  const videoPreviewDesktop = {
+    width: '200px',
+    height: '120px',
+    minWidth: '200px',
+    borderRadius: '6px',
+    background: '#111',
+  };
+
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>YouTube Video Management</h1>
-
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', marginBottom: '40px' }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>
+        YouTube Video Management
+      </h1>
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: 'grid',
+          gap: '14px',
+          marginBottom: '40px',
+          background: '#fafafa',
+          padding: '18px',
+          borderRadius: '8px',
+        }}
+        aria-label={editingVideo ? "Edit Video Form" : "Add Video Form"}
+      >
+        <label htmlFor="videoTitle" style={{ fontWeight: 'bold' }}>Video Title</label>
         <input
+          id="videoTitle"
           type="text"
           placeholder="Video Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
+          disabled={loading}
           style={{ padding: '8px' }}
         />
+        <label htmlFor="videoDescription" style={{ fontWeight: 'bold' }}>Video Description</label>
         <textarea
+          id="videoDescription"
           placeholder="Video Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
+          disabled={loading}
           style={{ padding: '8px', minHeight: '80px' }}
         />
+        <label htmlFor="youtubeLink" style={{ fontWeight: 'bold' }}>YouTube Link</label>
         <input
+          id="youtubeLink"
           type="text"
           placeholder="YouTube Link"
           value={link}
           onChange={(e) => setLink(e.target.value)}
           required
+          disabled={loading}
           style={{ padding: '8px' }}
         />
+        <label htmlFor="videoCategory" style={{ fontWeight: 'bold' }}>Category</label>
         <select
+          id="videoCategory"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
+          disabled={loading}
           style={{ padding: '8px' }}
         >
           <option value="free">Free</option>
@@ -154,7 +198,8 @@ export default function YouTubeVideoManagement() {
           <button
             type="submit"
             disabled={loading}
-            style={{ padding: '10px 20px', background: '#007bff', color: 'white', border: 'none' }}
+            style={{ padding: '10px 20px', background: '#007bff', color: 'white', border: 'none', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}
+            aria-label={editingVideo ? 'Update Video' : 'Save Video'}
           >
             {loading ? 'Saving...' : editingVideo ? 'Update Video' : 'Save'}
           </button>
@@ -162,52 +207,87 @@ export default function YouTubeVideoManagement() {
             <button
               type="button"
               onClick={handleCancelEdit}
-              style={{ padding: '10px 20px', background: 'gray', color: 'white', border: 'none' }}
+              style={{ padding: '10px 20px', background: 'gray', color: 'white', border: 'none', fontWeight: 'bold' }}
+              aria-label="Cancel Edit"
+              disabled={loading}
             >
               Cancel Edit
             </button>
           )}
         </div>
       </form>
-
       <h2 style={{ marginBottom: '20px' }}>Uploaded Videos</h2>
       {videos.length === 0 ? (
         <p>No videos uploaded yet.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {videos.map((video) => (
-            <li key={video._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
-              <h3>
-                {video.title}{' '}
-                {video.isPremium && (
-                  <span style={{ color: 'red', fontWeight: 'bold', marginLeft: '8px' }}>
-                    (Premium)
-                  </span>
-                )}
-              </h3>
-              <iframe
-                width="100%"
-                height="315"
-                src={video.embedLink}
-                title={video.title}
-                frameBorder="0"
-                allowFullScreen
-              ></iframe>
-              <p>{video.description}</p>
-              <p>Category: {video.category}</p>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button
-                  onClick={() => handleEdit(video)}
-                  style={{ padding: '6px 12px', background: '#ffc107', color: 'white', border: 'none' }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(video._id)}
-                  style={{ padding: '6px 12px', background: '#dc3545', color: 'white', border: 'none' }}
-                >
-                  Delete
-                </button>
+            <li
+              key={video._id}
+              className="video-row"
+              style={{
+                marginBottom: '20px',
+                border: '1px solid #ccc',
+                padding: '14px',
+                borderRadius: '8px',
+                background: '#f6f7fa',
+              }}
+            >
+              <div
+                className="video-row-inner"
+                style={window.innerWidth > 768 ? videoRowDesktop : videoRowStyle}
+              >
+                <iframe
+                  width={window.innerWidth > 768 ? 200 : '100%'}
+                  height={window.innerWidth > 768 ? 120 : 180}
+                  src={video.embedLink}
+                  title={video.title}
+                  frameBorder="0"
+                  allowFullScreen
+                  style={window.innerWidth > 768 ? videoPreviewDesktop : videoPreviewMobile}
+                ></iframe>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ marginBottom: '8px' }}>
+                    {video.title}{' '}
+                    {video.isPremium && (
+                      <span style={{ color: 'red', fontWeight: 'bold', marginLeft: '8px' }}>
+                        (Premium)
+                      </span>
+                    )}
+                  </h3>
+                  <p style={{ margin: '10px 0' }}>{video.description}</p>
+                  <p>Category: {video.category}</p>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                      onClick={() => handleEdit(video)}
+                      style={{
+                        padding: '6px 12px',
+                        background: '#ffc107',
+                        color: 'white',
+                        border: 'none',
+                        fontWeight: 'bold',
+                      }}
+                      aria-label={`Edit video: ${video.title}`}
+                      disabled={loading}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(video._id)}
+                      style={{
+                        padding: '6px 12px',
+                        background: '#dc3545',
+                        color: 'white',
+                        border: 'none',
+                        fontWeight: 'bold',
+                      }}
+                      aria-label={`Delete video: ${video.title}`}
+                      disabled={loading}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
               </div>
             </li>
           ))}
