@@ -112,9 +112,11 @@ export default function UserManagement() {
 
   // Filtering Logic with Date + Status
   const filteredUsers = users.filter((user) => {
+    const name = user.name || '';
+    const email = user.email || '';
     const matchesSearch =
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
       filterStatus === 'all' ||
       (filterStatus === 'subscribed' && user.isSubscribed) ||
