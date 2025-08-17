@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 export default function SiteNameManagement() {
   const [siteName, setSiteName] = useState('');
   const [loading, setLoading] = useState(false);
-
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchSiteName = async () => {
@@ -26,9 +25,8 @@ export default function SiteNameManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      await axios.put(`${API_URL}general?type=sitename`, { name: siteName });
+      await axios.put(`${API_URL}general?type=sitename`, { name: siteName.trim() });
       toast.success('Site name updated successfully');
     } catch (error) {
       toast.error('Error updating site name');
@@ -38,18 +36,30 @@ export default function SiteNameManagement() {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Site Name Management</h1>
-      <p><strong>Current Site Name:</strong> {siteName}</p>
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
+    <div style={{ padding: '20px', maxWidth: '450px', margin: '0 auto' }}>
+      <h1 style={{ color: '#2c3e50', marginBottom: '12px' }}>Site Name Management</h1>
+      <p style={{ fontWeight: 'bold', marginBottom: '24px' }}>
+        Current Site Name: <span style={{ color: '#34495e' }}>{siteName || '-'}</span>
+      </p>
+      <form 
+        onSubmit={handleSubmit} 
+        style={{ display: 'grid', gap: '12px' }} 
+        aria-label="Update Site Name form"
+      >
+        <label htmlFor="siteNameInput" style={{ fontWeight: '600' }}>
+          Enter New Site Name
+        </label>
         <input
+          id="siteNameInput"
           type="text"
           placeholder="Enter New Site Name"
           value={siteName}
           onChange={(e) => setSiteName(e.target.value)}
           required
+          disabled={loading}
+          style={{ padding: '8px 12px', fontSize: '16px' }}
         />
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} style={{ padding: '10px', fontWeight: 'bold' }}>
           {loading ? 'Saving...' : 'Update Site Name'}
         </button>
       </form>
