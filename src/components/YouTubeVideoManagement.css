@@ -66,3 +66,8 @@
     background: #111;
   }
 }
+
+/* Force labels in form to use dark color on white background */
+form label {
+  color: #222;
+}
