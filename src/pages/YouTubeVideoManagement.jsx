@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import './YouTubeVideoManagement.css'; // Import the CSS file
 
 export default function YouTubeVideoManagement() {
   const [videos, setVideos] = useState([]);
@@ -13,11 +14,9 @@ export default function YouTubeVideoManagement() {
   const API_URL = import.meta.env.VITE_API_URL;
 
   const extractVideoId = (url) => {
-    let videoId = '';
     const youtubeRegex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/;
     const match = url.match(youtubeRegex);
-    if (match && match[1]) videoId = match;
-    return videoId;
+    return match && match[1] ? match[1] : '';
   };
 
   const fetchVideos = async () => {
@@ -107,38 +106,9 @@ export default function YouTubeVideoManagement() {
     setCategory('free');
   };
 
-  // Responsive style
-  const videoRowStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
-    alignItems: 'stretch',
-  };
-  const videoRowDesktop = {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: '22px',
-  };
-  const videoPreviewMobile = {
-    width: '100%',
-    height: '180px',
-    borderRadius: '6px',
-    background: '#111',
-  };
-  const videoPreviewDesktop = {
-    width: '200px',
-    height: '120px',
-    minWidth: '200px',
-    borderRadius: '6px',
-    background: '#111',
-  };
-
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>
-        YouTube Video Management
-      </h1>
+      <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>YouTube Video Management</h1>
       <form
         onSubmit={handleSubmit}
         style={{
@@ -149,7 +119,7 @@ export default function YouTubeVideoManagement() {
           padding: '18px',
           borderRadius: '8px',
         }}
-        aria-label={editingVideo ? "Edit Video Form" : "Add Video Form"}
+        aria-label={editingVideo ? 'Edit Video Form' : 'Add Video Form'}
       >
         <label htmlFor="videoTitle" style={{ fontWeight: 'bold' }}>Video Title</label>
         <input
@@ -198,7 +168,14 @@ export default function YouTubeVideoManagement() {
           <button
             type="submit"
             disabled={loading}
-            style={{ padding: '10px 20px', background: '#007bff', color: 'white', border: 'none', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}
+            style={{
+              padding: '10px 20px',
+              background: '#007bff',
+              color: 'white',
+              border: 'none',
+              fontWeight: 'bold',
+              cursor: loading ? 'not-allowed' : 'pointer',
+            }}
             aria-label={editingVideo ? 'Update Video' : 'Save Video'}
           >
             {loading ? 'Saving...' : editingVideo ? 'Update Video' : 'Save'}
@@ -207,7 +184,13 @@ export default function YouTubeVideoManagement() {
             <button
               type="button"
               onClick={handleCancelEdit}
-              style={{ padding: '10px 20px', background: 'gray', color: 'white', border: 'none', fontWeight: 'bold' }}
+              style={{
+                padding: '10px 20px',
+                background: 'gray',
+                color: 'white',
+                border: 'none',
+                fontWeight: 'bold',
+              }}
               aria-label="Cancel Edit"
               disabled={loading}
             >
@@ -216,38 +199,23 @@ export default function YouTubeVideoManagement() {
           )}
         </div>
       </form>
-      <h2 style={{ marginBottom: '20px' }}>Uploaded Videos</h2>
+      <h2 style={{ marginBottom: '20px', color: '#222' }}>Uploaded Videos</h2>
       {videos.length === 0 ? (
         <p>No videos uploaded yet.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <ul className="video-list">
           {videos.map((video) => (
-            <li
-              key={video._id}
-              className="video-row"
-              style={{
-                marginBottom: '20px',
-                border: '1px solid #ccc',
-                padding: '14px',
-                borderRadius: '8px',
-                background: '#f6f7fa',
-              }}
-            >
-              <div
-                className="video-row-inner"
-                style={window.innerWidth > 768 ? videoRowDesktop : videoRowStyle}
-              >
+            <li key={video._id} className="video-row">
+              <div className="video-row-inner">
                 <iframe
-                  width={window.innerWidth > 768 ? 200 : '100%'}
-                  height={window.innerWidth > 768 ? 120 : 180}
+                  className="video-preview"
                   src={video.embedLink}
                   title={video.title}
                   frameBorder="0"
                   allowFullScreen
-                  style={window.innerWidth > 768 ? videoPreviewDesktop : videoPreviewMobile}
                 ></iframe>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ marginBottom: '8px' }}>
+                <div className="video-info">
+                  <h3 className="video-title">
                     {video.title}{' '}
                     {video.isPremium && (
                       <span style={{ color: 'red', fontWeight: 'bold', marginLeft: '8px' }}>
@@ -255,17 +223,18 @@ export default function YouTubeVideoManagement() {
                       </span>
                     )}
                   </h3>
-                  <p style={{ margin: '10px 0' }}>{video.description}</p>
-                  <p>Category: {video.category}</p>
+                  <p className="video-desc">{video.description}</p>
+                  <p className="video-category">Category: {video.category}</p>
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button
                       onClick={() => handleEdit(video)}
                       style={{
                         padding: '6px 12px',
-                        background: '#ffc107',
-                        color: 'white',
+                        backgroundColor: '#ffc107',
+                        color: '#222',
                         border: 'none',
                         fontWeight: 'bold',
+                        cursor: loading ? 'not-allowed' : 'pointer',
                       }}
                       aria-label={`Edit video: ${video.title}`}
                       disabled={loading}
@@ -276,10 +245,11 @@ export default function YouTubeVideoManagement() {
                       onClick={() => handleDelete(video._id)}
                       style={{
                         padding: '6px 12px',
-                        background: '#dc3545',
+                        backgroundColor: '#dc3545',
                         color: 'white',
                         border: 'none',
                         fontWeight: 'bold',
+                        cursor: loading ? 'not-allowed' : 'pointer',
                       }}
                       aria-label={`Delete video: ${video.title}`}
                       disabled={loading}
