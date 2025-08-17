@@ -441,7 +441,8 @@ button:disabled {
 }
 
 form label {
-  color: #222;
-  font-weight: 600;
+  color: #222 !important;
+  font-weight: 600 !important;
 }
+
 
