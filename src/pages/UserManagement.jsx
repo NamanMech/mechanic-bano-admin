@@ -88,8 +88,8 @@ export default function UserManagement() {
 
     setProcessing(true);
     try {
-      if (formData._id) {
-        await axios.put(`${API_URL}user?email=${formData.email}&type=update`, formData);
+      if (editingUserEmail) {
+        await axios.put(`${API_URL}user?email=${editingUserEmail}&type=update`, formData);
         showSuccessToast('User updated successfully');
       } else {
         await axios.post(`${API_URL}user`, formData);
@@ -98,6 +98,7 @@ export default function UserManagement() {
       fetchUsers();
       setIsFormOpen(false);
       setFormData({ name: '', email: '' });
+      setEditingUserEmail(null);
     } catch (error) {
       showErrorToast('Error saving user');
     } finally {
@@ -107,7 +108,8 @@ export default function UserManagement() {
 
   const handleEditClick = (user) => {
     setEditingUserEmail(user.email);
-    setEditingFormData({ name: user.name, email: user.email });
+    setFormData({ name: user.name, email: user.email });
+    setIsFormOpen(true);
   };
 
   const handleCancelInlineEdit = () => {
@@ -138,7 +140,7 @@ export default function UserManagement() {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
-  // ✅ Filtering Logic with Date + Status
+  // Filtering Logic with Date + Status
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -152,8 +154,10 @@ export default function UserManagement() {
     const subscriptionEnd = user.subscriptionEnd ? new Date(user.subscriptionEnd) : null;
 
     const matchesDate =
-      (!filterStartDate || (subscriptionEnd && subscriptionEnd >= new Date(filterStartDate))) &&
-      (!filterEndDate || (subscriptionEnd && subscriptionEnd <= new Date(filterEndDate)));
+      (!filterStartDate && !filterEndDate) ||
+      (subscriptionEnd &&
+        (!filterStartDate || subscriptionEnd >= new Date(filterStartDate)) &&
+        (!filterEndDate || subscriptionEnd <= new Date(filterEndDate)));
 
     return matchesSearch && matchesStatus && matchesDate;
   });
@@ -172,10 +176,14 @@ export default function UserManagement() {
     <div className="container">
       <h2>All Users</h2>
 
+      <UserStats users={users} />
       
-<UserStats users={users} />
       <button
-        onClick={() => setIsFormOpen(true)}
+        onClick={() => {
+          setFormData({ name: '', email: '' });
+          setEditingUserEmail(null);
+          setIsFormOpen(true);
+        }}
         className="btn-primary"
         style={{ marginBottom: '20px' }}
       >
@@ -200,7 +208,7 @@ export default function UserManagement() {
           formData={formData}
           setFormData={setFormData}
           handleFormSubmit={handleFormSubmit}
-          isEditing={formData._id !== undefined}
+          isEditing={Boolean(editingUserEmail)}
           processing={processing}
           setIsFormOpen={setIsFormOpen}
         />
