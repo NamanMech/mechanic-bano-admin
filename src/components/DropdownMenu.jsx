@@ -13,7 +13,6 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
     const rect = buttonRef.current.getBoundingClientRect();
     const menuWidth = 140; // estimated width
     const shouldAlignRight = window.innerWidth - rect.right < menuWidth;
-
     setMenuPosition({
       top: rect.bottom + window.scrollY + 5,
       left: shouldAlignRight ? rect.right - menuWidth + window.scrollX : rect.left + window.scrollX,
@@ -64,19 +63,33 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
         top: `${menuPosition.top}px`,
         left: `${menuPosition.left}px`,
       }}
+      role="menu"
     >
-      <button onClick={handleEdit} disabled={processing}>Edit</button>
-      <button onClick={handleDeleteClick} disabled={processing}>Delete</button>
+      <button onClick={handleEdit} disabled={processing} aria-label="Edit user" role="menuitem">
+        Edit
+      </button>
+      <button onClick={handleDeleteClick} disabled={processing} aria-label="Delete user" role="menuitem">
+        Delete
+      </button>
       {user.isSubscribed && (
-        <button onClick={handleExpireClick} disabled={processing}>Expire</button>
+        <button onClick={handleExpireClick} disabled={processing} aria-label="Expire subscription" role="menuitem">
+          Expire
+        </button>
       )}
     </div>
   );
 
   return (
     <>
-      <button ref={buttonRef} onClick={handleToggleMenu} className="dropdown-trigger">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <button
+        ref={buttonRef}
+        onClick={handleToggleMenu}
+        className="dropdown-trigger"
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+        aria-label="Open user actions menu"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" >
           <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       </button>
