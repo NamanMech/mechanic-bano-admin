@@ -145,7 +145,7 @@ export default function UserManagement() {
 
   return (
     <div className="container">
-      <h2>All Users</h2>
+      <h1>User Management</h1>
       <UserStats users={users} />
       <SearchBar
         searchQuery={searchQuery}
@@ -159,8 +159,9 @@ export default function UserManagement() {
         filterEndDate={filterEndDate}
         setFilterEndDate={setFilterEndDate}
       />
+      
       {filteredUsers.length === 0 ? (
-        <p>No users found.</p>
+        <p className="no-users-message">No users found.</p>
       ) : (
         <>
           <UserTable
