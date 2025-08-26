@@ -28,3 +28,7 @@ export const showErrorToast = (message, options = {}) => {
 export const showWarningToast = (message, options = {}) => {
   toast.warn(`⚠️ ${message}`, mergeOptions(options));
 };
+
+export const showInfoToast = (message, options = {}) => {
+  toast.info(`ℹ️ ${message}`, mergeOptions(options));
+};
