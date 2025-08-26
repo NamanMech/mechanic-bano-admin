@@ -14,10 +14,23 @@ export default function SubscriptionPlans() {
 
   const fetchPlans = async () => {
     try {
-      const response = await axios.get(`${API_URL}subscription`);
-      setPlans(response.data);
+      // Remove any trailing slash from API_URL to avoid double slashes
+      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+      const response = await axios.get(`${baseUrl}/subscription`);
+      
+      // Check if response structure matches expected format
+      if (response.data && response.data.success) {
+        setPlans(response.data.data || []);
+      } else if (Array.isArray(response.data)) {
+        // Handle case where API returns array directly
+        setPlans(response.data);
+      } else {
+        toast.error('Unexpected response format from server');
+        console.error('Unexpected response:', response);
+      }
     } catch (error) {
       toast.error('Error fetching plans.');
+      console.error('Error details:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -41,11 +54,14 @@ export default function SubscriptionPlans() {
       discount: parseFloat(form.discount) || 0,
     };
     try {
+      // Remove any trailing slash from API_URL to avoid double slashes
+      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+      
       if (editingId) {
-        await axios.put(`${API_URL}subscription?id=${editingId}`, payload);
+        await axios.put(`${baseUrl}/subscription?id=${editingId}`, payload);
         toast.success('Plan updated successfully!');
       } else {
-        await axios.post(`${API_URL}subscription`, payload);
+        await axios.post(`${baseUrl}/subscription`, payload);
         toast.success('Plan created successfully!');
       }
       setForm({ title: '', price: '', days: '', discount: '' });
@@ -54,6 +70,7 @@ export default function SubscriptionPlans() {
       if (titleInputRef.current) titleInputRef.current.focus();
     } catch (error) {
       toast.error('Error saving plan.');
+      console.error('Error details:', error.response?.data || error.message);
     } finally {
       setSaving(false);
     }
@@ -75,11 +92,14 @@ export default function SubscriptionPlans() {
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this plan?')) {
       try {
-        await axios.delete(`${API_URL}subscription?id=${id}`);
+        // Remove any trailing slash from API_URL to avoid double slashes
+        const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+        await axios.delete(`${baseUrl}/subscription?id=${id}`);
         toast.success('Plan deleted successfully!');
         fetchPlans();
       } catch (error) {
         toast.error('Error deleting plan.');
+        console.error('Error details:', error.response?.data || error.message);
       }
     }
   };
@@ -91,16 +111,25 @@ export default function SubscriptionPlans() {
   };
 
   if (loading) return <Spinner />;
+  
   return (
-    <div className="container" style={{ maxWidth: 700, margin: '0 auto', padding: '20px' }}>
-      <h2>Subscription Plans</h2>
+    <div style={{ maxWidth: 700, margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <h2 style={{ color: '#2c3e50', marginBottom: '20px' }}>Subscription Plans</h2>
       <form
         onSubmit={handleSubmit}
-        className="form"
-        style={{ display: 'grid', gap: '12px', maxWidth: '400px', background: '#fafafa', padding: '16px', borderRadius: '8px', marginBottom: '18px' }}
+        style={{ 
+          display: 'grid', 
+          gap: '12px', 
+          maxWidth: '400px', 
+          background: '#fafafa', 
+          padding: '20px', 
+          borderRadius: '8px', 
+          marginBottom: '18px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}
         aria-label={editingId ? "Edit Plan Form" : "Add Plan Form"}
       >
-        <label htmlFor="planTitle">Plan Title *</label>
+        <label htmlFor="planTitle" style={{ fontWeight: 'bold' }}>Plan Title *</label>
         <input
           id="planTitle"
           ref={titleInputRef}
@@ -110,8 +139,9 @@ export default function SubscriptionPlans() {
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           required
           disabled={saving}
+          style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
         />
-        <label htmlFor="planPrice">Price *</label>
+        <label htmlFor="planPrice" style={{ fontWeight: 'bold' }}>Price (₹) *</label>
         <input
           id="planPrice"
           type="number"
@@ -122,8 +152,9 @@ export default function SubscriptionPlans() {
           onChange={(e) => setForm({ ...form, price: e.target.value })}
           required
           disabled={saving}
+          style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
         />
-        <label htmlFor="planDays">Validity (Days) *</label>
+        <label htmlFor="planDays" style={{ fontWeight: 'bold' }}>Validity (Days) *</label>
         <input
           id="planDays"
           type="number"
@@ -134,8 +165,9 @@ export default function SubscriptionPlans() {
           onChange={(e) => setForm({ ...form, days: e.target.value })}
           required
           disabled={saving}
+          style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
         />
-        <label htmlFor="planDiscount">Discount (%)</label>
+        <label htmlFor="planDiscount" style={{ fontWeight: 'bold' }}>Discount (%)</label>
         <input
           id="planDiscount"
           type="number"
@@ -146,47 +178,107 @@ export default function SubscriptionPlans() {
           value={form.discount}
           onChange={(e) => setForm({ ...form, discount: e.target.value })}
           disabled={saving}
+          style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
         />
         <div style={{ display: 'flex', gap: '10px' }}>
-          <button type="submit" className="btn-primary" disabled={saving}>
+          <button 
+            type="submit" 
+            disabled={saving}
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#007bff', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '4px',
+              fontWeight: 'bold',
+              cursor: saving ? 'not-allowed' : 'pointer'
+            }}
+          >
             {saving ? 'Saving...' : editingId ? 'Update Plan' : 'Add Plan'}
           </button>
           {editingId && (
-            <button type="button" onClick={handleCancelEdit} style={{ background: '#e0e0e0', color: '#444', fontWeight: 'bold' }}>
+            <button 
+              type="button" 
+              onClick={handleCancelEdit} 
+              style={{ 
+                padding: '10px 20px', 
+                backgroundColor: '#e0e0e0', 
+                color: '#444', 
+                border: 'none', 
+                borderRadius: '4px',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
               Cancel
             </button>
           )}
         </div>
       </form>
-      <h3>All Plans</h3>
+      <h3 style={{ color: '#34495e', marginBottom: '15px' }}>All Plans</h3>
       {plans.length === 0 ? (
         <p>No plans available.</p>
       ) : (
-        <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse' }} role="table" aria-label="Subscription Plans Table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Price (₹)</th>
-              <th>Days</th>
-              <th>Discount (%)</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {plans.map((plan) => (
-              <tr key={plan._id}>
-                <td>{plan.title}</td>
-                <td>{plan.price}</td>
-                <td>{plan.days}</td>
-                <td>{plan.discount ? plan.discount : 0}%</td>
-                <td>
-                  <button onClick={() => handleEdit(plan)} className="btn-edit" aria-label={`Edit ${plan.title} plan`}>Edit</button>
-                  <button onClick={() => handleDelete(plan._id)} className="btn-delete" aria-label={`Delete ${plan.title} plan`}>Delete</button>
-                </td>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ 
+            width: '100%', 
+            borderCollapse: 'collapse',
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }} role="table" aria-label="Subscription Plans Table">
+            <thead>
+              <tr style={{ backgroundColor: '#34495e', color: 'white' }}>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Title</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Price (₹)</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Days</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Discount (%)</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {plans.map((plan) => (
+                <tr key={plan._id} style={{ borderBottom: '1px solid #eee' }}>
+                  <td style={{ padding: '12px' }}>{plan.title}</td>
+                  <td style={{ padding: '12px' }}>{plan.price}</td>
+                  <td style={{ padding: '12px' }}>{plan.days}</td>
+                  <td style={{ padding: '12px' }}>{plan.discount ? plan.discount : 0}%</td>
+                  <td style={{ padding: '12px', display: 'flex', gap: '8px' }}>
+                    <button 
+                      onClick={() => handleEdit(plan)} 
+                      style={{ 
+                        padding: '6px 12px', 
+                        backgroundColor: '#ffc107', 
+                        color: '#222', 
+                        border: 'none', 
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                      aria-label={`Edit ${plan.title} plan`}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(plan._id)} 
+                      style={{ 
+                        padding: '6px 12px', 
+                        backgroundColor: '#dc3545', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                      aria-label={`Delete ${plan.title} plan`}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
