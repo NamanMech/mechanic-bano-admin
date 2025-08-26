@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
-import Spinner from '../components/Spinner'; // Import your spinner component
+import Spinner from '../components/Spinner';
+import { showSuccessToast, showErrorToast } from '../utils/toast'; // Import from your centralized toast utilities
 
 export default function WelcomeNoteManagement() {
   const [title, setTitle] = useState('');
@@ -17,7 +17,7 @@ export default function WelcomeNoteManagement() {
         setMessage(response.data.message);
       }
     } catch (error) {
-      toast.error('Error fetching welcome note');
+      showErrorToast('Error fetching welcome note'); // Use centralized function
     }
   };
 
@@ -33,9 +33,9 @@ export default function WelcomeNoteManagement() {
         title: title.trim(),
         message: message.trim(),
       });
-      toast.success('Welcome note updated successfully');
+      showSuccessToast('Welcome note updated successfully'); // Use centralized function
     } catch (error) {
-      toast.error('Error saving welcome note');
+      showErrorToast('Error saving welcome note'); // Use centralized function
     } finally {
       setLoading(false);
     }
