@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
+
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // local worker path
 
 const PDFViewer = ({ url }) => {
@@ -11,9 +12,11 @@ const PDFViewer = ({ url }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [error, setError] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const loadPDF = async () => {
+      setLoading(true);
       try {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch PDF');
@@ -27,14 +30,20 @@ const PDFViewer = ({ url }) => {
       } catch (err) {
         console.error('PDF Error:', err.message);
         setError('PDF cannot be rendered. Please check the link or file format.');
+      } finally {
+        setLoading(false);
       }
     };
-    loadPDF();
+    
+    if (url) {
+      loadPDF();
+    }
   }, [url]);
 
   useEffect(() => {
     const renderPage = async () => {
       if (!pdfDoc) return;
+      
       try {
         const page = await pdfDoc.getPage(currentPage);
         const viewport = page.getViewport({ scale: 1.1 });
@@ -48,15 +57,18 @@ const PDFViewer = ({ url }) => {
         setError('Failed to render page.');
       }
     };
+    
     renderPage();
   }, [pdfDoc, currentPage]);
 
   const goToPrevPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
+  
   const goToNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
+  
   const toggleFullScreen = () => {
     if (!isFullscreen) {
       if (containerRef.current.requestFullscreen) {
@@ -85,8 +97,10 @@ const PDFViewer = ({ url }) => {
         setIsFullscreen(false);
       }
     };
+    
     document.addEventListener('fullscreenchange', handleFullScreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
+    
     return () => {
       document.removeEventListener('fullscreenchange', handleFullScreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullScreenChange);
@@ -96,60 +110,60 @@ const PDFViewer = ({ url }) => {
   return (
     <div
       ref={containerRef}
-      style={{ marginTop: '10px', textAlign: 'center', outline: isFullscreen ? '2px solid #2196f3' : 'none' }}
+      className={`pdf-viewer-container ${isFullscreen ? 'fullscreen' : ''}`}
       aria-live="polite"
       aria-label="PDF Viewer"
       role="region"
     >
-      {error ? (
-        <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>
+      {loading ? (
+        <div className="pdf-loading">
+          <div className="spinner"></div>
+          <p>Loading PDF...</p>
+        </div>
+      ) : error ? (
+        <p className="pdf-error">{error}</p>
       ) : (
         <>
-          <div
-            style={{
-              overflowX: 'auto',
-              padding: '10px',
-              border: '1px solid #ccc',
-              borderRadius: '8px',
-              background: '#fff',
-              maxWidth: '100%',
-              maxHeight: '90vh',
-              margin: '0 auto',
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-          >
+          <div className="pdf-canvas-container">
             <canvas
               ref={canvasRef}
-              style={{ maxWidth: '100%', height: 'auto', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', borderRadius: '4px' }}
+              className="pdf-canvas"
               aria-label={`PDF page ${currentPage}`}
             />
           </div>
+          
           {totalPages > 1 && (
-            <div
-              style={{
-                marginTop: '8px',
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '20px',
-                alignItems: 'center',
-                color: '#333',
-                fontSize: '14px',
-              }}
-            >
-              <button onClick={goToPrevPage} disabled={currentPage === 1} aria-label="Previous page">
+            <div className="pdf-navigation">
+              <button 
+                onClick={goToPrevPage} 
+                disabled={currentPage === 1}
+                className="btn-primary"
+                aria-label="Previous page"
+              >
                 ◀ Prev
               </button>
-              <span>
+              
+              <span className="page-counter">
                 Page {currentPage} of {totalPages}
               </span>
-              <button onClick={goToNextPage} disabled={currentPage === totalPages} aria-label="Next page">
+              
+              <button 
+                onClick={goToNextPage} 
+                disabled={currentPage === totalPages}
+                className="btn-primary"
+                aria-label="Next page"
+              >
                 Next ▶
               </button>
             </div>
           )}
-          <div style={{ marginTop: '8px' }}>
-            <button onClick={toggleFullScreen} aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}>
+          
+          <div className="fullscreen-toggle">
+            <button 
+              onClick={toggleFullScreen} 
+              className="btn-primary"
+              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            >
               {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
             </button>
           </div>
