@@ -15,58 +15,66 @@ export default function SearchBar({
 }) {
   return (
     <div className="search-bar" role="search" aria-label="User search and filter">
-      <label htmlFor="searchInput" style={{ marginRight: '8px' }}>Search:</label>
-      <input
-        id="searchInput"
-        type="text"
-        placeholder="Search by name or email"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        aria-label="Search users by name or email"
-        style={{ marginRight: '12px' }}
-      />
+      <div className="form-group">
+        <label htmlFor="searchInput">Search:</label>
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Search by name or email"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Search users by name or email"
+        />
+      </div>
 
-      <label htmlFor="statusFilter" style={{ marginRight: '8px' }}>Status:</label>
-      <select
-        id="statusFilter"
-        value={filterStatus}
-        onChange={(e) => setFilterStatus(e.target.value)}
-        aria-label="Filter users by subscription status"
-        style={{ marginRight: '12px' }}
-      >
-        <option value="all">All</option>
-        <option value="subscribed">Subscribed</option>
-        <option value="expired">Expired</option>
-      </select>
+      <div className="form-group">
+        <label htmlFor="statusFilter">Status:</label>
+        <select
+          id="statusFilter"
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          aria-label="Filter users by subscription status"
+        >
+          <option value="all">All</option>
+          <option value="subscribed">Subscribed</option>
+          <option value="expired">Expired</option>
+        </select>
+      </div>
 
-      <label htmlFor="startDate" style={{ marginRight: '8px' }}>Start Date:</label>
-      <input
-        id="startDate"
-        type="date"
-        value={filterStartDate}
-        onChange={(e) => setFilterStartDate(e.target.value)}
-        aria-label="Filter users with subscription start date after"
-        style={{ marginRight: '12px' }}
-      />
+      <div className="form-group">
+        <label htmlFor="startDate">Start Date:</label>
+        <input
+          id="startDate"
+          type="date"
+          value={filterStartDate}
+          onChange={(e) => setFilterStartDate(e.target.value)}
+          aria-label="Filter users with subscription start date after"
+        />
+      </div>
 
-      <label htmlFor="endDate" style={{ marginRight: '8px' }}>End Date:</label>
-      <input
-        id="endDate"
-        type="date"
-        value={filterEndDate}
-        onChange={(e) => setFilterEndDate(e.target.value)}
-        aria-label="Filter users with subscription end date before"
-        style={{ marginRight: '12px' }}
-      />
+      <div className="form-group">
+        <label htmlFor="endDate">End Date:</label>
+        <input
+          id="endDate"
+          type="date"
+          value={filterEndDate}
+          onChange={(e) => setFilterEndDate(e.target.value)}
+          aria-label="Filter users with subscription end date before"
+        />
+      </div>
 
-      <button onClick={handleSortToggle} className="btn-edit" aria-label="Toggle sort order" style={{ marginRight: '12px' }}>
-        Sort {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
-      </button>
+      <div className="form-group">
+        <button onClick={handleSortToggle} className="btn-edit" aria-label="Toggle sort order">
+          Sort {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
+        </button>
+      </div>
 
       {clearFilters && (
-        <button onClick={clearFilters} className="btn-clear" aria-label="Clear all filters">
-          Clear Filters
-        </button>
+        <div className="form-group">
+          <button onClick={clearFilters} className="cancel-button" aria-label="Clear all filters">
+            Clear Filters
+          </button>
+        </div>
       )}
     </div>
   );
