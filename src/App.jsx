@@ -8,7 +8,7 @@ import SiteNameManagement from './pages/SiteNameManagement';
 import PageControlManagement from './pages/PageControlManagement';
 import SubscriptionPlans from './pages/SubscriptionPlans';
 import Navbar from './components/Navbar';
-import Spinner from './components/Spinner';  // Use your Spinner component
+import Spinner from './components/Spinner';
 import axios from 'axios';
 import UserManagement from './pages/UserManagement';
 import { ToastContainer, toast } from 'react-toastify';
@@ -21,14 +21,31 @@ export default function App() {
 
   const fetchPageStatus = async () => {
     try {
-      const response = await axios.get(`${API_URL}general?type=pagecontrol`);
-      const statusMap = {};
-      (response.data ?? []).forEach(({ page, enabled }) => {
-        statusMap[page] = enabled;
-      });
-      setPageStatus(statusMap);
+      // Remove any trailing slash from API_URL to avoid double slashes
+      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+      const response = await axios.get(`${baseUrl}/general?type=pagecontrol`);
+      
+      // Check if response structure matches expected format
+      if (response.data && response.data.success) {
+        const statusMap = {};
+        (response.data.data ?? []).forEach(({ page, enabled }) => {
+          statusMap[page] = enabled;
+        });
+        setPageStatus(statusMap);
+      } else if (Array.isArray(response.data)) {
+        // Handle case where API returns array directly
+        const statusMap = {};
+        response.data.forEach(({ page, enabled }) => {
+          statusMap[page] = enabled;
+        });
+        setPageStatus(statusMap);
+      } else {
+        toast.error('Unexpected response structure from server');
+        console.error('Unexpected response:', response);
+      }
     } catch (error) {
       toast.error('Error fetching page control');
+      console.error('Error details:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
