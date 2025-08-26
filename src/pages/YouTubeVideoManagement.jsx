@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import '../components/YouTubeVideoManagement.css'; // Make sure path is correct
 
 export default function YouTubeVideoManagement() {
   const [videos, setVideos] = useState([]);
@@ -21,15 +20,12 @@ export default function YouTubeVideoManagement() {
 
   const fetchVideos = async () => {
     try {
-      // Remove any trailing slash from API_URL to avoid double slashes
       const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
       const response = await axios.get(`${baseUrl}/general?type=youtube`);
       
-      // Check if response structure matches expected format
       if (response.data && response.data.success) {
         setVideos(response.data.data || []);
       } else if (Array.isArray(response.data)) {
-        // Handle case where API returns array directly
         setVideos(response.data);
       } else {
         toast.error('Unexpected response format from server');
@@ -58,7 +54,6 @@ export default function YouTubeVideoManagement() {
     const isPremium = category === 'premium';
     
     try {
-      // Remove any trailing slash from API_URL to avoid double slashes
       const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
       
       if (editingVideo) {
@@ -99,7 +94,6 @@ export default function YouTubeVideoManagement() {
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this video?')) {
       try {
-        // Remove any trailing slash from API_URL to avoid double slashes
         const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
         await axios.delete(`${baseUrl}/general?type=youtube&id=${id}`);
         toast.success('Video deleted successfully');
@@ -128,83 +122,70 @@ export default function YouTubeVideoManagement() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>YouTube Video Management</h1>
+    <div className="page-container">
+      <h1 className="page-title">YouTube Video Management</h1>
       <form
         onSubmit={handleSubmit}
-        style={{
-          display: 'grid',
-          gap: '14px',
-          marginBottom: '40px',
-          background: '#fafafa',
-          padding: '18px',
-          borderRadius: '8px',
-        }}
+        className="form"
         aria-label={editingVideo ? 'Edit Video Form' : 'Add Video Form'}
       >
-        <label htmlFor="videoTitle" style={{ fontWeight: 'bold', color: '#222' }}>
-          Video Title
-        </label>
-        <input
-          id="videoTitle"
-          type="text"
-          placeholder="Video Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          disabled={loading}
-          style={{ padding: '8px' }}
-        />
-        <label htmlFor="videoDescription" style={{ fontWeight: 'bold', color: '#222' }}>
-          Video Description
-        </label>
-        <textarea
-          id="videoDescription"
-          placeholder="Video Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-          disabled={loading}
-          style={{ padding: '8px', minHeight: '80px' }}
-        />
-        <label htmlFor="youtubeLink" style={{ fontWeight: 'bold', color: '#222' }}>
-          YouTube Link
-        </label>
-        <input
-          id="youtubeLink"
-          type="text"
-          placeholder="YouTube Link"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          required
-          disabled={loading}
-          style={{ padding: '8px' }}
-        />
-        <label htmlFor="videoCategory" style={{ fontWeight: 'bold', color: '#222' }}>
-          Category
-        </label>
-        <select
-          id="videoCategory"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          disabled={loading}
-          style={{ padding: '8px' }}
-        >
-          <option value="free">Free</option>
-          <option value="premium">Premium</option>
-        </select>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="input-group">
+          <label htmlFor="videoTitle">Video Title</label>
+          <input
+            id="videoTitle"
+            type="text"
+            placeholder="Video Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </div>
+        
+        <div className="input-group">
+          <label htmlFor="videoDescription">Video Description</label>
+          <textarea
+            id="videoDescription"
+            placeholder="Video Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+            disabled={loading}
+            rows="4"
+          />
+        </div>
+        
+        <div className="input-group">
+          <label htmlFor="youtubeLink">YouTube Link</label>
+          <input
+            id="youtubeLink"
+            type="text"
+            placeholder="YouTube Link"
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </div>
+        
+        <div className="input-group">
+          <label htmlFor="videoCategory">Category</label>
+          <select
+            id="videoCategory"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            disabled={loading}
+          >
+            <option value="free">Free</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
+        
+        <div className="form-actions">
           <button
             type="submit"
             disabled={loading}
-            style={{
-              padding: '10px 20px',
-              background: '#007bff',
-              color: 'white',
-              border: 'none',
-              fontWeight: 'bold',
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
+            className="save-button"
             aria-label={editingVideo ? 'Update Video' : 'Save Video'}
           >
             {loading ? 'Saving...' : editingVideo ? 'Update Video' : 'Save'}
@@ -213,13 +194,7 @@ export default function YouTubeVideoManagement() {
             <button
               type="button"
               onClick={handleCancelEdit}
-              style={{
-                padding: '10px 20px',
-                background: 'gray',
-                color: 'white',
-                border: 'none',
-                fontWeight: 'bold',
-              }}
+              className="cancel-button"
               aria-label="Cancel Edit"
               disabled={loading}
             >
@@ -228,69 +203,54 @@ export default function YouTubeVideoManagement() {
           )}
         </div>
       </form>
-      <h2 style={{ marginBottom: '20px', color: '#222' }}>Uploaded Videos</h2>
+      
+      <h2>Uploaded Videos</h2>
       {videos.length === 0 ? (
-        <p>No videos uploaded yet.</p>
+        <p className="no-content-message">No videos uploaded yet.</p>
       ) : (
-        <ul className="video-list">
+        <div className="pdfs-list">
           {videos.map((video) => (
-            <li key={video._id} className="video-row">
-              <div className="video-row-inner">
+            <div key={video._id} className="pdf-card">
+              <h3 className="video-title">
+                {video.title}{' '}
+                {video.isPremium && (
+                  <span className="stat-badge expired">Premium</span>
+                )}
+              </h3>
+              <p className="video-desc">{video.description}</p>
+              <p className="video-category">Category: {video.category}</p>
+              
+              <div className="pdf-preview">
                 <iframe
-                  className="video-preview"
                   src={video.embedLink}
                   title={video.title}
                   frameBorder="0"
                   allowFullScreen
+                  className="video-preview"
                 ></iframe>
-                <div className="video-info">
-                  <h3 className="video-title">
-                    {video.title}{' '}
-                    {video.isPremium && (
-                      <span style={{ color: 'red', fontWeight: 'bold', marginLeft: '8px' }}>
-                        (Premium)
-                      </span>
-                    )}
-                  </h3>
-                  <p className="video-desc">{video.description}</p>
-                  <p className="video-category">Category: {video.category}</p>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                      onClick={() => handleEdit(video)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#ffc107',
-                        color: '#222',
-                        border: 'none',
-                        fontWeight: 'bold',
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                      }}
-                      aria-label={`Edit video: ${video.title}`}
-                      disabled={loading}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(video._id)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        fontWeight: 'bold',
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                      }}
-                      aria-label={`Delete video: ${video.title}`}
-                      disabled={loading}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
               </div>
-            </li>
+              
+              <div className="pdf-actions">
+                <button
+                  onClick={() => handleEdit(video)}
+                  className="btn-edit"
+                  aria-label={`Edit video: ${video.title}`}
+                  disabled={loading}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(video._id)}
+                  className="btn-delete"
+                  aria-label={`Delete video: ${video.title}`}
+                  disabled={loading}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
