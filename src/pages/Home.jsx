@@ -3,9 +3,10 @@ import React from 'react';
 export default function Home() {
   return (
     <main
-      className="text-center mt-20"
       style={{
-        maxWidth: 480,
+        textAlign: 'center',
+        marginTop: '5rem',
+        maxWidth: '480px',
         margin: '60px auto',
         padding: '32px 18px',
         background: '#f5f6fa',
@@ -14,10 +15,18 @@ export default function Home() {
       }}
       aria-label="Admin Panel Welcome"
     >
-      <h1 className="text-4xl font-bold mb-4" style={{ color: '#2c3e50' }}>
+      <h1 style={{
+        fontSize: '2.25rem',
+        fontWeight: 'bold',
+        marginBottom: '1rem',
+        color: '#2c3e50'
+      }}>
         Welcome to Mechanic Bano Admin Panel
       </h1>
-      <p className="text-lg" style={{ color: '#34495e' }}>
+      <p style={{
+        fontSize: '1.125rem',
+        color: '#34495e'
+      }}>
         Manage your tutorials, PDFs, and subscriptions here.
       </p>
     </main>
