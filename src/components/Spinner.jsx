@@ -1,11 +1,11 @@
 import React from 'react';
-import './Spinner.css'; // Make sure to include the updated CSS below
+import './Spinner.css'; // We'll update this CSS
 
-export default function Spinner() {
+export default function Spinner({ message = 'Loading...' }) {
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }} role="status" aria-live="polite">
+    <div className="spinner-container" role="status" aria-live="polite">
       <div className="spinner-ring" aria-hidden="true"></div>
-      <p style={{ marginTop: '18px', fontSize: '16px', color: '#333' }}>Loading...</p>
+      <p className="spinner-message">{message}</p>
     </div>
   );
 }
