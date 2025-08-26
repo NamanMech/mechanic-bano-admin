@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner'; // Import the Spinner component
 
 export default function SiteNameManagement() {
   const [siteName, setSiteName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchSiteName = async () => {
@@ -27,6 +29,8 @@ export default function SiteNameManagement() {
       toast.error('Error fetching site name');
       console.error('Error details:', error.response?.data || error.message);
       setSiteName('Mechanic Bano'); // Default fallback on error
+    } finally {
+      setFetching(false);
     }
   };
 
@@ -55,40 +59,20 @@ export default function SiteNameManagement() {
     }
   };
 
+  if (fetching) return <Spinner message="Loading site name..." />;
+
   return (
-    <div style={{ 
-      padding: '20px', 
-      maxWidth: '450px', 
-      margin: '0 auto',
-      fontFamily: 'Arial, sans-serif'
-    }}>
-      <h1 style={{ 
-        color: '#2c3e50', 
-        marginBottom: '12px',
-        textAlign: 'center'
-      }}>
-        Site Name Management
-      </h1>
-      <p style={{ 
-        fontWeight: 'bold', 
-        marginBottom: '24px',
-        textAlign: 'center'
-      }}>
-        Current Site Name: <span style={{ color: '#34495e' }}>{siteName || '-'}</span>
+    <div className="container">
+      <h1>Site Name Management</h1>
+      <p className="current-site-name">
+        Current Site Name: <span>{siteName || '-'}</span>
       </p>
       <form 
         onSubmit={handleSubmit} 
-        style={{ 
-          display: 'grid', 
-          gap: '12px',
-          backgroundColor: '#f9f9f9',
-          padding: '20px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-        }} 
+        className="site-name-form"
         aria-label="Update Site Name form"
       >
-        <label htmlFor="siteNameInput" style={{ fontWeight: '600' }}>
+        <label htmlFor="siteNameInput">
           Enter New Site Name
         </label>
         <input
@@ -99,26 +83,11 @@ export default function SiteNameManagement() {
           onChange={(e) => setSiteName(e.target.value)}
           required
           disabled={loading}
-          style={{ 
-            padding: '10px 12px', 
-            fontSize: '16px',
-            border: '1px solid #ddd',
-            borderRadius: '4px'
-          }}
         />
         <button 
           type="submit" 
           disabled={loading} 
-          style={{ 
-            padding: '12px', 
-            fontWeight: 'bold',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontSize: '16px'
-          }}
+          className="btn-primary"
         >
           {loading ? 'Saving...' : 'Update Site Name'}
         </button>
