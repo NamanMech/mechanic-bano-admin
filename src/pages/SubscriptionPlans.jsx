@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import Spinner from '../components/Spinner.jsx';
+import Spinner from '../components/Spinner';
 import { toast } from 'react-toastify';
 
 export default function SubscriptionPlans() {
@@ -131,52 +131,20 @@ export default function SubscriptionPlans() {
   if (loading) return <Spinner />;
   
   return (
-    <div style={{ 
-      maxWidth: 800, 
-      margin: '0 auto', 
-      padding: '20px', 
-      fontFamily: 'Arial, sans-serif',
-      color: 'white' // Ensure text is visible on dark background
-    }}>
-      <h2 style={{ 
-        color: 'white', 
-        marginBottom: '20px', 
-        textAlign: 'center',
-        fontSize: '2rem'
-      }}>
+    <div className="container">
+      <h1>
         {editingId ? 'Edit Subscription Plan' : 'Subscription Plans Management'}
-      </h2>
+      </h1>
       
-      <div style={{ 
-        background: '#2c2c2c', 
-        padding: '20px', 
-        borderRadius: '8px', 
-        marginBottom: '20px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-        border: '1px solid #444'
-      }}>
-        <h3 style={{ 
-          marginTop: 0, 
-          marginBottom: '15px', 
-          color: '#ffa726',
-          fontSize: '1.5rem'
-        }}>
+      <div className="subscription-form-container">
+        <h2>
           {editingId ? 'Edit Plan' : 'Add New Plan'}
-        </h3>
+        </h2>
         
-        <form onSubmit={handleSubmit} aria-label={editingId ? "Edit Plan Form" : "Add Plan Form"}>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: '15px' 
-          }}>
-            <div>
-              <label htmlFor="planTitle" style={{ 
-                display: 'block', 
-                marginBottom: '5px', 
-                fontWeight: 'bold',
-                color: 'white'
-              }}>
+        <form onSubmit={handleSubmit} className="subscription-form" aria-label={editingId ? "Edit Plan Form" : "Add Plan Form"}>
+          <div className="form-grid">
+            <div className="form-group">
+              <label htmlFor="planTitle">
                 Plan Title *
               </label>
               <input
@@ -189,24 +157,11 @@ export default function SubscriptionPlans() {
                 onChange={handleInputChange}
                 required
                 disabled={saving}
-                style={{ 
-                  width: '100%', 
-                  padding: '10px', 
-                  border: '1px solid #555', 
-                  borderRadius: '4px',
-                  backgroundColor: '#1e1e1e',
-                  color: 'white'
-                }}
               />
             </div>
             
-            <div>
-              <label htmlFor="planPrice" style={{ 
-                display: 'block', 
-                marginBottom: '5px', 
-                fontWeight: 'bold',
-                color: 'white'
-              }}>
+            <div className="form-group">
+              <label htmlFor="planPrice">
                 Price (₹) *
               </label>
               <input
@@ -220,24 +175,11 @@ export default function SubscriptionPlans() {
                 onChange={handleInputChange}
                 required
                 disabled={saving}
-                style={{ 
-                  width: '100%', 
-                  padding: '10px', 
-                  border: '1px solid #555', 
-                  borderRadius: '4px',
-                  backgroundColor: '#1e1e1e',
-                  color: 'white'
-                }}
               />
             </div>
             
-            <div>
-              <label htmlFor="planDays" style={{ 
-                display: 'block', 
-                marginBottom: '5px', 
-                fontWeight: 'bold',
-                color: 'white'
-              }}>
+            <div className="form-group">
+              <label htmlFor="planDays">
                 Validity (Days) *
               </label>
               <input
@@ -251,24 +193,11 @@ export default function SubscriptionPlans() {
                 onChange={handleInputChange}
                 required
                 disabled={saving}
-                style={{ 
-                  width: '100%', 
-                  padding: '10px', 
-                  border: '1px solid #555', 
-                  borderRadius: '4px',
-                  backgroundColor: '#1e1e1e',
-                  color: 'white'
-                }}
               />
             </div>
             
-            <div>
-              <label htmlFor="planDiscount" style={{ 
-                display: 'block', 
-                marginBottom: '5px', 
-                fontWeight: 'bold',
-                color: 'white'
-              }}>
+            <div className="form-group">
+              <label htmlFor="planDiscount">
                 Discount (%)
               </label>
               <input
@@ -282,32 +211,15 @@ export default function SubscriptionPlans() {
                 value={form.discount}
                 onChange={handleInputChange}
                 disabled={saving}
-                style={{ 
-                  width: '100%', 
-                  padding: '10px', 
-                  border: '1px solid #555', 
-                  borderRadius: '4px',
-                  backgroundColor: '#1e1e1e',
-                  color: 'white'
-                }}
               />
             </div>
           </div>
           
-          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          <div className="form-buttons">
             <button 
               type="submit" 
               disabled={saving}
-              style={{ 
-                padding: '10px 20px', 
-                backgroundColor: '#1e88e5', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '4px',
-                fontWeight: 'bold',
-                cursor: saving ? 'not-allowed' : 'pointer',
-                opacity: saving ? 0.6 : 1
-              }}
+              className="btn-primary"
             >
               {saving ? 'Saving...' : editingId ? 'Update Plan' : 'Add Plan'}
             </button>
@@ -317,15 +229,7 @@ export default function SubscriptionPlans() {
                 type="button" 
                 onClick={handleCancelEdit}
                 disabled={saving}
-                style={{ 
-                  padding: '10px 20px', 
-                  backgroundColor: '#6c757d', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '4px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
-                }}
+                className="cancel-button"
               >
                 Cancel
               </button>
@@ -334,109 +238,46 @@ export default function SubscriptionPlans() {
         </form>
       </div>
       
-      <div style={{ 
-        background: '#2c2c2c', 
-        borderRadius: '8px', 
-        overflow: 'hidden', 
-        boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-        border: '1px solid #444'
-      }}>
-        <div style={{ 
-          padding: '15px 20px', 
-          backgroundColor: '#343a40', 
-          color: 'white',
-          borderBottom: '1px solid #444'
-        }}>
-          <h3 style={{ margin: 0, fontSize: '1.5rem' }}>All Plans</h3>
+      <div className="subscription-plans-container">
+        <div className="table-header">
+          <h2>All Plans</h2>
         </div>
         
         {plans.length === 0 ? (
-          <div style={{ 
-            padding: '20px', 
-            textAlign: 'center', 
-            color: '#aaa' 
-          }}>
+          <div className="no-plans-message">
             No subscription plans available. Add your first plan above.
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ 
-              width: '100%', 
-              borderCollapse: 'collapse',
-              color: 'white'
-            }} 
-            role="table" 
-            aria-label="Subscription Plans Table">
+          <div className="table-container">
+            <table className="custom-table" role="table" aria-label="Subscription Plans Table">
               <thead>
-                <tr style={{ backgroundColor: '#343a40' }}>
-                  <th style={{ 
-                    padding: '12px', 
-                    textAlign: 'left', 
-                    borderBottom: '2px solid #444',
-                    color: 'white'
-                  }}>Title</th>
-                  <th style={{ 
-                    padding: '12px', 
-                    textAlign: 'left', 
-                    borderBottom: '2px solid #444',
-                    color: 'white'
-                  }}>Price (₹)</th>
-                  <th style={{ 
-                    padding: '12px', 
-                    textAlign: 'left', 
-                    borderBottom: '2px solid #444',
-                    color: 'white'
-                  }}>Days</th>
-                  <th style={{ 
-                    padding: '12px', 
-                    textAlign: 'left', 
-                    borderBottom: '2px solid #444',
-                    color: 'white'
-                  }}>Discount (%)</th>
-                  <th style={{ 
-                    padding: '12px', 
-                    textAlign: 'center', 
-                    borderBottom: '2px solid #444',
-                    color: 'white'
-                  }}>Actions</th>
+                <tr>
+                  <th>Title</th>
+                  <th>Price (₹)</th>
+                  <th>Days</th>
+                  <th>Discount (%)</th>
+                  <th className="text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {plans.map((plan) => (
-                  <tr key={plan._id} style={{ 
-                    borderBottom: '1px solid #444',
-                    backgroundColor: plan._id === editingId ? '#3d3d3d' : 'transparent'
-                  }}>
-                    <td style={{ padding: '12px' }}>{plan.title}</td>
-                    <td style={{ padding: '12px' }}>₹{Number(plan.price).toFixed(2)}</td>
-                    <td style={{ padding: '12px' }}>{plan.days}</td>
-                    <td style={{ padding: '12px' }}>{plan.discount || 0}%</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                  <tr key={plan._id} className={plan._id === editingId ? 'editing-row' : ''}>
+                    <td>{plan.title}</td>
+                    <td>₹{Number(plan.price).toFixed(2)}</td>
+                    <td>{plan.days}</td>
+                    <td>{plan.discount || 0}%</td>
+                    <td className="actions-cell">
+                      <div className="actions-container">
                         <button 
                           onClick={() => handleEdit(plan)} 
-                          style={{ 
-                            padding: '6px 12px', 
-                            backgroundColor: '#28a745', 
-                            color: 'white', 
-                            border: 'none', 
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                          }}
+                          className="btn-edit"
                           aria-label={`Edit ${plan.title} plan`}
                         >
                           Edit
                         </button>
                         <button 
                           onClick={() => handleDelete(plan._id)} 
-                          style={{ 
-                            padding: '6px 12px', 
-                            backgroundColor: '#dc3545', 
-                            color: 'white', 
-                            border: 'none', 
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                          }}
+                          className="btn-delete"
                           aria-label={`Delete ${plan.title} plan`}
                         >
                           Delete
