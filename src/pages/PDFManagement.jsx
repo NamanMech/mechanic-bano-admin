@@ -18,10 +18,23 @@ export default function PDFManagement() {
 
   const fetchPdfs = async () => {
     try {
-      const response = await axios.get(`${API_URL}general?type=pdf`);
-      setPdfs(response.data);
-    } catch {
+      // Remove any trailing slash from API_URL to avoid double slashes
+      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+      const response = await axios.get(`${baseUrl}/general?type=pdf`);
+      
+      // Check if response structure matches expected format
+      if (response.data && response.data.success) {
+        setPdfs(response.data.data || []);
+      } else if (Array.isArray(response.data)) {
+        // Handle case where API returns array directly
+        setPdfs(response.data);
+      } else {
+        toast.error('Unexpected response format from server');
+        console.error('Unexpected response:', response);
+      }
+    } catch (error) {
       toast.error('Error fetching PDFs');
+      console.error('Error details:', error.response?.data || error.message);
     }
   };
 
@@ -44,8 +57,13 @@ export default function PDFManagement() {
     try {
       if (!file && !editingPdf) {
         toast.error('Please select a PDF file');
+        setLoading(false);
         return;
       }
+      
+      // Remove any trailing slash from API_URL to avoid double slashes
+      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+      
       const fileUrl = file ? await uploadToSupabase(file) : editingPdf.originalLink;
       const payload = {
         title: title.trim(),
@@ -54,19 +72,21 @@ export default function PDFManagement() {
         category,
         price: category === 'premium' ? parseFloat(price || 0) : 0,
       };
+      
       if (editingPdf) {
-        await axios.put(`${API_URL}general?type=pdf&id=${editingPdf._id}`, payload);
+        await axios.put(`${baseUrl}/general?type=pdf&id=${editingPdf._id}`, payload);
         toast.success('PDF updated');
       } else {
-        await axios.post(`${API_URL}general?type=pdf`, payload);
+        await axios.post(`${baseUrl}/general?type=pdf`, payload);
         toast.success('PDF uploaded');
       }
+      
       setTitle('');
       setFile(null);
       setCategory('free');
       setPrice('');
       setEditingPdf(null);
-      fileInputRef.current.value = '';
+      if (fileInputRef.current) fileInputRef.current.value = '';
       fetchPdfs();
     } catch (err) {
       console.error(err);
@@ -79,11 +99,14 @@ export default function PDFManagement() {
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this PDF?')) {
       try {
-        await axios.delete(`${API_URL}general?type=pdf&id=${id}`);
+        // Remove any trailing slash from API_URL to avoid double slashes
+        const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+        await axios.delete(`${baseUrl}/general?type=pdf&id=${id}`);
         toast.success('PDF deleted');
         fetchPdfs();
       } catch (err) {
         toast.error('Failed to delete PDF');
+        console.error('Error details:', err.response?.data || err.message);
       }
     }
   };
@@ -122,7 +145,7 @@ export default function PDFManagement() {
         }}
         aria-label={editingPdf ? 'Edit PDF form' : 'Upload PDF form'}
       >
-        <label htmlFor="pdfTitle">PDF Title</label>
+        <label htmlFor="pdfTitle" style={{ fontWeight: 'bold' }}>PDF Title</label>
         <input
           id="pdfTitle"
           type="text"
@@ -130,8 +153,12 @@ export default function PDFManagement() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
+          disabled={loading}
+          style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
         />
-        <label htmlFor="pdfFile">{editingPdf ? 'Replace PDF file (optional)' : 'PDF File'}</label>
+        <label htmlFor="pdfFile" style={{ fontWeight: 'bold' }}>
+          {editingPdf ? 'Replace PDF file (optional)' : 'PDF File'}
+        </label>
         <input
           id="pdfFile"
           ref={fileInputRef}
@@ -139,19 +166,23 @@ export default function PDFManagement() {
           accept="application/pdf"
           onChange={(e) => setFile(e.target.files[0])}
           required={!editingPdf}
+          disabled={loading}
+          style={{ padding: '8px 0' }}
         />
-        <label htmlFor="pdfCategory">Category</label>
+        <label htmlFor="pdfCategory" style={{ fontWeight: 'bold' }}>Category</label>
         <select
           id="pdfCategory"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
+          disabled={loading}
+          style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
         >
           <option value="free">Free</option>
           <option value="premium">Premium</option>
         </select>
         {category === 'premium' && (
           <>
-            <label htmlFor="pdfPrice">Price (₹)</label>
+            <label htmlFor="pdfPrice" style={{ fontWeight: 'bold' }}>Price (₹)</label>
             <input
               id="pdfPrice"
               type="number"
@@ -159,16 +190,41 @@ export default function PDFManagement() {
               placeholder="Price (₹)"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              required
+              required={category === 'premium'}
+              disabled={loading}
+              style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
             />
           </>
         )}
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <button type="submit" disabled={loading}>
+          <button 
+            type="submit" 
+            disabled={loading}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: loading ? 'not-allowed' : 'pointer'
+            }}
+          >
             {loading ? (editingPdf ? 'Updating...' : 'Uploading...') : editingPdf ? 'Update PDF' : 'Upload PDF'}
           </button>
           {editingPdf && (
-            <button type="button" onClick={handleCancelEdit} style={{ background: '#e0e0e0', color: '#333' }}>
+            <button 
+              type="button" 
+              onClick={handleCancelEdit} 
+              disabled={loading}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#e0e0e0',
+                color: '#333',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: loading ? 'not-allowed' : 'pointer'
+              }}
+            >
               Cancel
             </button>
           )}
@@ -191,8 +247,8 @@ export default function PDFManagement() {
                 boxShadow: '0 2px 8px rgba(44,62,80,0.06)',
               }}
             >
-              <h3 style={{ color: '#222' }}>{pdf.title}</h3>
-              <p style={{ color: '#555', marginBottom: 0 }}>
+              <h3 style={{ color: '#222', margin: '0 0 10px 0' }}>{pdf.title}</h3>
+              <p style={{ color: '#555', margin: '0 0 10px 0' }}>
                 Category: {pdf.category}
                 {pdf.category === 'premium' && pdf.price ? ` | Price: ₹${pdf.price}` : ''}
               </p>
@@ -204,10 +260,32 @@ export default function PDFManagement() {
                 )}
               </div>
               <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
-                <button onClick={() => handleEdit(pdf)} disabled={loading}>
+                <button 
+                  onClick={() => handleEdit(pdf)} 
+                  disabled={loading}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#ffc107',
+                    color: '#222',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: loading ? 'not-allowed' : 'pointer'
+                  }}
+                >
                   Edit
                 </button>
-                <button onClick={() => handleDelete(pdf._id)} disabled={loading}>
+                <button 
+                  onClick={() => handleDelete(pdf._id)} 
+                  disabled={loading}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: loading ? 'not-allowed' : 'pointer'
+                  }}
+                >
                   Delete
                 </button>
               </div>
