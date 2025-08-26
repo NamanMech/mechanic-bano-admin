@@ -1,5 +1,4 @@
 import React from 'react';
-import './app.css'; // Make sure to import the CSS
 
 export default function Home() {
   return (
