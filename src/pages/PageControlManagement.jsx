@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Spinner from '../components/Spinner.jsx';
 import { toast } from 'react-toastify';
 
 export default function PageControlManagement({ fetchPageStatus }) {
@@ -10,9 +9,16 @@ export default function PageControlManagement({ fetchPageStatus }) {
 
   const loadPages = async () => {
     try {
-      const response = await axios.get(`${API_URL}general?type=pagecontrol`);
-      // Extract the data from the standardized response
-      setPages(response.data.data || []);
+      // Fixed the API endpoint - using correct path structure
+      const response = await axios.get(`${API_URL}/api/general?type=pagecontrol`);
+      
+      // Check if response structure matches expected format
+      if (response.data && response.data.success) {
+        setPages(response.data.data || []);
+      } else {
+        toast.error('Unexpected response format from server');
+        console.error('Unexpected response:', response);
+      }
     } catch (err) {
       toast.error('Error fetching pages');
       console.error('Error details:', err.response?.data || err.message);
@@ -34,14 +40,14 @@ export default function PageControlManagement({ fetchPageStatus }) {
     if (!confirmToggle) return;
     
     try {
-      await axios.put(`${API_URL}general?type=pagecontrol&id=${id}`, {
+      // Fixed the API endpoint for update as well
+      await axios.put(`${API_URL}/api/general?type=pagecontrol&id=${id}`, {
         enabled: !currentStatus,
       });
       
       toast.success(`"${formatPageName(pageName)}" ${currentStatus ? 'disabled' : 'enabled'} successfully`);
       await loadPages();
       
-      // Only call fetchPageStatus if it's provided as a prop
       if (fetchPageStatus && typeof fetchPageStatus === 'function') {
         await fetchPageStatus();
       }
@@ -61,10 +67,10 @@ export default function PageControlManagement({ fetchPageStatus }) {
     loadPages();
   }, []);
 
-  if (loading) return <Spinner />;
+  if (loading) return <div className="spinner">Loading...</div>;
 
   return (
-    <div>
+    <div style={styles.container}>
       <h2 style={styles.heading}>Page Visibility Control</h2>
       {pages.length === 0 ? (
         <p style={styles.noData}>No pages found or unable to load page data.</p>
@@ -126,6 +132,12 @@ export default function PageControlManagement({ fetchPageStatus }) {
 }
 
 const styles = {
+  container: {
+    padding: '20px',
+    fontFamily: 'Arial, sans-serif',
+    backgroundColor: '#f5f5f5',
+    minHeight: '100vh',
+  },
   heading: {
     fontSize: '24px',
     marginBottom: '20px',
@@ -139,6 +151,7 @@ const styles = {
     color: 'white',
     borderRadius: '8px',
     overflow: 'hidden',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
   },
   th: {
     padding: '12px 16px',
@@ -151,17 +164,21 @@ const styles = {
     borderBottom: '1px solid #444',
   },
   button: {
-    padding: '6px 12px',
+    padding: '8px 16px',
     border: 'none',
     borderRadius: '5px',
     color: 'white',
     cursor: 'pointer',
     fontWeight: 'bold',
+    transition: 'background-color 0.3s',
   },
   noData: {
     textAlign: 'center',
     color: '#95a5a6',
     fontSize: '16px',
     padding: '20px',
+    backgroundColor: '#2c3e50',
+    borderRadius: '8px',
+    margin: '20px 0',
   },
 };
