@@ -15,7 +15,7 @@ export default function PageControlManagement({ fetchPageStatus }) {
         response = await axios.get(`${API_URL}/api/general?type=pagecontrol`);
       } catch (firstError) {
         console.log('Trying alternative endpoint structure...');
-        response = await axios.get(`${API_URL}general?type=pagecontrol`);
+        response = await axios.get(`${API_URL}/general?type=pagecontrol`);
       }
       
       // Check if response structure matches expected format
