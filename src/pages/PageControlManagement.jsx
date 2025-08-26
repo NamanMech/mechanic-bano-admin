@@ -9,14 +9,9 @@ export default function PageControlManagement({ fetchPageStatus }) {
 
   const loadPages = async () => {
     try {
-      // Try multiple possible API endpoint structures
-      let response;
-      try {
-        response = await axios.get(`${API_URL}/api/general?type=pagecontrol`);
-      } catch (firstError) {
-        console.log('Trying alternative endpoint structure...');
-        response = await axios.get(`${API_URL}/general?type=pagecontrol`);
-      }
+      // Remove any trailing slash from API_URL to avoid double slashes
+      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+      const response = await axios.get(`${baseUrl}/general?type=pagecontrol`);
       
       // Check if response structure matches expected format
       if (response.data && response.data.success) {
@@ -50,16 +45,11 @@ export default function PageControlManagement({ fetchPageStatus }) {
     if (!confirmToggle) return;
     
     try {
-      // Try multiple endpoint structures for update as well
-      try {
-        await axios.put(`${API_URL}/api/general?type=pagecontrol&id=${id}`, {
-          enabled: !currentStatus,
-        });
-      } catch (firstError) {
-        await axios.put(`${API_URL}/general?type=pagecontrol&id=${id}`, {
-          enabled: !currentStatus,
-        });
-      }
+      // Remove any trailing slash from API_URL to avoid double slashes
+      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+      await axios.put(`${baseUrl}/general?type=pagecontrol&id=${id}`, {
+        enabled: !currentStatus,
+      });
       
       toast.success(`"${formatPageName(pageName)}" ${currentStatus ? 'disabled' : 'enabled'} successfully`);
       await loadPages();
@@ -96,11 +86,7 @@ export default function PageControlManagement({ fetchPageStatus }) {
           </button>
           <div style={styles.debugInfo}>
             <p>API_URL: {API_URL}</p>
-            <p>Try these endpoints manually:</p>
-            <ul>
-              <li>{API_URL}/api/general?type=pagecontrol</li>
-              <li>{API_URL}/general?type=pagecontrol</li>
-            </ul>
+            <p>Endpoint being called: {API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL}/general?type=pagecontrol</p>
           </div>
         </div>
       ) : (
