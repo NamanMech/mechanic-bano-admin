@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import Spinner from '../components/Spinner'; // Import the Spinner component
+import Spinner from '../components/Spinner';
 
 export default function PageControlManagement({ fetchPageStatus }) {
   const [pages, setPages] = useState([]);
@@ -10,15 +10,12 @@ export default function PageControlManagement({ fetchPageStatus }) {
 
   const loadPages = async () => {
     try {
-      // Remove any trailing slash from API_URL to avoid double slashes
       const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
       const response = await axios.get(`${baseUrl}/general?type=pagecontrol`);
       
-      // Check if response structure matches expected format
       if (response.data && response.data.success) {
         setPages(response.data.data || []);
       } else if (Array.isArray(response.data)) {
-        // Handle case where API returns array directly
         setPages(response.data);
       } else {
         toast.error('Unexpected response format from server');
@@ -46,7 +43,6 @@ export default function PageControlManagement({ fetchPageStatus }) {
     if (!confirmToggle) return;
     
     try {
-      // Remove any trailing slash from API_URL to avoid double slashes
       const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
       await axios.put(`${baseUrl}/general?type=pagecontrol&id=${id}`, {
         enabled: !currentStatus,
@@ -91,51 +87,53 @@ export default function PageControlManagement({ fetchPageStatus }) {
           </div>
         </div>
       ) : (
-        <table
-          className="custom-table"
-          role="table"
-          aria-label="Page visibility control table"
-        >
-          <thead>
-            <tr>
-              <th scope="col">Page</th>
-              <th scope="col">Status</th>
-              <th scope="col">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pages.map(page => (
-              <tr key={page._id}>
-                <td>{formatPageName(page.page)}</td>
-                <td>
-                  <span className={`status-icon ${page.enabled ? 'active' : 'inactive'}`}>
-                    {page.enabled ? 'Enabled' : 'Disabled'}
-                  </span>
-                </td>
-                <td>
-                  {page.page === 'pagecontrol' ? (
-                    <button
-                      className="btn-primary locked-button"
-                      disabled
-                      aria-label={`${formatPageName(page.page)} page is locked and cannot be changed`}
-                    >
-                      Locked
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => togglePageStatus(page._id, page.enabled, page.page)}
-                      className={page.enabled ? 'btn-delete' : 'btn-edit'}
-                      aria-pressed={page.enabled}
-                      aria-label={`${page.enabled ? 'Disable' : 'Enable'} ${formatPageName(page.page)} page`}
-                    >
-                      {page.enabled ? 'Disable' : 'Enable'}
-                    </button>
-                  )}
-                </td>
+        <div className="table-responsive"> {/* Added responsive wrapper */}
+          <table
+            className="custom-table"
+            role="table"
+            aria-label="Page visibility control table"
+          >
+            <thead>
+              <tr>
+                <th scope="col">Page</th>
+                <th scope="col">Status</th>
+                <th scope="col">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {pages.map(page => (
+                <tr key={page._id}>
+                  <td>{formatPageName(page.page)}</td>
+                  <td>
+                    <span className={`status-icon ${page.enabled ? 'active' : 'inactive'}`}>
+                      {page.enabled ? 'Enabled' : 'Disabled'}
+                    </span>
+                  </td>
+                  <td>
+                    {page.page === 'pagecontrol' ? (
+                      <button
+                        className="btn-primary locked-button"
+                        disabled
+                        aria-label={`${formatPageName(page.page)} page is locked and cannot be changed`}
+                      >
+                        Locked
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => togglePageStatus(page._id, page.enabled, page.page)}
+                        className={page.enabled ? 'btn-delete' : 'btn-edit'}
+                        aria-pressed={page.enabled}
+                        aria-label={`${page.enabled ? 'Disable' : 'Enable'} ${formatPageName(page.page)} page`}
+                      >
+                        {page.enabled ? 'Disable' : 'Enable'}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
