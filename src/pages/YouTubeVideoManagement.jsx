@@ -21,10 +21,23 @@ export default function YouTubeVideoManagement() {
 
   const fetchVideos = async () => {
     try {
-      const response = await axios.get(`${API_URL}general?type=youtube`);
-      setVideos(response.data);
+      // Remove any trailing slash from API_URL to avoid double slashes
+      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+      const response = await axios.get(`${baseUrl}/general?type=youtube`);
+      
+      // Check if response structure matches expected format
+      if (response.data && response.data.success) {
+        setVideos(response.data.data || []);
+      } else if (Array.isArray(response.data)) {
+        // Handle case where API returns array directly
+        setVideos(response.data);
+      } else {
+        toast.error('Unexpected response format from server');
+        console.error('Unexpected response:', response);
+      }
     } catch (error) {
       toast.error('Error fetching videos');
+      console.error('Error details:', error.response?.data || error.message);
     }
   };
 
@@ -43,9 +56,13 @@ export default function YouTubeVideoManagement() {
     }
     const cleanedLink = `https://www.youtube.com/embed/${videoId}`;
     const isPremium = category === 'premium';
+    
     try {
+      // Remove any trailing slash from API_URL to avoid double slashes
+      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+      
       if (editingVideo) {
-        await axios.put(`${API_URL}general?type=youtube&id=${editingVideo._id}`, {
+        await axios.put(`${baseUrl}/general?type=youtube&id=${editingVideo._id}`, {
           title: title.trim(),
           description: description.trim(),
           embedLink: cleanedLink,
@@ -56,7 +73,7 @@ export default function YouTubeVideoManagement() {
         toast.success('Video updated successfully');
         setEditingVideo(null);
       } else {
-        await axios.post(`${API_URL}general?type=youtube`, {
+        await axios.post(`${baseUrl}/general?type=youtube`, {
           title: title.trim(),
           description: description.trim(),
           embedLink: cleanedLink,
@@ -73,6 +90,7 @@ export default function YouTubeVideoManagement() {
       fetchVideos();
     } catch (error) {
       toast.error('Error saving video');
+      console.error('Error details:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -81,11 +99,14 @@ export default function YouTubeVideoManagement() {
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this video?')) {
       try {
-        await axios.delete(`${API_URL}general?type=youtube&id=${id}`);
+        // Remove any trailing slash from API_URL to avoid double slashes
+        const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+        await axios.delete(`${baseUrl}/general?type=youtube&id=${id}`);
         toast.success('Video deleted successfully');
         fetchVideos();
       } catch (error) {
         toast.error('Error deleting video');
+        console.error('Error details:', error.response?.data || error.message);
       }
     }
   };
