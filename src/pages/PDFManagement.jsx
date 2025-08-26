@@ -130,22 +130,11 @@ export default function PDFManagement() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: 950, margin: '0 auto' }}>
-      <h1 style={{ color: '#34495e', marginBottom: 25 }}>PDF Management</h1>
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: 'grid',
-          gap: '14px',
-          maxWidth: '400px',
-          background: '#f9f9f9',
-          padding: '16px 22px',
-          borderRadius: '8px',
-          marginBottom: '18px',
-        }}
-        aria-label={editingPdf ? 'Edit PDF form' : 'Upload PDF form'}
-      >
-        <label htmlFor="pdfTitle" style={{ fontWeight: 'bold' }}>PDF Title</label>
+    <div className="container">
+      <h1>PDF Management</h1>
+      
+      <form onSubmit={handleSubmit} aria-label={editingPdf ? 'Edit PDF form' : 'Upload PDF form'}>
+        <label htmlFor="pdfTitle">PDF Title</label>
         <input
           id="pdfTitle"
           type="text"
@@ -154,9 +143,9 @@ export default function PDFManagement() {
           onChange={(e) => setTitle(e.target.value)}
           required
           disabled={loading}
-          style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
         />
-        <label htmlFor="pdfFile" style={{ fontWeight: 'bold' }}>
+        
+        <label htmlFor="pdfFile">
           {editingPdf ? 'Replace PDF file (optional)' : 'PDF File'}
         </label>
         <input
@@ -167,22 +156,22 @@ export default function PDFManagement() {
           onChange={(e) => setFile(e.target.files[0])}
           required={!editingPdf}
           disabled={loading}
-          style={{ padding: '8px 0' }}
         />
-        <label htmlFor="pdfCategory" style={{ fontWeight: 'bold' }}>Category</label>
+        
+        <label htmlFor="pdfCategory">Category</label>
         <select
           id="pdfCategory"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           disabled={loading}
-          style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
         >
           <option value="free">Free</option>
           <option value="premium">Premium</option>
         </select>
+        
         {category === 'premium' && (
           <>
-            <label htmlFor="pdfPrice" style={{ fontWeight: 'bold' }}>Price (₹)</label>
+            <label htmlFor="pdfPrice">Price (₹)</label>
             <input
               id="pdfPrice"
               type="number"
@@ -192,107 +181,80 @@ export default function PDFManagement() {
               onChange={(e) => setPrice(e.target.value)}
               required={category === 'premium'}
               disabled={loading}
-              style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
             />
           </>
         )}
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        
+        <div className="form-buttons">
           <button 
             type="submit" 
             disabled={loading}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer'
-            }}
+            className="btn-primary"
           >
-            {loading ? (editingPdf ? 'Updating...' : 'Uploading...') : editingPdf ? 'Update PDF' : 'Upload PDF'}
+            {loading ? (
+              <span className="button-loading">
+                {editingPdf ? 'Updating...' : 'Uploading...'}
+              </span>
+            ) : editingPdf ? 'Update PDF' : 'Upload PDF'}
           </button>
+          
           {editingPdf && (
             <button 
               type="button" 
               onClick={handleCancelEdit} 
               disabled={loading}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#e0e0e0',
-                color: '#333',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: loading ? 'not-allowed' : 'pointer'
-              }}
+              className="cancel-button"
             >
               Cancel
             </button>
           )}
         </div>
       </form>
-      <h2 style={{ marginTop: '40px', color: '#34495e' }}>Uploaded PDFs</h2>
+      
+      <h2>Uploaded PDFs</h2>
+      
       {pdfs.length === 0 ? (
-        <p>No PDFs yet.</p>
+        <p className="no-content-message">No PDFs uploaded yet.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <div className="pdfs-list">
           {pdfs.map((pdf) => (
-            <li
-              key={pdf._id}
-              style={{
-                marginBottom: '30px',
-                border: '1px solid #ccd',
-                padding: '14px',
-                borderRadius: '8px',
-                background: '#f8f8f8',
-                boxShadow: '0 2px 8px rgba(44,62,80,0.06)',
-              }}
-            >
-              <h3 style={{ color: '#222', margin: '0 0 10px 0' }}>{pdf.title}</h3>
-              <p style={{ color: '#555', margin: '0 0 10px 0' }}>
+            <div key={pdf._id} className="pdf-card">
+              <h3>{pdf.title}</h3>
+              <p>
                 Category: {pdf.category}
                 {pdf.category === 'premium' && pdf.price ? ` | Price: ₹${pdf.price}` : ''}
               </p>
-              <div style={{ minHeight: '120px', margin: '12px 0' }}>
+              
+              <div className="pdf-preview">
                 {pdf.originalLink ? (
                   <PDFViewer url={pdf.originalLink} />
                 ) : (
-                  <p style={{ color: 'gray' }}>No preview available</p>
+                  <p className="no-preview">No preview available</p>
                 )}
               </div>
-              <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+              
+              <div className="pdf-actions">
                 <button 
                   onClick={() => handleEdit(pdf)} 
                   disabled={loading}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#ffc107',
-                    color: '#222',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: loading ? 'not-allowed' : 'pointer'
-                  }}
+                  className="btn-edit"
                 >
                   Edit
                 </button>
                 <button 
                   onClick={() => handleDelete(pdf._id)} 
                   disabled={loading}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#dc3545',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: loading ? 'not-allowed' : 'pointer'
-                  }}
+                  className="btn-delete"
                 >
                   Delete
                 </button>
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
+      
+      {loading && <div className="spinner-overlay"><div className="spinner"></div></div>}
     </div>
   );
 }
