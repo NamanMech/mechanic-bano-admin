@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
-import { showSuccessToast, showErrorToast } from '../utils/toast'; // Import from your centralized toast utilities
+import { showSuccessToast, showErrorToast } from '../utils/toast';
 
 export default function WelcomeNoteManagement() {
   const [title, setTitle] = useState('');
@@ -17,7 +17,7 @@ export default function WelcomeNoteManagement() {
         setMessage(response.data.message);
       }
     } catch (error) {
-      showErrorToast('Error fetching welcome note'); // Use centralized function
+      showErrorToast('Error fetching welcome note');
     }
   };
 
@@ -33,63 +33,58 @@ export default function WelcomeNoteManagement() {
         title: title.trim(),
         message: message.trim(),
       });
-      showSuccessToast('Welcome note updated successfully'); // Use centralized function
+      showSuccessToast('Welcome note updated successfully');
     } catch (error) {
-      showErrorToast('Error saving welcome note'); // Use centralized function
+      showErrorToast('Error saving welcome note');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{
-      padding: '20px',
-      maxWidth: '460px',
-      margin: '0 auto',
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea, #764ba2)'
-    }}>
-      <h1 style={{ marginBottom: '20px', color: '#fff', textAlign: 'center' }}>Welcome Note Management</h1>
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '16px' }} aria-label="Update Welcome Note Form">
-        <label htmlFor="welcome-title" style={{ color: '#fff' }}>
-          Welcome Note Title
-        </label>
-        <input
-          id="welcome-title"
-          type="text"
-          placeholder="Welcome Note Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          disabled={loading}
-          style={{ padding: '8px', fontSize: '16px' }}
-        />
-        <label htmlFor="welcome-message" style={{ color: '#fff' }}>
-          Welcome Note Message
-        </label>
-        <textarea
-          id="welcome-message"
-          placeholder="Welcome Note Message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          required
-          disabled={loading}
-          rows={6}
-          style={{ padding: '8px', fontSize: '16px', resize: 'vertical' }}
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: '12px',
-            fontWeight: 'bold',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            position: 'relative'
-          }}
-        >
-          {loading ? <Spinner /> : 'Update Welcome Note'}
-        </button>
-      </form>
+    <div className="page-container" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', minHeight: '100vh' }}>
+      <div className="container">
+        <h1 className="page-title">Welcome Note Management</h1>
+        
+        <div className="welcome-card">
+          <form onSubmit={handleSubmit} className="form" aria-label="Update Welcome Note Form">
+            <div className="input-group">
+              <label htmlFor="welcome-title">Welcome Note Title</label>
+              <input
+                id="welcome-title"
+                type="text"
+                placeholder="Welcome Note Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+            
+            <div className="input-group">
+              <label htmlFor="welcome-message">Welcome Note Message</label>
+              <textarea
+                id="welcome-message"
+                placeholder="Welcome Note Message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+                disabled={loading}
+                rows={6}
+              />
+            </div>
+            
+            <button
+              type="submit"
+              className="btn-primary save-button"
+              disabled={loading}
+              style={{ position: 'relative' }}
+            >
+              {loading ? <Spinner /> : 'Update Welcome Note'}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
