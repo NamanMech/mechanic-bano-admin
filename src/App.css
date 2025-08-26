@@ -655,3 +655,40 @@ button:disabled {
   cursor: not-allowed !important;
   opacity: 0.7;
 }
+
+/* Site Name Management Styles */
+.current-site-name {
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-align: center;
+  color: #ccc;
+}
+
+.current-site-name span {
+  color: #ffa726;
+  font-weight: normal;
+}
+
+.site-name-form {
+  display: grid;
+  gap: 12px;
+  background-color: #2c2c2c;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.site-name-form label {
+  font-weight: 600;
+  color: #ccc;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .site-name-form {
+    margin: 0 10px;
+    padding: 15px;
+  }
+}
