@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // local worker path
+// Set worker path
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
-const PDFViewer = ({ url }) => {
+const PDFViewer = ({ url, onClose }) => {
   const canvasRef = useRef();
   const containerRef = useRef();
   const [pdfDoc, setPdfDoc] = useState(null);
@@ -13,15 +14,33 @@ const PDFViewer = ({ url }) => {
   const [error, setError] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [scale, setScale] = useState(1.5);
+  const renderTaskRef = useRef(null);
 
+  // Cancel ongoing render task
+  const cancelRenderTask = useCallback(() => {
+    if (renderTaskRef.current) {
+      renderTaskRef.current.cancel();
+      renderTaskRef.current = null;
+    }
+  }, []);
+
+  // Load PDF document
   useEffect(() => {
     const loadPDF = async () => {
       setLoading(true);
+      cancelRenderTask();
+      
       try {
+        if (!url) {
+          throw new Error('No PDF URL provided');
+        }
+        
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch PDF');
         const buffer = await response.arrayBuffer();
         const pdfData = new Uint8Array(buffer);
+        
         const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
         setPdfDoc(pdf);
         setTotalPages(pdf.numPages);
@@ -29,38 +48,58 @@ const PDFViewer = ({ url }) => {
         setError('');
       } catch (err) {
         console.error('PDF Error:', err.message);
-        setError('PDF cannot be rendered. Please check the link or file format.');
+        setError('Failed to load PDF. Please check the file URL.');
       } finally {
         setLoading(false);
       }
     };
     
-    if (url) {
-      loadPDF();
-    }
-  }, [url]);
+    loadPDF();
+    
+    return () => {
+      cancelRenderTask();
+    };
+  }, [url, cancelRenderTask]);
 
+  // Render PDF page
   useEffect(() => {
     const renderPage = async () => {
-      if (!pdfDoc) return;
+      if (!pdfDoc || !canvasRef.current) return;
+      
+      cancelRenderTask();
       
       try {
         const page = await pdfDoc.getPage(currentPage);
-        const viewport = page.getViewport({ scale: 1.1 });
+        const viewport = page.getViewport({ scale });
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
+        
+        // Set canvas dimensions
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        await page.render({ canvasContext: context, viewport }).promise;
+        
+        // Render PDF page
+        renderTaskRef.current = page.render({
+          canvasContext: context,
+          viewport: viewport
+        });
+        
+        await renderTaskRef.current.promise;
+        renderTaskRef.current = null;
       } catch (err) {
-        console.error('Render page error:', err.message);
-        setError('Failed to render page.');
+        if (err.name === 'RenderingCancelledException') {
+          console.log('Rendering cancelled');
+        } else {
+          console.error('Render page error:', err.message);
+          setError('Failed to render page.');
+        }
       }
     };
     
     renderPage();
-  }, [pdfDoc, currentPage]);
+  }, [pdfDoc, currentPage, scale, cancelRenderTask]);
 
+  // Navigation functions
   const goToPrevPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
@@ -69,8 +108,34 @@ const PDFViewer = ({ url }) => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
   
-  const toggleFullScreen = () => {
-    if (!isFullscreen) {
+  const goToFirstPage = () => {
+    setCurrentPage(1);
+  };
+  
+  const goToLastPage = () => {
+    setTotalPages(totalPages);
+  };
+  
+  // Handle page input
+  const handlePageInput = (e) => {
+    const pageNum = parseInt(e.target.value);
+    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+      setCurrentPage(pageNum);
+    }
+  };
+  
+  // Zoom functions
+  const zoomIn = () => {
+    setScale(prevScale => Math.min(prevScale + 0.25, 3));
+  };
+  
+  const zoomOut = () => {
+    setScale(prevScale => Math.max(prevScale - 0.25, 0.5));
+  };
+  
+  // Fullscreen functions
+  const toggleFullScreen = useCallback(() => {
+    if (!document.fullscreenElement) {
       if (containerRef.current.requestFullscreen) {
         containerRef.current.requestFullscreen();
       } else if (containerRef.current.webkitRequestFullscreen) {
@@ -85,17 +150,12 @@ const PDFViewer = ({ url }) => {
       }
       setIsFullscreen(false);
     }
-  };
+  }, []);
 
+  // Handle fullscreen change events
   useEffect(() => {
     const handleFullScreenChange = () => {
-      if (
-        !document.fullscreenElement &&
-        !document.webkitFullscreenElement &&
-        !document.mozFullScreenElement
-      ) {
-        setIsFullscreen(false);
-      }
+      setIsFullscreen(!!document.fullscreenElement);
     };
     
     document.addEventListener('fullscreenchange', handleFullScreenChange);
@@ -106,6 +166,22 @@ const PDFViewer = ({ url }) => {
       document.removeEventListener('webkitfullscreenchange', handleFullScreenChange);
     };
   }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowLeft') {
+        goToPrevPage();
+      } else if (e.key === 'ArrowRight') {
+        goToNextPage();
+      } else if (e.key === 'Escape' && isFullscreen) {
+        toggleFullScreen();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen, toggleFullScreen]);
 
   return (
     <div
@@ -121,19 +197,67 @@ const PDFViewer = ({ url }) => {
           <p>Loading PDF...</p>
         </div>
       ) : error ? (
-        <p className="pdf-error">{error}</p>
+        <div className="pdf-error-container">
+          <p className="pdf-error">{error}</p>
+          {onClose && (
+            <button className="btn-primary" onClick={onClose}>
+              Close Viewer
+            </button>
+          )}
+        </div>
       ) : (
         <>
+          <div className="pdf-controls">
+            {onClose && (
+              <button 
+                className="btn-primary pdf-close-btn"
+                onClick={onClose}
+                aria-label="Close PDF viewer"
+              >
+                &times;
+              </button>
+            )}
+            
+            <div className="pdf-zoom-controls">
+              <button 
+                onClick={zoomOut}
+                className="btn-primary"
+                aria-label="Zoom out"
+                disabled={scale <= 0.5}
+              >
+                -
+              </button>
+              <span className="zoom-level">{Math.round(scale * 100)}%</span>
+              <button 
+                onClick={zoomIn}
+                className="btn-primary"
+                aria-label="Zoom in"
+                disabled={scale >= 3}
+              >
+                +
+              </button>
+            </div>
+          </div>
+          
           <div className="pdf-canvas-container">
             <canvas
               ref={canvasRef}
               className="pdf-canvas"
-              aria-label={`PDF page ${currentPage}`}
+              aria-label={`PDF page ${currentPage} of ${totalPages}`}
             />
           </div>
           
-          {totalPages > 1 && (
+          {totalPages > 0 && (
             <div className="pdf-navigation">
+              <button 
+                onClick={goToFirstPage}
+                disabled={currentPage === 1}
+                className="btn-primary"
+                aria-label="First page"
+              >
+                ◀◀
+              </button>
+              
               <button 
                 onClick={goToPrevPage} 
                 disabled={currentPage === 1}
@@ -143,9 +267,18 @@ const PDFViewer = ({ url }) => {
                 ◀ Prev
               </button>
               
-              <span className="page-counter">
-                Page {currentPage} of {totalPages}
-              </span>
+              <div className="page-control">
+                <input
+                  type="number"
+                  min="1"
+                  max={totalPages}
+                  value={currentPage}
+                  onChange={handlePageInput}
+                  className="page-input"
+                  aria-label="Current page number"
+                />
+                <span className="page-count">/ {totalPages}</span>
+              </div>
               
               <button 
                 onClick={goToNextPage} 
@@ -154,6 +287,15 @@ const PDFViewer = ({ url }) => {
                 aria-label="Next page"
               >
                 Next ▶
+              </button>
+              
+              <button 
+                onClick={goToLastPage}
+                disabled={currentPage === totalPages}
+                className="btn-primary"
+                aria-label="Last page"
+              >
+                ▶▶
               </button>
             </div>
           )}
