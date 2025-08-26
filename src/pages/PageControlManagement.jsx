@@ -9,19 +9,29 @@ export default function PageControlManagement({ fetchPageStatus }) {
 
   const loadPages = async () => {
     try {
-      // Fixed the API endpoint - using correct path structure
-      const response = await axios.get(`${API_URL}/api/general?type=pagecontrol`);
+      // Try multiple possible API endpoint structures
+      let response;
+      try {
+        response = await axios.get(`${API_URL}/api/general?type=pagecontrol`);
+      } catch (firstError) {
+        console.log('Trying alternative endpoint structure...');
+        response = await axios.get(`${API_URL}general?type=pagecontrol`);
+      }
       
       // Check if response structure matches expected format
       if (response.data && response.data.success) {
         setPages(response.data.data || []);
+      } else if (Array.isArray(response.data)) {
+        // Handle case where API returns array directly
+        setPages(response.data);
       } else {
         toast.error('Unexpected response format from server');
         console.error('Unexpected response:', response);
       }
     } catch (err) {
-      toast.error('Error fetching pages');
+      toast.error('Error fetching pages. Check console for details.');
       console.error('Error details:', err.response?.data || err.message);
+      console.error('Full error:', err);
     } finally {
       setLoading(false);
     }
@@ -40,10 +50,16 @@ export default function PageControlManagement({ fetchPageStatus }) {
     if (!confirmToggle) return;
     
     try {
-      // Fixed the API endpoint for update as well
-      await axios.put(`${API_URL}/api/general?type=pagecontrol&id=${id}`, {
-        enabled: !currentStatus,
-      });
+      // Try multiple endpoint structures for update as well
+      try {
+        await axios.put(`${API_URL}/api/general?type=pagecontrol&id=${id}`, {
+          enabled: !currentStatus,
+        });
+      } catch (firstError) {
+        await axios.put(`${API_URL}/general?type=pagecontrol&id=${id}`, {
+          enabled: !currentStatus,
+        });
+      }
       
       toast.success(`"${formatPageName(pageName)}" ${currentStatus ? 'disabled' : 'enabled'} successfully`);
       await loadPages();
@@ -73,7 +89,20 @@ export default function PageControlManagement({ fetchPageStatus }) {
     <div style={styles.container}>
       <h2 style={styles.heading}>Page Visibility Control</h2>
       {pages.length === 0 ? (
-        <p style={styles.noData}>No pages found or unable to load page data.</p>
+        <div style={styles.errorContainer}>
+          <p style={styles.noData}>No pages found or unable to load page data.</p>
+          <button onClick={loadPages} style={styles.retryButton}>
+            Retry Loading Pages
+          </button>
+          <div style={styles.debugInfo}>
+            <p>API_URL: {API_URL}</p>
+            <p>Try these endpoints manually:</p>
+            <ul>
+              <li>{API_URL}/api/general?type=pagecontrol</li>
+              <li>{API_URL}/general?type=pagecontrol</li>
+            </ul>
+          </div>
+        </div>
       ) : (
         <table
           style={styles.table}
@@ -181,4 +210,27 @@ const styles = {
     borderRadius: '8px',
     margin: '20px 0',
   },
+  errorContainer: {
+    textAlign: 'center',
+    padding: '20px',
+  },
+  retryButton: {
+    padding: '10px 20px',
+    backgroundColor: '#ff9800',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    margin: '10px 0',
+  },
+  debugInfo: {
+    marginTop: '20px',
+    padding: '15px',
+    backgroundColor: '#f8d7da',
+    color: '#721c24',
+    borderRadius: '5px',
+    textAlign: 'left',
+    fontSize: '14px',
+  }
 };
