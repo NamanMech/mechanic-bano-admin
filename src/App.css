@@ -1923,3 +1923,50 @@ button:disabled {
   }
 }
 
+/* Add to your existing app.css */
+.page-container {
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.page-title {
+  margin-bottom: 20px;
+  color: #fff;
+  text-align: center;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group label {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Make sure the welcome card has proper spacing */
+.welcome-card {
+  padding: 30px;
+  margin: 0 auto;
+  max-width: 500px;
+}
+
+/* Responsive adjustments for the form */
+@media (max-width: 768px) {
+  .welcome-card {
+    padding: 20px;
+    margin: 0 10px;
+  }
+  
+  .page-container {
+    padding: 10px;
+  }
+}
+
