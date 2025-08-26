@@ -692,3 +692,115 @@ button:disabled {
     padding: 15px;
   }
 }
+
+/* Subscription Plans Styles */
+.subscription-form-container {
+  background: #2c2c2c;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  border: 1px solid #444;
+}
+
+.subscription-form-container h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #ffa726;
+  font-size: 1.5rem;
+}
+
+.subscription-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #ccc;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #1e1e1e;
+  color: white;
+  box-sizing: border-box;
+}
+
+.subscription-plans-container {
+  background: #2c2c2c;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  border: 1px solid #444;
+}
+
+.table-header {
+  padding: 15px 20px;
+  background-color: #343a40;
+  color: white;
+  border-bottom: 1px solid #444;
+}
+
+.table-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.no-plans-message {
+  padding: 20px;
+  text-align: center;
+  color: #aaa;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.actions-cell {
+  text-align: center;
+}
+
+.actions-container {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.editing-row {
+  background-color: #3d3d3d !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actions-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .actions-container button {
+    width: 100%;
+    max-width: 120px;
+  }
+}
