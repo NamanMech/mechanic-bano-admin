@@ -6,7 +6,6 @@ export default function Navbar({ pageStatus }) {
   const [isMobile, setIsMobile] = useState(false);
 
   useLayoutEffect(() => {
-    // Set initial value safely for SSR/ hydration
     const checkScreenSize = () => window.innerWidth <= 768;
     setIsMobile(checkScreenSize());
 
@@ -14,7 +13,7 @@ export default function Navbar({ pageStatus }) {
       const mobile = checkScreenSize();
       setIsMobile(mobile);
       if (!mobile) {
-        setMenuOpen(false); // Close menu when resizing to desktop
+        setMenuOpen(false);
       }
     };
 
@@ -33,138 +32,90 @@ export default function Navbar({ pageStatus }) {
   });
 
   return (
-    <header style={styles.headerWrapper}>
-      <div style={styles.headerContainer}>
-        <h1 style={styles.siteName}>Mechanic Bano - Admin Panel</h1>
+    <header className="navbar">
+      <div className="navbar-container">
+        <h1 className="site-name">Mechanic Bano - Admin Panel</h1>
         {isMobile && (
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            style={styles.menuButton}
+            className="menu-toggle"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
           >
-            ☰
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
           </button>
         )}
       </div>
-      {(menuOpen || !isMobile) && (
-        <nav
-          style={{
-            ...styles.navLinks,
-            ...(isMobile
-              ? { flexDirection: 'column', animation: 'slideDown 0.3s ease-in-out' }
-              : { flexDirection: 'row' }),
-          }}
-        >
-          <NavLink to="/" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-            Home
+      <nav className={`nav-links ${menuOpen ? 'nav-open' : ''} ${isMobile ? 'nav-mobile' : ''}`}>
+        <NavLink to="/" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
+          Home
+        </NavLink>
+        {pageStatus.videos && (
+          <NavLink
+            to="/videos"
+            style={navLinkStyle}
+            onClick={() => isMobile && setMenuOpen(false)}
+          >
+            Videos
           </NavLink>
-          {pageStatus.videos && (
-            <NavLink
-              to="/videos"
-              style={navLinkStyle}
-              onClick={() => isMobile && setMenuOpen(false)}
-            >
-              Videos
-            </NavLink>
-          )}
-          {pageStatus.pdfs && (
-            <NavLink
-              to="/pdfs"
-              style={navLinkStyle}
-              onClick={() => isMobile && setMenuOpen(false)}
-            >
-              PDFs
-            </NavLink>
-          )}
-          {pageStatus.welcome && (
-            <NavLink
-              to="/welcome"
-              style={navLinkStyle}
-              onClick={() => isMobile && setMenuOpen(false)}
-            >
-              Welcome Note
-            </NavLink>
-          )}
-          {pageStatus.sitename && (
-            <NavLink
-              to="/sitename"
-              style={navLinkStyle}
-              onClick={() => isMobile && setMenuOpen(false)}
-            >
-              Site Name
-            </NavLink>
-          )}
-          {pageStatus.pagecontrol && (
-            <NavLink
-              to="/pagecontrol"
-              style={navLinkStyle}
-              onClick={() => isMobile && setMenuOpen(false)}
-            >
-              Page Control
-            </NavLink>
-          )}
-          {pageStatus['subscription-plans'] && (
-            <NavLink
-              to="/subscription-plans"
-              style={navLinkStyle}
-              onClick={() => isMobile && setMenuOpen(false)}
-            >
-              Subscription Plans
-            </NavLink>
-          )}
-          {pageStatus.users && (
-            <NavLink
-              to="/users"
-              style={navLinkStyle}
-              onClick={() => isMobile && setMenuOpen(false)}
-            >
-              Users
-            </NavLink>
-          )}
-        </nav>
-      )}
-      <style>{`
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        button:focus,
-        a:focus {
-          outline: 2px solid #ff9800;
-          outline-offset: 2px;
-        }
-      `}</style>
+        )}
+        {pageStatus.pdfs && (
+          <NavLink
+            to="/pdfs"
+            style={navLinkStyle}
+            onClick={() => isMobile && setMenuOpen(false)}
+          >
+            PDFs
+          </NavLink>
+        )}
+        {pageStatus.welcome && (
+          <NavLink
+            to="/welcome"
+            style={navLinkStyle}
+            onClick={() => isMobile && setMenuOpen(false)}
+          >
+            Welcome Note
+          </NavLink>
+        )}
+        {pageStatus.sitename && (
+          <NavLink
+            to="/sitename"
+            style={navLinkStyle}
+            onClick={() => isMobile && setMenuOpen(false)}
+          >
+            Site Name
+          </NavLink>
+        )}
+        {pageStatus.pagecontrol && (
+          <NavLink
+            to="/pagecontrol"
+            style={navLinkStyle}
+            onClick={() => isMobile && setMenuOpen(false)}
+          >
+            Page Control
+          </NavLink>
+        )}
+        {pageStatus['subscription-plans'] && (
+          <NavLink
+            to="/subscription-plans"
+            style={navLinkStyle}
+            onClick={() => isMobile && setMenuOpen(false)}
+          >
+            Subscription Plans
+          </NavLink>
+        )}
+        {pageStatus.users && (
+          <NavLink
+            to="/users"
+            style={navLinkStyle}
+            onClick={() => isMobile && setMenuOpen(false)}
+          >
+            Users
+          </NavLink>
+        )}
+      </nav>
     </header>
   );
 }
-
-const styles = {
-  headerWrapper: {
-    boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-    backgroundColor: '#2c3e50',
-  },
-  headerContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '15px 20px',
-  },
-  siteName: {
-    fontSize: '20px',
-    color: 'white',
-  },
-  menuButton: {
-    fontSize: '24px',
-    background: 'none',
-    color: 'white',
-    border: 'none',
-    cursor: 'pointer',
-  },
-  navLinks: {
-    backgroundColor: '#34495e',
-    padding: '10px',
-    display: 'flex',
-    gap: '10px',
-  },
-};
