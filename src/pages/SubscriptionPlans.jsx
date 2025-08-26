@@ -131,26 +131,52 @@ export default function SubscriptionPlans() {
   if (loading) return <Spinner />;
   
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h2 style={{ color: '#2c3e50', marginBottom: '20px', textAlign: 'center' }}>
+    <div style={{ 
+      maxWidth: 800, 
+      margin: '0 auto', 
+      padding: '20px', 
+      fontFamily: 'Arial, sans-serif',
+      color: 'white' // Ensure text is visible on dark background
+    }}>
+      <h2 style={{ 
+        color: 'white', 
+        marginBottom: '20px', 
+        textAlign: 'center',
+        fontSize: '2rem'
+      }}>
         {editingId ? 'Edit Subscription Plan' : 'Subscription Plans Management'}
       </h2>
       
       <div style={{ 
-        background: '#f8f9fa', 
+        background: '#2c2c2c', 
         padding: '20px', 
         borderRadius: '8px', 
         marginBottom: '20px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+        border: '1px solid #444'
       }}>
-        <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#495057' }}>
+        <h3 style={{ 
+          marginTop: 0, 
+          marginBottom: '15px', 
+          color: '#ffa726',
+          fontSize: '1.5rem'
+        }}>
           {editingId ? 'Edit Plan' : 'Add New Plan'}
         </h3>
         
         <form onSubmit={handleSubmit} aria-label={editingId ? "Edit Plan Form" : "Add Plan Form"}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '15px' 
+          }}>
             <div>
-              <label htmlFor="planTitle" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+              <label htmlFor="planTitle" style={{ 
+                display: 'block', 
+                marginBottom: '5px', 
+                fontWeight: 'bold',
+                color: 'white'
+              }}>
                 Plan Title *
               </label>
               <input
@@ -163,12 +189,24 @@ export default function SubscriptionPlans() {
                 onChange={handleInputChange}
                 required
                 disabled={saving}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ced4da', borderRadius: '4px' }}
+                style={{ 
+                  width: '100%', 
+                  padding: '10px', 
+                  border: '1px solid #555', 
+                  borderRadius: '4px',
+                  backgroundColor: '#1e1e1e',
+                  color: 'white'
+                }}
               />
             </div>
             
             <div>
-              <label htmlFor="planPrice" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+              <label htmlFor="planPrice" style={{ 
+                display: 'block', 
+                marginBottom: '5px', 
+                fontWeight: 'bold',
+                color: 'white'
+              }}>
                 Price (₹) *
               </label>
               <input
@@ -182,12 +220,24 @@ export default function SubscriptionPlans() {
                 onChange={handleInputChange}
                 required
                 disabled={saving}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ced4da', borderRadius: '4px' }}
+                style={{ 
+                  width: '100%', 
+                  padding: '10px', 
+                  border: '1px solid #555', 
+                  borderRadius: '4px',
+                  backgroundColor: '#1e1e1e',
+                  color: 'white'
+                }}
               />
             </div>
             
             <div>
-              <label htmlFor="planDays" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+              <label htmlFor="planDays" style={{ 
+                display: 'block', 
+                marginBottom: '5px', 
+                fontWeight: 'bold',
+                color: 'white'
+              }}>
                 Validity (Days) *
               </label>
               <input
@@ -201,12 +251,24 @@ export default function SubscriptionPlans() {
                 onChange={handleInputChange}
                 required
                 disabled={saving}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ced4da', borderRadius: '4px' }}
+                style={{ 
+                  width: '100%', 
+                  padding: '10px', 
+                  border: '1px solid #555', 
+                  borderRadius: '4px',
+                  backgroundColor: '#1e1e1e',
+                  color: 'white'
+                }}
               />
             </div>
             
             <div>
-              <label htmlFor="planDiscount" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+              <label htmlFor="planDiscount" style={{ 
+                display: 'block', 
+                marginBottom: '5px', 
+                fontWeight: 'bold',
+                color: 'white'
+              }}>
                 Discount (%)
               </label>
               <input
@@ -220,7 +282,14 @@ export default function SubscriptionPlans() {
                 value={form.discount}
                 onChange={handleInputChange}
                 disabled={saving}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ced4da', borderRadius: '4px' }}
+                style={{ 
+                  width: '100%', 
+                  padding: '10px', 
+                  border: '1px solid #555', 
+                  borderRadius: '4px',
+                  backgroundColor: '#1e1e1e',
+                  color: 'white'
+                }}
               />
             </div>
           </div>
@@ -231,7 +300,7 @@ export default function SubscriptionPlans() {
               disabled={saving}
               style={{ 
                 padding: '10px 20px', 
-                backgroundColor: '#007bff', 
+                backgroundColor: '#1e88e5', 
                 color: 'white', 
                 border: 'none', 
                 borderRadius: '4px',
@@ -265,30 +334,79 @@ export default function SubscriptionPlans() {
         </form>
       </div>
       
-      <div style={{ background: 'white', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <div style={{ padding: '15px 20px', backgroundColor: '#343a40', color: 'white' }}>
-          <h3 style={{ margin: 0 }}>All Plans</h3>
+      <div style={{ 
+        background: '#2c2c2c', 
+        borderRadius: '8px', 
+        overflow: 'hidden', 
+        boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+        border: '1px solid #444'
+      }}>
+        <div style={{ 
+          padding: '15px 20px', 
+          backgroundColor: '#343a40', 
+          color: 'white',
+          borderBottom: '1px solid #444'
+        }}>
+          <h3 style={{ margin: 0, fontSize: '1.5rem' }}>All Plans</h3>
         </div>
         
         {plans.length === 0 ? (
-          <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+          <div style={{ 
+            padding: '20px', 
+            textAlign: 'center', 
+            color: '#aaa' 
+          }}>
             No subscription plans available. Add your first plan above.
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }} role="table" aria-label="Subscription Plans Table">
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse',
+              color: 'white'
+            }} 
+            role="table" 
+            aria-label="Subscription Plans Table">
               <thead>
-                <tr style={{ backgroundColor: '#e9ecef' }}>
-                  <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Title</th>
-                  <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Price (₹)</th>
-                  <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Days</th>
-                  <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Discount (%)</th>
-                  <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #dee2e6' }}>Actions</th>
+                <tr style={{ backgroundColor: '#343a40' }}>
+                  <th style={{ 
+                    padding: '12px', 
+                    textAlign: 'left', 
+                    borderBottom: '2px solid #444',
+                    color: 'white'
+                  }}>Title</th>
+                  <th style={{ 
+                    padding: '12px', 
+                    textAlign: 'left', 
+                    borderBottom: '2px solid #444',
+                    color: 'white'
+                  }}>Price (₹)</th>
+                  <th style={{ 
+                    padding: '12px', 
+                    textAlign: 'left', 
+                    borderBottom: '2px solid #444',
+                    color: 'white'
+                  }}>Days</th>
+                  <th style={{ 
+                    padding: '12px', 
+                    textAlign: 'left', 
+                    borderBottom: '2px solid #444',
+                    color: 'white'
+                  }}>Discount (%)</th>
+                  <th style={{ 
+                    padding: '12px', 
+                    textAlign: 'center', 
+                    borderBottom: '2px solid #444',
+                    color: 'white'
+                  }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {plans.map((plan) => (
-                  <tr key={plan._id} style={{ borderBottom: '1px solid #dee2e6' }}>
+                  <tr key={plan._id} style={{ 
+                    borderBottom: '1px solid #444',
+                    backgroundColor: plan._id === editingId ? '#3d3d3d' : 'transparent'
+                  }}>
                     <td style={{ padding: '12px' }}>{plan.title}</td>
                     <td style={{ padding: '12px' }}>₹{Number(plan.price).toFixed(2)}</td>
                     <td style={{ padding: '12px' }}>{plan.days}</td>
@@ -299,8 +417,8 @@ export default function SubscriptionPlans() {
                           onClick={() => handleEdit(plan)} 
                           style={{ 
                             padding: '6px 12px', 
-                            backgroundColor: '#ffc107', 
-                            color: '#212529', 
+                            backgroundColor: '#28a745', 
+                            color: 'white', 
                             border: 'none', 
                             borderRadius: '4px',
                             cursor: 'pointer'
