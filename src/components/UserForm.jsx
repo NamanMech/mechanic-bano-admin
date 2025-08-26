@@ -29,38 +29,74 @@ export default function UserForm({
   };
 
   return (
-    <form onSubmit={onSubmit} aria-label={isEditing ? "Edit User Form" : "Add User Form"}>
-      <input
-        type="text"
-        name="name"
-        placeholder="Enter name"
-        value={formData.name}
-        onChange={handleChange}
-        disabled={processing}
-        aria-label="Name"
-        required
-      />
-      <input
-        type="email"
-        name="email"
-        placeholder="Enter email"
-        value={formData.email}
-        onChange={handleChange}
-        disabled={processing}
-        aria-label="Email"
-        required
-      />
-      <button type="submit" className="save-button" disabled={processing}>
-        {isEditing ? 'Update' : 'Add'}
-      </button>
-      <button
-        type="button"
-        className="cancel-button"
-        onClick={() => setIsFormOpen(false)}
-        disabled={processing}
-      >
-        Cancel
-      </button>
-    </form>
+    <div className="form-modal-overlay" onClick={() => !processing && setIsFormOpen(false)}>
+      <div className="form-container" onClick={(e) => e.stopPropagation()}>
+        <div className="form-header">
+          <h2>{isEditing ? 'Edit User' : 'Add New User'}</h2>
+          <button 
+            className="close-button" 
+            onClick={() => setIsFormOpen(false)}
+            disabled={processing}
+            aria-label="Close form"
+          >
+            &times;
+          </button>
+        </div>
+        
+        <form onSubmit={onSubmit} aria-label={isEditing ? "Edit User Form" : "Add User Form"}>
+          <div className="input-group">
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              type="text"
+              name="name"
+              placeholder="Enter full name"
+              value={formData.name}
+              onChange={handleChange}
+              disabled={processing}
+              aria-label="Name"
+              required
+            />
+          </div>
+          
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              placeholder="Enter email address"
+              value={formData.email}
+              onChange={handleChange}
+              disabled={processing}
+              aria-label="Email"
+              required
+            />
+          </div>
+          
+          <div className="form-actions">
+            <button type="submit" className="save-button" disabled={processing}>
+              {processing ? (
+                <span className="button-loading">
+                  <span className="spinner-small"></span>
+                  {isEditing ? 'Updating...' : 'Adding...'}
+                </span>
+              ) : (
+                <span>{isEditing ? 'Update User' : 'Add User'}</span>
+              )}
+            </button>
+            
+            <button
+              type="button"
+              className="cancel-button"
+              onClick={() => setIsFormOpen(false)}
+              disabled={processing}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
