@@ -2178,3 +2178,9 @@ button:disabled {
 .custom-table {
   min-width: 500px; /* Ensure table has minimum width */
 }
+
+/* Add this to your app.css */
+.welcome-note-page {
+  background: var(--secondary-bg);
+  min-height: 100vh;
+}
