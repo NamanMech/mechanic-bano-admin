@@ -87,7 +87,7 @@ export default function PageControlManagement({ fetchPageStatus }) {
           </div>
         </div>
       ) : (
-        <div className="table-responsive"> {/* Added responsive wrapper */}
+        <div className="table-container"> {/* Changed from table-responsive to table-container */}
           <table
             className="custom-table"
             role="table"
