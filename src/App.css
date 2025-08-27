@@ -2083,3 +2083,98 @@ button:disabled {
     font-size: var(--font-xs);
   }
 }
+
+/* Mobile card view for page control */
+.card {
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-body {
+  padding: var(--spacing-md);
+}
+
+.card-title {
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-lg);
+  font-weight: bold;
+}
+
+.card-text {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Button styles for mobile */
+.btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-success {
+  background-color: var(--success);
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+/* Responsive utilities */
+.d-none {
+  display: none;
+}
+
+.d-md-block {
+  display: block;
+}
+
+.d-md-none {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .d-md-block {
+    display: none;
+  }
+  
+  .d-md-none {
+    display: block;
+  }
+}
+
+/* Ensure table is scrollable on mobile */
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.custom-table {
+  min-width: 500px; /* Ensure table has minimum width */
+}
