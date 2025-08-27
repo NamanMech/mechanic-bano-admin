@@ -87,53 +87,90 @@ export default function PageControlManagement({ fetchPageStatus }) {
           </div>
         </div>
       ) : (
-        <div className="table-container"> {/* Changed from table-responsive to table-container */}
-          <table
-            className="custom-table"
-            role="table"
-            aria-label="Page visibility control table"
-          >
-            <thead>
-              <tr>
-                <th scope="col">Page</th>
-                <th scope="col">Status</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pages.map(page => (
-                <tr key={page._id}>
-                  <td>{formatPageName(page.page)}</td>
-                  <td>
-                    <span className={`status-icon ${page.enabled ? 'active' : 'inactive'}`}>
+        <>
+          {/* Desktop view */}
+          <div className="table-container d-none d-md-block">
+            <table
+              className="custom-table"
+              role="table"
+              aria-label="Page visibility control table"
+            >
+              <thead>
+                <tr>
+                  <th scope="col">Page</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pages.map(page => (
+                  <tr key={page._id}>
+                    <td>{formatPageName(page.page)}</td>
+                    <td>
+                      <span className={`status-icon ${page.enabled ? 'active' : 'inactive'}`}>
+                        {page.enabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </td>
+                    <td>
+                      {page.page === 'pagecontrol' ? (
+                        <button
+                          className="btn-primary locked-button"
+                          disabled
+                          aria-label={`${formatPageName(page.page)} page is locked and cannot be changed`}
+                        >
+                          Locked
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => togglePageStatus(page._id, page.enabled, page.page)}
+                          className={page.enabled ? 'btn-delete' : 'btn-edit'}
+                          aria-pressed={page.enabled}
+                          aria-label={`${page.enabled ? 'Disable' : 'Enable'} ${formatPageName(page.page)} page`}
+                        >
+                          {page.enabled ? 'Disable' : 'Enable'}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Mobile view */}
+          <div className="d-md-none">
+            {pages.map(page => (
+              <div key={page._id} className="card mb-3">
+                <div className="card-body">
+                  <h5 className="card-title">{formatPageName(page.page)}</h5>
+                  <p className="card-text">
+                    Status: <span className={`status-icon ${page.enabled ? 'active' : 'inactive'}`}>
                       {page.enabled ? 'Enabled' : 'Disabled'}
                     </span>
-                  </td>
-                  <td>
-                    {page.page === 'pagecontrol' ? (
-                      <button
-                        className="btn-primary locked-button"
-                        disabled
-                        aria-label={`${formatPageName(page.page)} page is locked and cannot be changed`}
-                      >
-                        Locked
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => togglePageStatus(page._id, page.enabled, page.page)}
-                        className={page.enabled ? 'btn-delete' : 'btn-edit'}
-                        aria-pressed={page.enabled}
-                        aria-label={`${page.enabled ? 'Disable' : 'Enable'} ${formatPageName(page.page)} page`}
-                      >
-                        {page.enabled ? 'Disable' : 'Enable'}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </p>
+                  {page.page === 'pagecontrol' ? (
+                    <button
+                      className="btn btn-secondary locked-button"
+                      disabled
+                      aria-label={`${formatPageName(page.page)} page is locked and cannot be changed`}
+                    >
+                      Locked
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => togglePageStatus(page._id, page.enabled, page.page)}
+                      className={page.enabled ? 'btn btn-danger' : 'btn btn-success'}
+                      aria-pressed={page.enabled}
+                      aria-label={`${page.enabled ? 'Disable' : 'Enable'} ${formatPageName(page.page)} page`}
+                    >
+                      {page.enabled ? 'Disable' : 'Enable'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
