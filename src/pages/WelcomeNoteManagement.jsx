@@ -42,7 +42,7 @@ export default function WelcomeNoteManagement() {
   };
 
   return (
-    <div className="page-container" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', minHeight: '100vh' }}>
+    <div className="page-container">
       <div className="container">
         <h1 className="page-title">Welcome Note Management</h1>
         
@@ -78,7 +78,6 @@ export default function WelcomeNoteManagement() {
               type="submit"
               className="btn-primary save-button"
               disabled={loading}
-              style={{ position: 'relative' }}
             >
               {loading ? <Spinner /> : 'Update Welcome Note'}
             </button>
