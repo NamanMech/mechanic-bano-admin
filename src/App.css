@@ -161,3 +161,58 @@ a:hover {
   background-color: #dc3545;
   color: white;
 }
+
+/* Visibility classes */
+.desktop-only {
+  display: block;
+}
+
+.mobile-only {
+  display: none;
+}
+
+/* Hamburger menu styles */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  width: 30px;
+  height: 25px;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.menu-toggle span {
+  display: block;
+  height: 3px;
+  background-color: white;
+  border-radius: 2px;
+}
+
+/* Responsive: mobile view */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+  .mobile-only {
+    display: block;
+  }
+  .menu-toggle {
+    display: flex;
+  }
+  .nav-links {
+    max-height: 0;
+    overflow: hidden;
+    flex-direction: column;
+    background-color: #282c34;
+    transition: max-height 0.3s ease-in-out;
+  }
+  .nav-links.open {
+    max-height: 300px; /* Adjust as needed */
+  }
+  .nav-links a {
+    padding: 10px;
+    border-bottom: 1px solid #444;
+    color: #fff;
+    text-decoration: none;
+  }
+}
