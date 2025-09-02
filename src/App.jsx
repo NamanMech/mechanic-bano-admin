@@ -9,7 +9,6 @@ import PageControlManagement from './pages/PageControlManagement';
 import SubscriptionPlans from './pages/SubscriptionPlans';
 import Navbar from './components/Navbar';
 import Spinner from './components/Spinner';
-import axios from 'axios';
 import UserManagement from './pages/UserManagement';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -20,30 +19,42 @@ import { getApiUrl, handleApiError } from './utils/api';
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
   const [loading, setLoading] = useState(true);
+  const [apiStatus, setApiStatus] = useState('checking');
 
   const fetchPageStatus = async () => {
     try {
-      const response = await axios.get(getApiUrl('general?type=pagecontrol'));
+      const response = await fetch(getApiUrl('general?type=pagecontrol'));
       
-      if (response.data && response.data.success) {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data && data.success) {
         const statusMap = {};
-        (response.data.data ?? []).forEach(({ page, enabled }) => {
+        (data.data || []).forEach(({ page, enabled }) => {
           statusMap[page] = enabled;
         });
         setPageStatus(statusMap);
-      } else if (Array.isArray(response.data)) {
+        setApiStatus('connected');
+      } else if (Array.isArray(data)) {
         const statusMap = {};
-        response.data.forEach(({ page, enabled }) => {
+        data.forEach(({ page, enabled }) => {
           statusMap[page] = enabled;
         });
         setPageStatus(statusMap);
+        setApiStatus('connected');
       } else {
         toast.error('Unexpected response structure from server');
-        console.error('Unexpected response:', response);
+        console.error('Unexpected response:', data);
+        setApiStatus('error');
       }
     } catch (error) {
       const errorMessage = handleApiError(error, 'Error fetching page control');
       toast.error(errorMessage);
+      setApiStatus('error');
+      console.error('API Connection Error:', error);
     } finally {
       setLoading(false);
     }
@@ -61,19 +72,36 @@ export default function App() {
     );
   }
 
+  if (apiStatus === 'error') {
+    return (
+      <div className="error-container">
+        <h1>Connection Error</h1>
+        <p>Could not connect to the server. Please check:</p>
+        <ul>
+          <li>API server is running</li>
+          <li>API URL is correctly configured</li>
+          <li>Network connection is active</li>
+        </ul>
+        <button onClick={fetchPageStatus} className="btn-primary">
+          Retry Connection
+        </button>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <Navbar pageStatus={pageStatus} />
       <div style={{ padding: '20px' }}>
         <Routes>
           <Route path="/" element={<Home />} />
-          {pageStatus.videos && <Route path="/videos" element={<YouTubeVideoManagement />} />}
-          {pageStatus.pdfs && <Route path="/pdfs" element={<PDFManagement />} />}
-          {pageStatus.welcome && <Route path="/welcome" element={<WelcomeNoteManagement />} />}
-          {pageStatus.sitename && <Route path="/sitename" element={<SiteNameManagement />} />}
+          <Route path="/videos" element={<YouTubeVideoManagement />} />
+          <Route path="/pdfs" element={<PDFManagement />} />
+          <Route path="/welcome" element={<WelcomeNoteManagement />} />
+          <Route path="/sitename" element={<SiteNameManagement />} />
           <Route path="/pagecontrol" element={<PageControlManagement fetchPageStatus={fetchPageStatus} />} />
-          {pageStatus['subscription-plans'] && <Route path="/subscription-plans" element={<SubscriptionPlans />} />}
-          {pageStatus.users && <Route path="/users" element={<UserManagement />} />}
+          <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+          <Route path="/users" element={<UserManagement />} />
           <Route path="/pending-subscriptions" element={<PendingSubscriptions />} />
           <Route path="/upi" element={<UPIManagement />} />
         </Routes>
