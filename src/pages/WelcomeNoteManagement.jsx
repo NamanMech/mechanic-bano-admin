@@ -13,7 +13,7 @@ export default function WelcomeNoteManagement() {
   const fetchNote = async () => {
     try {
       setFetchLoading(true);
-      const response = await axios.get(`${API_URL}welcome`);
+      const response = await axios.get(`${API_URL}/welcome`);
       if (response.data) {
         setTitle(response.data.title || '');
         setMessage(response.data.message || '');
