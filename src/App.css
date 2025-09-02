@@ -478,3 +478,66 @@ tr.status-rejected td {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  padding: 20px;
+}
+
+.error-container h1 {
+  color: #f44336;
+  margin-bottom: 20px;
+}
+
+.error-container ul {
+  text-align: left;
+  margin: 20px 0;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+}
+
+.nav-brand h2 {
+  margin: 0;
+  color: white;
+  font-size: 1.2rem;
+}
+
+/* Active state for nav items */
+.nav-links a.active {
+  background-color: #ff9800;
+  color: #1e1e1e;
+}
+
+/* Loading states */
+.data-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+/* Connection status indicator */
+.connection-status {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+.connection-status.connected {
+  background-color: #4caf50;
+  color: white;
+}
+
+.connection-status.error {
+  background-color: #f44336;
+  color: white;
+}
