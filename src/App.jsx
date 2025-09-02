@@ -13,7 +13,7 @@ import axios from 'axios';
 import UserManagement from './pages/UserManagement';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import PendingSubscriptions from './pages/PendingSubscriptions'; // Add this import
+import PendingSubscriptions from './pages/PendingSubscriptions';
 import UPIManagement from './pages/UPIManagement';
 
 export default function App() {
@@ -23,11 +23,8 @@ export default function App() {
 
   const fetchPageStatus = async () => {
     try {
-      // Remove any trailing slash from API_URL to avoid double slashes
       const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
       const response = await axios.get(`${baseUrl}/general?type=pagecontrol`);
-      
-      // Check if response structure matches expected format
       if (response.data && response.data.success) {
         const statusMap = {};
         (response.data.data ?? []).forEach(({ page, enabled }) => {
@@ -35,7 +32,6 @@ export default function App() {
         });
         setPageStatus(statusMap);
       } else if (Array.isArray(response.data)) {
-        // Handle case where API returns array directly
         const statusMap = {};
         response.data.forEach(({ page, enabled }) => {
           statusMap[page] = enabled;
@@ -58,32 +54,35 @@ export default function App() {
   }, []);
 
   if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
-        <Spinner />
-      </div>
-    );
+    return <Spinner />;
   }
 
   return (
     <Router>
       <Navbar pageStatus={pageStatus} />
-      <div style={{ padding: '20px' }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          {pageStatus.videos && <Route path="/videos" element={<YouTubeVideoManagement />} />}
-          {pageStatus.pdfs && <Route path="/pdfs" element={<PDFManagement />} />}
-          {pageStatus.welcome && <Route path="/welcome" element={<WelcomeNoteManagement />} />}
-          {pageStatus.sitename && <Route path="/sitename" element={<SiteNameManagement />} />}
-          <Route path="/pagecontrol" element={<PageControlManagement fetchPageStatus={fetchPageStatus} />} />
-          {pageStatus['subscription-plans'] && <Route path="/subscription-plans" element={<SubscriptionPlans />} />}
-          {pageStatus.users && <Route path="/users" element={<UserManagement />} />}
-          {/* Add Pending Subscriptions Route */}
-          <Route path="/pending-subscriptions" element={<PendingSubscriptions />} />
-          <Route path="/upi" element={<UPIManagement />} />
-        </Routes>
-      </div>
-      <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        {pageStatus['youtube'] !== false && <Route path="/youtube" element={<YouTubeVideoManagement />} />}
+        {pageStatus['pdf'] !== false && <Route path="/pdf" element={<PDFManagement />} />}
+        {pageStatus['welcome'] !== false && <Route path="/welcome" element={<WelcomeNoteManagement />} />}
+        {pageStatus['site-name'] !== false && <Route path="/sitename" element={<SiteNameManagement />} />}
+        {pageStatus['pagecontrol'] !== false && <Route path="/pagecontrol" element={<PageControlManagement fetchPageStatus={fetchPageStatus} />} />}
+        {pageStatus['subscription'] !== false && <Route path="/subscription" element={<SubscriptionPlans />} />}
+        {pageStatus['user'] !== false && <Route path="/user" element={<UserManagement />} />}
+        {pageStatus['pending-subscriptions'] !== false && <Route path="/pending-subscriptions" element={<PendingSubscriptions />} />}
+        {pageStatus['upi'] !== false && <Route path="/upi" element={<UPIManagement />} />}
+      </Routes>
     </Router>
   );
 }
