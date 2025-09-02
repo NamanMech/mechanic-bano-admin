@@ -1,352 +1,163 @@
-/* ===== CSS VARIABLES ===== */
+/* Variables */
 :root {
   --primary-bg: #1e1e1e;
   --secondary-bg: #2c2c2c;
   --navbar-bg: #282c34;
   --accent-color: #ffa726;
-  --text-primary: white;
-  --text-secondary: #ccc;
-  --text-muted: #888;
-  --success: #28a745;
-  --danger: #dc3545;
-  --warning: #ffc107;
-  --primary: #1e88e5;
-  --border-color: #444;
-  --spacing-sm: 10px;
-  --spacing-md: 15px;
-  --spacing-lg: 20px;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --border-color: #444444;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --font-size-base: 14px;
+  --spacing: 10px;
   --border-radius: 5px;
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* ===== BASE STYLES ===== */
+/* Global Reset */
 * {
-  box-sizing: border-box !important;
+  box-sizing: border-box;
 }
 
 body {
-  font-family: Arial, sans-serif !important;
-  background-color: var(--primary-bg) !important;
-  color: var(--text-primary) !important;
   margin: 0;
-  padding: 0;
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  font-family: Arial, sans-serif;
 }
 
 .container {
-  padding: var(--spacing-lg);
   max-width: 1200px;
   margin: 0 auto;
-  background-color: var(--primary-bg) !important;
+  padding: var(--spacing);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: var(--text-primary) !important;
-  margin-bottom: var(--spacing-md);
+/* Form elements */
+input, select, textarea {
+  background-color: var(--secondary-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing);
+  font-size: var(--font-size-base);
+  width: 100%;
 }
 
-/* ===== FORM STYLES ===== */
-input, textarea, select {
-  background-color: var(--secondary-bg) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: var(--border-radius) !important;
-  padding: var(--spacing-sm) !important;
-  font-size: 14px !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent-color);
+  outline: none;
 }
 
-input:focus, textarea:focus, select:focus {
-  outline: none !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2) !important;
-}
-
-label {
-  color: var(--text-primary) !important;
-  font-weight: bold !important;
-  margin-bottom: 5px !important;
-  display: block !important;
-}
-
-/* ===== BUTTONS ===== */
+/* Buttons */
 button {
-  background-color: var(--primary) !important;
-  color: white !important;
-  border: none !important;
-  padding: var(--spacing-sm) var(--spacing-md) !important;
-  border-radius: var(--border-radius) !important;
-  cursor: pointer !important;
-  font-weight: bold !important;
-  transition: all 0.2s !important;
+  padding: var(--spacing) var(--spacing * 2);
+  font-size: var(--font-size-base);
+  background-color: var(--accent-color);
+  color: var(--primary-bg);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #1565c0 !important;
-  transform: translateY(-2px) !important;
+  background-color: #e59400;
 }
 
-button.btn-success {
-  background-color: var(--success) !important;
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing);
+  color: var(--text-primary);
 }
 
-button.btn-danger {
-  background-color: var(--danger) !important;
+thead {
+  background-color: var(--navbar-bg);
 }
 
-/* ===== TABLE STYLES ===== */
-.custom-table {
-  width: 100% !important;
-  background-color: var(--secondary-bg) !important;
-  color: var(--text-primary) !important;
-  border-collapse: collapse !important;
-  border-radius: var(--border-radius) !important;
-  overflow: hidden !important;
-  margin: var(--spacing-lg) 0 !important;
+th, td {
+  padding: var(--spacing);
+  border: 1px solid var(--border-color);
+  text-align: left;
 }
 
-.custom-table th {
-  background-color: #343a40 !important;
-  color: var(--text-primary) !important;
-  padding: var(--spacing-md) !important;
-  text-align: left !important;
-  border-bottom: 2px solid var(--border-color) !important;
+/* Table striped rows */
+tbody tr:nth-child(even) {
+  background-color: var(--secondary-bg);
 }
 
-.custom-table td {
-  background-color: var(--secondary-bg) !important;
-  color: var(--text-primary) !important;
-  padding: var(--spacing-md) !important;
-  border-bottom: 1px solid var(--border-color) !important;
+/* Links */
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
 }
 
-.custom-table tr:nth-child(even) td {
-  background-color: #2a2a2a !important;
-}
-
-.custom-table tr:hover td {
-  background-color: var(--border-color) !important;
-}
-
-/* ===== NAVBAR & HAMBURGER MENU ===== */
+/* Navbar */
 .navbar {
-  background-color: var(--navbar-bg) !important;
-  color: var(--text-primary) !important;
-  padding: var(--spacing-md) !important;
+  background-color: var(--navbar-bg);
+  padding: var(--spacing);
   position: sticky;
   top: 0;
   z-index: 1000;
-}
-
-.navbar-container {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-}
-
-.site-name {
-  font-size: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   color: var(--accent-color);
-  margin: 0;
-  font-weight: bold;
 }
 
+/* Hamburger menu */
 .menu-toggle {
-  display: none !important;
+  display: none;
   flex-direction: column;
-  justify-content: space-around;
-  width: 30px;
-  height: 25px;
-  background: transparent;
-  border: none;
   cursor: pointer;
-  padding: 0;
-  z-index: 10;
 }
-
-.hamburger-line {
+.menu-toggle div {
   width: 30px;
   height: 3px;
-  background: var(--text-primary) !important;
-  border-radius: var(--border-radius);
-  transition: all 0.3s linear;
-  transform-origin: center;
+  background-color: var(--text-primary);
+  margin: 5px 0;
+  border-radius: 2px;
 }
 
-.nav-links {
-  display: flex !important;
-  gap: var(--spacing-sm);
-  background-color: transparent !important;
-  transition: max-height 0.3s ease-in-out;
-}
-
-.nav-links a {
-  color: var(--text-primary) !important;
-  text-decoration: none !important;
-  padding: var(--spacing-sm) var(--spacing-md) !important;
-  margin: 0 5px !important;
-  border-radius: var(--border-radius) !important;
-  transition: all 0.3s !important;
-  background-color: transparent !important;
-}
-
-.nav-links a:hover,
-.nav-links a.active {
-  background-color: var(--border-color) !important;
-  color: var(--accent-color) !important;
-}
-
-/* ===== VISIBILITY CLASSES ===== */
-.desktop-only {
-  display: block !important;
-}
-
-.mobile-only {
-  display: none !important;
-}
-
-/* ===== STATUS STYLES ===== */
-.status {
-  padding: 4px 12px !important;
-  border-radius: 15px !important;
-  font-size: 12px !important;
-  font-weight: bold !important;
-  display: inline-block !important;
-  text-transform: uppercase !important;
-}
-
-.status.pending {
-  background: #ff9800 !important;
-  color: white !important;
-}
-
-.status.approved {
-  background: var(--success) !important;
-  color: white !important;
-}
-
-.status.rejected {
-  background: var(--danger) !important;
-  color: white !important;
-}
-
-/* ===== LOADING SPINNER ===== */
-.spinner {
-  border: 4px solid var(--secondary-bg) !important;
-  border-top: 4px solid var(--primary) !important;
-  border-radius: 50% !important;
-  width: 40px !important;
-  height: 40px !important;
-  animation: spin 1s linear infinite !important;
-  margin: 20px auto !important;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
+/* Responsive */
 @media (max-width: 768px) {
-  /* SHOW hamburger menu */
+  .navbar nav {
+    display: none;
+  }
   .menu-toggle {
-    display: flex !important;
+    display: flex;
   }
-  
-  /* HIDE nav links by default on mobile */
-  .nav-links {
-    flex-direction: column !important;
-    max-height: 0 !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-    gap: 0 !important;
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
-    background-color: var(--navbar-bg) !important;
-    border-top: 1px solid var(--border-color) !important;
-  }
-  
-  /* SHOW nav links when menu is open */
-  .nav-links.nav-open {
-    max-height: 500px !important;
-    padding: var(--spacing-sm) var(--spacing-lg) !important;
-  }
-  
-  .nav-links a {
-    width: 100% !important;
-    margin: var(--spacing-xs) 0 !important;
-    display: block !important;
-  }
-  
-  /* Hamburger animation */
-  .menu-toggle.nav-open .hamburger-line:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
-  }
-  
-  .menu-toggle.nav-open .hamburger-line:nth-child(2) {
-    opacity: 0;
-  }
-  
-  .menu-toggle.nav-open .hamburger-line:nth-child(3) {
-    transform: rotate(-45deg) translate(7px, -6px);
-  }
-  
-  /* VISIBILITY TOGGLE */
-  .desktop-only {
-    display: none !important;
-  }
-  
-  .mobile-only {
-    display: block !important;
-  }
-  
-  /* Container adjustments */
-  .container {
-    padding: var(--spacing-sm) !important;
-  }
-  
-  /* Table responsive */
-  .custom-table {
-    font-size: 12px !important;
-  }
-  
-  .custom-table th,
-  .custom-table td {
-    padding: 8px !important;
-  }
-  
-  /* Input zoom fix */
-  input, textarea, select {
-    font-size: 16px !important;
+  .navbar nav.active {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--navbar-bg);
+    position: absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
   }
 }
 
-@media (max-width: 480px) {
-  .custom-table {
-    font-size: 10px !important;
-  }
-  
-  .custom-table th,
-  .custom-table td {
-    padding: 4px !important;
-  }
+/* Status badges */
+.status {
+  padding: 5px 10px;
+  border-radius: 12px;
+  display: inline-block;
+  font-weight: bold;
 }
-
-/* ===== FORCE OVERRIDES ===== */
-div, span, p, a {
-  color: var(--text-primary) !important;
+.status.pending {
+  background-color: #ff9800;
+  color: white;
 }
-
-.form-group, .input-group, form {
-  background-color: transparent !important;
+.status.approved {
+  background-color: #28a745;
+  color: white;
 }
-
-.custom-table *, .custom-table tr, .custom-table th, .custom-table td {
-  background-color: inherit !important;
-  color: inherit !important;
+.status.rejected {
+  background-color: #dc3545;
+  color: white;
 }
