@@ -115,6 +115,14 @@ export default function Navbar({ pageStatus }) {
             Users
           </NavLink>
         )}
+        {/* Add Pending Subscriptions Link */}
+        <NavLink
+          to="/pending-subscriptions"
+          style={navLinkStyle}
+          onClick={() => isMobile && setMenuOpen(false)}
+        >
+          Pending Subscriptions
+        </NavLink>
       </nav>
     </header>
   );
