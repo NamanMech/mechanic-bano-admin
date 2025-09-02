@@ -7,17 +7,22 @@ export default function WelcomeNoteManagement() {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchNote = async () => {
     try {
+      setFetchLoading(true);
       const response = await axios.get(`${API_URL}welcome`);
-      if (response.data?.title && response.data?.message) {
-        setTitle(response.data.title);
-        setMessage(response.data.message);
+      if (response.data) {
+        setTitle(response.data.title || '');
+        setMessage(response.data.message || '');
       }
     } catch (error) {
+      console.error('Fetch error:', error);
       showErrorToast('Error fetching welcome note');
+    } finally {
+      setFetchLoading(false);
     }
   };
 
@@ -35,11 +40,25 @@ export default function WelcomeNoteManagement() {
       });
       showSuccessToast('Welcome note updated successfully');
     } catch (error) {
+      console.error('Save error:', error);
       showErrorToast('Error saving welcome note');
     } finally {
       setLoading(false);
     }
   };
+
+  if (fetchLoading) {
+    return (
+      <div className="page-container">
+        <div className="container">
+          <h1 className="page-title">Welcome Note Management</h1>
+          <div className="welcome-card">
+            <Spinner />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container">
