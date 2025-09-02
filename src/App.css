@@ -311,3 +311,170 @@ button.btn-danger:focus {
 .mb-md {
   margin-bottom: var(--spacing-md) !important;
 }
+
+/* Pending Subscriptions Styles */
+.page-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  background-color: var(--secondary-bg);
+  border-radius: 8px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: bold;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background-color: #ff9800;
+  color: white;
+}
+
+.status-approved {
+  background-color: #4caf50;
+  color: white;
+}
+
+.status-rejected {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-success, .btn-danger {
+  padding: 8px 15px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+}
+
+.btn-success {
+  background: #4caf50;
+}
+
+.btn-success:hover {
+  background: #45a049;
+}
+
+.btn-danger {
+  background: #f44336;
+}
+
+.btn-danger:hover {
+  background: #da190b;
+}
+
+.btn-success.small {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+/* Status messages */
+.status-message {
+  text-align: center;
+  font-weight: bold;
+}
+
+.status-message.approved {
+  color: #4caf50;
+}
+
+.status-message.rejected {
+  color: #f44336;
+}
+
+/* Updating indicator */
+.updating-indicator {
+  text-align: center;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+/* Screenshot link */
+.screenshot-link {
+  display: inline-block;
+  padding: 8px 15px;
+  background-color: #2196f3;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.screenshot-link:hover {
+  background-color: #0b7dda;
+}
+
+.no-screenshot {
+  color: #f44336;
+}
+
+/* Table row status colors */
+tr.status-pending td {
+  background-color: rgba(255, 152, 0, 0.05);
+}
+
+tr.status-approved td {
+  background-color: rgba(76, 175, 80, 0.05);
+}
+
+tr.status-rejected td {
+  background-color: rgba(244, 67, 54, 0.05);
+}
+
+/* Plan details */
+.plan-details {
+  line-height: 1.4;
+}
+
+/* Date info */
+.date-info {
+  line-height: 1.4;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
