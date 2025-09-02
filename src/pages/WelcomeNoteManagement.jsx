@@ -10,25 +10,47 @@ export default function WelcomeNoteManagement() {
   const [fetchLoading, setFetchLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
 
+  // Check if API_URL is correctly configured
+  useEffect(() => {
+    console.log('API URL:', API_URL);
+    if (!API_URL) {
+      showErrorToast('API URL is not configured');
+    }
+  }, [API_URL]);
+
   const fetchNote = async () => {
     try {
       setFetchLoading(true);
-      const response = await axios.get(`${API_URL}/welcome`);
+      const response = await axios.get(`${API_URL}/welcome`, {
+        timeout: 10000,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
       if (response.data) {
         setTitle(response.data.title || '');
         setMessage(response.data.message || '');
       }
     } catch (error) {
       console.error('Fetch error:', error);
-      showErrorToast('Error fetching welcome note');
+      if (error.code === 'NETWORK_ERROR') {
+        showErrorToast('Network error. Please check your connection.');
+      } else if (error.code === 'ECONNABORTED') {
+        showErrorToast('Request timeout. Please try again.');
+      } else {
+        showErrorToast('Error fetching welcome note');
+      }
     } finally {
       setFetchLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchNote();
-  }, []);
+    if (API_URL) {
+      fetchNote();
+    }
+  }, [API_URL]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,11 +59,22 @@ export default function WelcomeNoteManagement() {
       await axios.put(`${API_URL}/welcome`, {
         title: title.trim(),
         message: message.trim(),
+      }, {
+        timeout: 10000,
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
       showSuccessToast('Welcome note updated successfully');
     } catch (error) {
       console.error('Save error:', error);
-      showErrorToast('Error saving welcome note');
+      if (error.response?.status === 400) {
+        showErrorToast('Invalid data. Please check your inputs.');
+      } else if (error.code === 'NETWORK_ERROR') {
+        showErrorToast('Network error. Please check your connection.');
+      } else {
+        showErrorToast('Error saving welcome note');
+      }
     } finally {
       setLoading(false);
     }
@@ -52,7 +85,7 @@ export default function WelcomeNoteManagement() {
       <div className="page-container">
         <div className="container">
           <h1 className="page-title">Welcome Note Management</h1>
-          <div className="welcome-card">
+          <div className="welcome-card" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
             <Spinner />
           </div>
         </div>
