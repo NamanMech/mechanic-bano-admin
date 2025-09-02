@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 export default function Navbar({ pageStatus }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const location = useLocation();
 
   useLayoutEffect(() => {
     const checkScreenSize = () => window.innerWidth <= 768;
@@ -31,22 +32,24 @@ export default function Navbar({ pageStatus }) {
   });
 
   const pages = [
-    { name: 'Home', path: '/' },
-    { name: 'YouTube Videos', path: '/youtube' },
-    { name: 'PDFs', path: '/pdfs' },
-    { name: 'Welcome Note', path: '/welcome-note' },
-    { name: 'Site Name', path: '/site-name' },
-    { name: 'Page Control', path: '/page-control' },
-    { name: 'Subscription Plans', path: '/subscription-plans' },
-    { name: 'Users', path: '/users' },
-    { name: 'Pending Subscriptions', path: '/pending-subscriptions' },
-    { name: 'UPI Management', path: '/upi-management' },
+    { name: 'Home', path: '/', key: 'home' },
+    { name: 'YouTube Videos', path: '/videos', key: 'videos' },
+    { name: 'PDFs', path: '/pdfs', key: 'pdfs' },
+    { name: 'Welcome Note', path: '/welcome', key: 'welcome' },
+    { name: 'Site Name', path: '/sitename', key: 'sitename' },
+    { name: 'Page Control', path: '/pagecontrol', key: 'pagecontrol' },
+    { name: 'Subscription Plans', path: '/subscription-plans', key: 'subscription-plans' },
+    { name: 'Users', path: '/users', key: 'users' },
+    { name: 'Pending Subscriptions', path: '/pending-subscriptions', key: 'pending-subscriptions' },
+    { name: 'UPI Management', path: '/upi', key: 'upi' },
   ];
-
-  // Optionally filter pages based on pageStatus if required here
 
   return (
     <nav className="navbar" role="navigation" aria-label="Main Navigation">
+      <div className="nav-brand">
+        <h2>Mechanic Bano Admin</h2>
+      </div>
+      
       <button
         aria-controls="primary-navigation"
         aria-expanded={menuOpen}
@@ -54,17 +57,10 @@ export default function Navbar({ pageStatus }) {
         onClick={() => setMenuOpen(!menuOpen)}
         className="menu-toggle-button"
         type="button"
-        style={{
-          background: 'none',
-          border: 'none',
-          color: 'var(--text-primary)',
-          fontSize: '1.5rem',
-          cursor: 'pointer',
-          display: isMobile ? 'block' : 'none',
-        }}
       >
         ☰
       </button>
+      
       <ul
         id="primary-navigation"
         className="nav-links"
@@ -80,9 +76,14 @@ export default function Navbar({ pageStatus }) {
           alignItems: 'center',
         }}
       >
-        {pages.map(({ name, path }) => (
+        {pages.map(({ name, path, key }) => (
           <li key={name} style={{ width: isMobile ? '100%' : 'auto', textAlign: isMobile ? 'center' : 'left' }}>
-            <NavLink to={path} style={navLinkStyle} onClick={() => setMenuOpen(false)}>
+            <NavLink 
+              to={path} 
+              style={navLinkStyle} 
+              onClick={() => setMenuOpen(false)}
+              state={{ from: location.pathname }}
+            >
               {name}
             </NavLink>
           </li>
