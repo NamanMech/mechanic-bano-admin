@@ -21,6 +21,10 @@ export default function Navbar({ pageStatus }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
   const navLinkStyle = ({ isActive }) => ({
     color: isActive ? '#ff9800' : 'white',
     textDecoration: 'none',
@@ -32,106 +36,36 @@ export default function Navbar({ pageStatus }) {
   });
 
   return (
-    <header className="navbar">
+    <nav className="navbar">
       <div className="navbar-container">
         <h1 className="site-name">Mechanic Bano - Admin Panel</h1>
-        {isMobile && (
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="menu-toggle"
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={menuOpen}
-          >
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-          </button>
-        )}
-      </div>
-      <nav className={`nav-links ${menuOpen ? 'nav-open' : ''} ${isMobile ? 'nav-mobile' : ''}`}>
-        <NavLink to="/" style={navLinkStyle} onClick={() => isMobile && setMenuOpen(false)}>
-          Home
-        </NavLink>
-        {pageStatus.videos && (
-          <NavLink
-            to="/videos"
-            style={navLinkStyle}
-            onClick={() => isMobile && setMenuOpen(false)}
-          >
-            Videos
-          </NavLink>
-        )}
-        {pageStatus.pdfs && (
-          <NavLink
-            to="/pdfs"
-            style={navLinkStyle}
-            onClick={() => isMobile && setMenuOpen(false)}
-          >
-            PDFs
-          </NavLink>
-        )}
-        {pageStatus.welcome && (
-          <NavLink
-            to="/welcome"
-            style={navLinkStyle}
-            onClick={() => isMobile && setMenuOpen(false)}
-          >
-            Welcome Note
-          </NavLink>
-        )}
-        {pageStatus.sitename && (
-          <NavLink
-            to="/sitename"
-            style={navLinkStyle}
-            onClick={() => isMobile && setMenuOpen(false)}
-          >
-            Site Name
-          </NavLink>
-        )}
-        {pageStatus.pagecontrol && (
-          <NavLink
-            to="/pagecontrol"
-            style={navLinkStyle}
-            onClick={() => isMobile && setMenuOpen(false)}
-          >
-            Page Control
-          </NavLink>
-        )}
-        {pageStatus['subscription-plans'] && (
-          <NavLink
-            to="/subscription-plans"
-            style={navLinkStyle}
-            onClick={() => isMobile && setMenuOpen(false)}
-          >
-            Subscription Plans
-          </NavLink>
-        )}
-        {pageStatus.users && (
-          <NavLink
-            to="/users"
-            style={navLinkStyle}
-            onClick={() => isMobile && setMenuOpen(false)}
-          >
-            Users
-          </NavLink>
-        )}
-        {/* Add Pending Subscriptions Link */}
-        <NavLink
-          to="/pending-subscriptions"
-          style={navLinkStyle}
-          onClick={() => isMobile && setMenuOpen(false)}
-        >
-          Pending Subscriptions
-        </NavLink>
         
-        <NavLink
-  to="/upi"
-  style={navLinkStyle}
-  onClick={() => isMobile && setMenuOpen(false)}
->
-  UPI ID
-</NavLink>
-      </nav>
-    </header>
+        {/* Hamburger Menu Button */}
+        <button 
+          className={`menu-toggle ${menuOpen ? 'nav-open' : ''}`}
+          onClick={toggleMenu}
+        >
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+        </button>
+        
+        {/* Navigation Links */}
+        <div className={`nav-links ${menuOpen ? 'nav-open' : ''}`}>
+          <NavLink to="/" style={navLinkStyle}>Home</NavLink>
+          <NavLink to="/videos" style={navLinkStyle}>Videos</NavLink>
+          <NavLink to="/welcome-note" style={navLinkStyle}>Welcome Note</NavLink>
+          
+          {pageStatus?.pagecontrol && (
+            <NavLink to="/page-control" style={navLinkStyle}>Page Control</NavLink>
+          )}
+          
+          <NavLink to="/subscription-plans" style={navLinkStyle}>Subscription Plans</NavLink>
+          <NavLink to="/users" style={navLinkStyle}>Users</NavLink>
+          <NavLink to="/pending-subscriptions" style={navLinkStyle}>Pending Subscriptions</NavLink>
+          <NavLink to="/upi-id" style={navLinkStyle}>UPI ID</NavLink>
+        </div>
+      </div>
+    </nav>
   );
 }
