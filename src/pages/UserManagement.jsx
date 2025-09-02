@@ -18,7 +18,7 @@ export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [editingUserEmail, setEditingUserEmail] = useState(null);
   const [editingFormData, setEditingFormData] = useState({ name: '', email: '' });
   const [filterStatus, setFilterStatus] = useState('all');
@@ -26,6 +26,7 @@ export default function UserManagement() {
   const [filterEndDate, setFilterEndDate] = useState('');
   const API_URL = import.meta.env.VITE_API_URL;
 
+  // Fetch users on mount and when filters/search update
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -48,7 +49,7 @@ export default function UserManagement() {
   }
 
   const handleDelete = async (email) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
     setProcessing(true);
     try {
       await axios.delete(`${API_URL}user?email=${email}`);
@@ -62,7 +63,7 @@ export default function UserManagement() {
   };
 
   const handleExpire = async (email) => {
-    if (!confirm('Are you sure you want to expire this subscription?')) return;
+    if (!window.confirm('Are you sure you want to expire this subscription?')) return;
     setProcessing(true);
     try {
       await axios.put(`${API_URL}subscription?type=expire&email=${email}`);
@@ -77,7 +78,7 @@ export default function UserManagement() {
 
   const handleEditClick = (user) => {
     setEditingUserEmail(user.email);
-    setEditingFormData({ name: user.name, email: user.email });
+    setEditingFormData({ name: user.name || '', email: user.email || '' });
   };
 
   const handleCancelInlineEdit = () => {
@@ -90,6 +91,7 @@ export default function UserManagement() {
       showWarningToast('Name and Email are required');
       return;
     }
+
     setProcessing(true);
     try {
       await axios.put(
@@ -110,43 +112,55 @@ export default function UserManagement() {
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
-  // Filtering Logic with Date + Status
+  // Filter users by search, status and date
   const filteredUsers = users.filter((user) => {
     if (!user) return false;
-    const name = user.name ? user.name : '';
-    const email = user.email ? user.email : '';
+    const name = user.name || '';
+    const email = user.email || '';
     const matchesSearch =
       name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       email.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesStatus =
       filterStatus === 'all' ||
       (filterStatus === 'subscribed' && user.isSubscribed) ||
       (filterStatus === 'expired' && !user.isSubscribed);
+
     const subscriptionEnd = user.subscriptionEnd ? new Date(user.subscriptionEnd) : null;
     const matchesDate =
       (!filterStartDate && !filterEndDate) ||
       (subscriptionEnd &&
         (!filterStartDate || subscriptionEnd >= new Date(filterStartDate)) &&
         (!filterEndDate || subscriptionEnd <= new Date(filterEndDate)));
+
     return matchesSearch && matchesStatus && matchesDate;
   });
 
+  // Sort user list
   const sortedUsers = [...filteredUsers].sort((a, b) => {
-    const nameA = a && a.name ? a.name : '';
-    const nameB = b && b.name ? b.name : '';
-    if (sortOrder === 'asc') return nameA.localeCompare(nameB);
-    else return nameB.localeCompare(nameA);
+    const nameA = a?.name || '';
+    const nameB = b?.name || '';
+    return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
   });
 
+  // Pagination calculation
   const totalPages = Math.ceil(sortedUsers.length / pageSize);
   const displayedUsers = sortedUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  if (loading) return <Spinner />;
+  if (loading)
+    return (
+      <div className="spinner-container" style={{ padding: '40px 0', textAlign: 'center' }}>
+        <Spinner message="Loading users..." />
+      </div>
+    );
+
+  if (!users.length)
+    return <p className="text-center" style={{ marginTop: 20 }}>No users found.</p>;
 
   return (
-    <div className="container">
-      <h1>User Management</h1>
+    <div className="user-management" style={{ maxWidth: 1000, margin: '0 auto', padding: '1rem' }}>
       <UserStats users={users} />
+
       <SearchBar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -158,33 +172,35 @@ export default function UserManagement() {
         setFilterStartDate={setFilterStartDate}
         filterEndDate={filterEndDate}
         setFilterEndDate={setFilterEndDate}
+        clearFilters={() => {
+          setSearchQuery('');
+          setFilterStatus('all');
+          setFilterStartDate('');
+          setFilterEndDate('');
+        }}
       />
-      
-      {filteredUsers.length === 0 ? (
-        <p className="no-users-message">No users found.</p>
-      ) : (
-        <>
-          <UserTable
-            users={displayedUsers}
-            processing={processing}
-            handleEditClick={handleEditClick}
-            handleSaveInlineEdit={handleSaveInlineEdit}
-            handleCancelInlineEdit={handleCancelInlineEdit}
-            handleDelete={handleDelete}
-            handleExpire={handleExpire}
-            editingUserEmail={editingUserEmail}
-            editingFormData={editingFormData}
-            setEditingFormData={setEditingFormData}
-          />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            setCurrentPage={setCurrentPage}
-            pageSize={pageSize}
-            setPageSize={setPageSize}
-          />
-        </>
-      )}
+
+      <UserTable
+        users={displayedUsers}
+        processing={processing}
+        handleEditClick={handleEditClick}
+        handleSaveInlineEdit={handleSaveInlineEdit}
+        handleCancelInlineEdit={handleCancelInlineEdit}
+        handleDelete={handleDelete}
+        handleExpire={handleExpire}
+        editingUserEmail={editingUserEmail}
+        editingFormData={editingFormData}
+        setEditingFormData={setEditingFormData}
+      />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        setCurrentPage={setCurrentPage}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+        totalItems={sortedUsers.length}
+      />
     </div>
   );
 }
