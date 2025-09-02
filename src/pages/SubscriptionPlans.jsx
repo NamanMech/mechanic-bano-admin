@@ -12,26 +12,28 @@ export default function SubscriptionPlans() {
   const API_URL = import.meta.env.VITE_API_URL;
   const titleInputRef = useRef();
 
-  // Format API URL helper
+  // Helper for consistent API base URL
   const formatApiUrl = (endpoint = '') => {
-    const baseUrl = API_URL.replace(/\/+$/, ''); // Remove trailing slashes
-    const cleanEndpoint = endpoint.replace(/^\/+/, ''); // Remove leading slashes
+    const baseUrl = API_URL.replace(/\/+$/, '');
+    const cleanEndpoint = endpoint.replace(/^\/+/, '');
     return `${baseUrl}/${cleanEndpoint}`;
   };
 
+  // Fetch plans data
   const fetchPlans = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await axios.get(formatApiUrl('/subscription'));
-      
-      if (response.data && Array.isArray(response.data)) {
-        setPlans(response.data);
-      } else if (response.data && response.data.success && Array.isArray(response.data.data)) {
-        setPlans(response.data.data);
-      } else {
-        toast.error('Unexpected response format from server');
-        console.error('Unexpected response:', response);
-        setPlans([]);
+      if (response.data) {
+        if (Array.isArray(response.data)) {
+          setPlans(response.data);
+        } else if (response.data.success && Array.isArray(response.data.data)) {
+          setPlans(response.data.data);
+        } else {
+          toast.error('Unexpected response format from server');
+          console.error('Unexpected response:', response);
+          setPlans([]);
+        }
       }
     } catch (error) {
       toast.error('Error fetching plans.');
@@ -42,10 +44,18 @@ export default function SubscriptionPlans() {
     }
   };
 
+  // Initial load
   useEffect(() => {
     fetchPlans();
   }, []);
 
+  // Form input change
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Submit form: create or update
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim() || !form.price || !form.days) {
@@ -69,12 +79,12 @@ export default function SubscriptionPlans() {
         await axios.post(formatApiUrl('/subscription'), payload);
         toast.success('Plan created successfully!');
       }
-      
       setForm({ title: '', price: '', days: '', discount: '' });
       setEditingId(null);
       await fetchPlans();
-      
-      if (titleInputRef.current) titleInputRef.current.focus();
+      if (titleInputRef.current) {
+        titleInputRef.current.focus();
+      }
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Error saving plan.';
       toast.error(errorMessage);
@@ -84,6 +94,7 @@ export default function SubscriptionPlans() {
     }
   };
 
+  // Edit plan
   const handleEdit = (plan) => {
     setForm({
       title: plan.title,
@@ -92,7 +103,6 @@ export default function SubscriptionPlans() {
       discount: plan.discount ? plan.discount.toString() : '',
     });
     setEditingId(plan._id);
-    
     setTimeout(() => {
       if (titleInputRef.current) {
         titleInputRef.current.focus();
@@ -101,11 +111,9 @@ export default function SubscriptionPlans() {
     }, 100);
   };
 
+  // Delete plan
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this plan?')) {
-      return;
-    }
-
+    if (!window.confirm('Are you sure you want to delete this plan?')) return;
     try {
       await axios.delete(formatApiUrl(`/subscription?id=${id}`));
       toast.success('Plan deleted successfully!');
@@ -117,180 +125,138 @@ export default function SubscriptionPlans() {
     }
   };
 
+  // Cancel editing
   const handleCancelEdit = () => {
     setForm({ title: '', price: '', days: '', discount: '' });
     setEditingId(null);
     if (titleInputRef.current) titleInputRef.current.focus();
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  };
+  if (loading)
+    return (
+      <div className="spinner-container" style={{ padding: '40px 0', textAlign: 'center' }}>
+        <Spinner message="Loading plans..." />
+      </div>
+    );
 
-  if (loading) return <Spinner />;
-  
   return (
-    <div className="container">
-      <h1>
-        {editingId ? 'Edit Subscription Plan' : 'Subscription Plans Management'}
-      </h1>
-      
-      <div className="subscription-form-container">
-        <h2>
-          {editingId ? 'Edit Plan' : 'Add New Plan'}
-        </h2>
-        
-        <form onSubmit={handleSubmit} className="subscription-form" aria-label={editingId ? "Edit Plan Form" : "Add Plan Form"}>
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="planTitle">
-                Plan Title *
-              </label>
-              <input
-                id="planTitle"
-                name="title"
-                ref={titleInputRef}
-                type="text"
-                placeholder="e.g., Premium Plan"
-                value={form.title}
-                onChange={handleInputChange}
-                required
-                disabled={saving}
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="planPrice">
-                Price (₹) *
-              </label>
-              <input
-                id="planPrice"
-                name="price"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={form.price}
-                onChange={handleInputChange}
-                required
-                disabled={saving}
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="planDays">
-                Validity (Days) *
-              </label>
-              <input
-                id="planDays"
-                name="days"
-                type="number"
-                min="1"
-                step="1"
-                placeholder="30"
-                value={form.days}
-                onChange={handleInputChange}
-                required
-                disabled={saving}
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="planDiscount">
-                Discount (%)
-              </label>
-              <input
-                id="planDiscount"
-                name="discount"
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                placeholder="0"
-                value={form.discount}
-                onChange={handleInputChange}
-                disabled={saving}
-              />
-            </div>
-          </div>
-          
-          <div className="form-buttons">
-            <button 
-              type="submit" 
+    <div className="subscription-plans" style={{ maxWidth: 700, margin: '0 auto' }}>
+      <form onSubmit={handleSubmit} noValidate style={{ marginBottom: '2rem' }}>
+        <h2>{editingId ? 'Edit Subscription Plan' : 'Add Subscription Plan'}</h2>
+
+        <label htmlFor="title">Title *</label>
+        <input
+          id="title"
+          type="text"
+          name="title"
+          value={form.title}
+          onChange={handleInputChange}
+          ref={titleInputRef}
+          disabled={saving}
+          required
+          placeholder="Enter plan title"
+        />
+
+        <label htmlFor="price">Price (₹) *</label>
+        <input
+          id="price"
+          type="number"
+          name="price"
+          min="0"
+          step="0.01"
+          value={form.price}
+          onChange={handleInputChange}
+          disabled={saving}
+          required
+          placeholder="Enter price"
+        />
+
+        <label htmlFor="days">Duration (Days) *</label>
+        <input
+          id="days"
+          type="number"
+          name="days"
+          min="1"
+          value={form.days}
+          onChange={handleInputChange}
+          disabled={saving}
+          required
+          placeholder="Number of days plan lasts"
+        />
+
+        <label htmlFor="discount">Discount (%)</label>
+        <input
+          id="discount"
+          type="number"
+          name="discount"
+          min="0"
+          max="100"
+          step="0.01"
+          value={form.discount}
+          onChange={handleInputChange}
+          disabled={saving}
+          placeholder="Enter discount percentage (optional)"
+        />
+
+        <div style={{ marginTop: '1rem' }}>
+          <button type="submit" disabled={saving}>
+            {saving ? (editingId ? 'Updating...' : 'Creating...') : editingId ? 'Update Plan' : 'Create Plan'}
+          </button>
+          {editingId && (
+            <button
+              type="button"
+              onClick={handleCancelEdit}
               disabled={saving}
-              className="btn-primary"
+              style={{ marginLeft: '1rem', backgroundColor: '#888' }}
             >
-              {saving ? 'Saving...' : editingId ? 'Update Plan' : 'Add Plan'}
+              Cancel
             </button>
-            
-            {editingId && (
-              <button 
-                type="button" 
-                onClick={handleCancelEdit}
-                disabled={saving}
-                className="cancel-button"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
-      
-      <div className="subscription-plans-container">
-        <div className="table-header">
-          <h2>All Plans</h2>
+          )}
         </div>
-        
+      </form>
+
+      <section>
+        <h2>Existing Subscription Plans</h2>
         {plans.length === 0 ? (
-          <div className="no-plans-message">
-            No subscription plans available. Add your first plan above.
-          </div>
+          <p>No subscription plans found.</p>
         ) : (
-          <div className="table-container">
-            <table className="custom-table" role="table" aria-label="Subscription Plans Table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Price (₹)</th>
-                  <th>Days</th>
-                  <th>Discount (%)</th>
-                  <th className="text-center">Actions</th>
+          <table className="custom-table" aria-label="Subscription Plans Table" style={{ width: '100%' }}>
+            <thead>
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Price (₹)</th>
+                <th scope="col">Days</th>
+                <th scope="col">Discount (%)</th>
+                <th scope="col" style={{ minWidth: '100px' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {plans.map((plan) => (
+                <tr key={plan._id}>
+                  <td>{plan.title}</td>
+                  <td>₹{Number(plan.price).toFixed(2)}</td>
+                  <td>{plan.days}</td>
+                  <td>{plan.discount || 0}%</td>
+                  <td>
+                    <button type="button" onClick={() => handleEdit(plan)} disabled={saving}>
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-danger"
+                      onClick={() => handleDelete(plan._id)}
+                      disabled={saving}
+                      style={{ marginLeft: '0.5rem' }}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {plans.map((plan) => (
-                  <tr key={plan._id} className={plan._id === editingId ? 'editing-row' : ''}>
-                    <td>{plan.title}</td>
-                    <td>₹{Number(plan.price).toFixed(2)}</td>
-                    <td>{plan.days}</td>
-                    <td>{plan.discount || 0}%</td>
-                    <td className="actions-cell">
-                      <div className="actions-container">
-                        <button 
-                          onClick={() => handleEdit(plan)} 
-                          className="btn-edit"
-                          aria-label={`Edit ${plan.title} plan`}
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(plan._id)} 
-                          className="btn-delete"
-                          aria-label={`Delete ${plan.title} plan`}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         )}
-      </div>
+      </section>
     </div>
   );
 }
