@@ -183,11 +183,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .custom-table th {
-  background-color: var(--table-header-bg) !important;
+  background-color: var(--table-header-bg);
   padding: var(--spacing-md);
   text-align: left;
   font-weight: bold;
-  color: var(--text-primary) !important;
+  color: var(--text-primary);
   border-bottom: 2px solid var(--border-color);
 }
 
@@ -195,16 +195,16 @@ h1, h2, h3, h4, h5, h6 {
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
   vertical-align: middle;
-  background-color: var(--secondary-bg) !important;
-  color: var(--text-primary) !important;
+  background-color: var(--secondary-bg);
+  color: var(--text-primary);
 }
 
 .custom-table tr:nth-child(even) {
-  background-color: var(--table-even-bg) !important;
+  background-color: var(--table-even-bg);
 }
 
 .custom-table tr:hover {
-  background-color: var(--table-hover-bg) !important;
+  background-color: var(--table-hover-bg);
   transition: background-color 0.2s;
 }
 
@@ -213,13 +213,6 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
   -webkit-overflow-scrolling: touch;
-}
-
-/* Override any white backgrounds */
-.custom-table tr,
-.custom-table th,
-.custom-table td {
-  background-color: inherit !important;
 }
 
 /* ===== STATUS BADGES ===== */
