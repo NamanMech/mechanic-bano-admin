@@ -14,6 +14,7 @@ import UserManagement from './pages/UserManagement';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import PendingSubscriptions from './pages/PendingSubscriptions'; // Add this import
+import UPIManagement from './pages/UPIManagement';
 
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
@@ -79,6 +80,7 @@ export default function App() {
           {pageStatus.users && <Route path="/users" element={<UserManagement />} />}
           {/* Add Pending Subscriptions Route */}
           <Route path="/pending-subscriptions" element={<PendingSubscriptions />} />
+          <Route path="/upi" element={<UPIManagement />} />
         </Routes>
       </div>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
