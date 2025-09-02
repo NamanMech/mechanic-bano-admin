@@ -34,7 +34,7 @@ export default function WelcomeNoteManagement() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.put(`${API_URL}welcome`, {
+      await axios.put(`${API_URL}/welcome`, {
         title: title.trim(),
         message: message.trim(),
       });
