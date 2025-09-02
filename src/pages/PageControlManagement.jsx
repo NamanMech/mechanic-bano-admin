@@ -8,14 +8,13 @@ export default function PageControlManagement({ fetchPageStatus }) {
   const [loading, setLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // Helper: Remove trailing slash to avoid double slashes
   const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
 
-  // Format page name for display
   const formatPageName = (page) =>
-    page.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+    page
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
 
-  // Fetch pages with page control status
   const loadPages = async () => {
     setLoading(true);
     try {
@@ -29,29 +28,32 @@ export default function PageControlManagement({ fetchPageStatus }) {
         console.error('Unexpected response:', response);
       }
     } catch (err) {
-      toast.error('Error fetching pages. Check console for details.');
+      toast.error('Error fetching pages.');
       console.error('Error details:', err.response?.data || err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Toggle page status on/off
   const togglePageStatus = async (id, currentStatus, pageName) => {
     if (pageName === 'pagecontrol') {
       toast.warning("This page can't be disabled");
       return;
     }
+
     const confirmToggle = window.confirm(
       `Are you sure you want to ${currentStatus ? 'disable' : 'enable'} "${formatPageName(pageName)}"?`
     );
+
     if (!confirmToggle) return;
 
     try {
       await axios.put(`${getBaseUrl()}/general?type=pagecontrol&id=${id}`, {
         enabled: !currentStatus,
       });
-      toast.success(`"${formatPageName(pageName)}" ${currentStatus ? 'disabled' : 'enabled'} successfully`);
+      toast.success(
+        `"${formatPageName(pageName)}" ${currentStatus ? 'disabled' : 'enabled'} successfully`
+      );
       await loadPages();
       if (fetchPageStatus && typeof fetchPageStatus === 'function') {
         await fetchPageStatus();
@@ -66,49 +68,91 @@ export default function PageControlManagement({ fetchPageStatus }) {
     loadPages();
   }, []);
 
-  if (loading)
-    return (
-      <div className="spinner-container" style={{ padding: '40px 0', textAlign: 'center' }}>
-        <Spinner message="Loading pages..." />
-      </div>
-    );
+  if (loading) return <Spinner />;
 
-  if (!pages.length)
-    return (
-      <p className="text-center" style={{ marginTop: '20px' }}>
-        No pages found or unable to load page data.
-      </p>
-    );
+  if (pages.length === 0)
+    return <p>No pages found or unable to load page data.</p>;
 
   return (
-    <div className="page-control-management">
-      <table className="custom-table" aria-label="Page Control Management Table" style={{ width: '100%', marginTop: '1rem' }}>
+    <div className="container" style={{ overflowX: 'auto' }}>
+      <table className="custom-table" style={{ width: '100%', minWidth: '300px', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th scope="col">Page</th>
-            <th scope="col">Status</th>
-            <th scope="col" style={{ minWidth: '120px' }}>Action</th>
+            <th style={{ textAlign: 'left', padding: '12px' }}>Page</th>
+            <th style={{ textAlign: 'center', padding: '12px' }}>Status</th>
+            <th style={{ textAlign: 'center', padding: '12px' }}>Action</th>
           </tr>
         </thead>
         <tbody>
           {pages.map((page) => (
-            <tr key={page._id || page.id || page.page}>
-              <td>{formatPageName(page.page)}</td>
-              <td style={{ color: page.enabled ? 'var(--success)' : 'var(--danger)', fontWeight: 'bold' }}>
-                {page.enabled ? 'Enabled' : 'Disabled'}
+            <tr key={page._id} style={{ borderBottom: '1px solid #444' }}>
+              <td style={{ padding: '12px' }}>{formatPageName(page.page)}</td>
+              <td style={{ textAlign: 'center', padding: '12px' }}>
+                {page.enabled ? (
+                  <span
+                    style={{
+                      color: 'white',
+                      backgroundColor: '#28a745',
+                      padding: '4px 10px',
+                      borderRadius: '12px',
+                      fontWeight: '600',
+                      userSelect: 'none',
+                      display: 'inline-block',
+                      minWidth: '50px',
+                    }}
+                  >
+                    Enabled
+                  </span>
+                ) : (
+                  <span
+                    style={{
+                      color: 'white',
+                      backgroundColor: '#dc3545',
+                      padding: '4px 10px',
+                      borderRadius: '12px',
+                      fontWeight: '600',
+                      userSelect: 'none',
+                      display: 'inline-block',
+                      minWidth: '50px',
+                    }}
+                  >
+                    Disabled
+                  </span>
+                )}
               </td>
-              <td>
+              <td style={{ textAlign: 'center', padding: '12px' }}>
                 {page.page === 'pagecontrol' ? (
-                  <button type="button" disabled aria-label={`Cannot disable page control`}>
-                    Locked
+                  <button
+                    disabled
+                    style={{
+                      cursor: 'not-allowed',
+                      backgroundColor: '#6c757d',
+                      color: 'white',
+                      padding: '6px 12px',
+                      borderRadius: '5px',
+                      border: 'none',
+                      fontWeight: '600',
+                    }}
+                    title="This page can't be disabled"
+                  >
+                    Protected
                   </button>
                 ) : (
                   <button
-                    type="button"
-                    className={page.enabled ? 'btn-danger' : 'btn-success'}
-                    onClick={() => togglePageStatus(page._id || page.id, page.enabled, page.page)}
-                    aria-pressed={page.enabled}
-                    aria-label={`${page.enabled ? 'Disable' : 'Enable'} ${formatPageName(page.page)} page`}
+                    onClick={() => togglePageStatus(page._id, page.enabled, page.page)}
+                    style={{
+                      backgroundColor: page.enabled ? '#dc3545' : '#28a745',
+                      color: 'white',
+                      padding: '6px 12px',
+                      borderRadius: '5px',
+                      border: 'none',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.3s ease',
+                    }}
+                    aria-label={`${
+                      page.enabled ? 'Disable' : 'Enable'
+                    } ${formatPageName(page.page)} page`}
                   >
                     {page.enabled ? 'Disable' : 'Enable'}
                   </button>
