@@ -1,69 +1,47 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
-export default function Navbar({ pageStatus }) {
+export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
-  useLayoutEffect(() => {
-    const checkScreenSize = () => window.innerWidth <= 768;
-    setIsMobile(checkScreenSize());
-
-    const handleResize = () => {
-      const mobile = checkScreenSize();
-      setIsMobile(mobile);
-      if (!mobile) {
-        setMenuOpen(false);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
-
-  const navLinkStyle = ({ isActive }) => ({
-    color: isActive ? '#ff9800' : 'white',
-    textDecoration: 'none',
-    fontWeight: 'bold',
-    padding: '8px 12px',
-    borderRadius: '5px',
-    backgroundColor: isActive ? '#555' : 'transparent',
-    transition: 'background-color 0.3s, color 0.3s',
-  });
+  const toggleMenu = () => setMenuOpen(!menuOpen);
 
   return (
-    <nav className="navbar">
+    <nav className="navbar" style={{ backgroundColor: '#282c34', padding: '10px 20px', color: 'white', position: 'sticky', top: 0, zIndex: 1000 }}>
       <div className="navbar-container">
-        <h1 className="site-name">Mechanic Bano - Admin Panel</h1>
-        
-        {/* Hamburger Menu Button */}
-        <button 
-          className={`menu-toggle ${menuOpen ? 'nav-open' : ''}`}
-          onClick={toggleMenu}
-        >
-          <span className="hamburger-line"></span>
-          <span className="hamburger-line"></span>
-          <span className="hamburger-line"></span>
-        </button>
-        
-        {/* Navigation Links */}
-        <div className={`nav-links ${menuOpen ? 'nav-open' : ''}`}>
-          <NavLink to="/" style={navLinkStyle}>Home</NavLink>
-          <NavLink to="/videos" style={navLinkStyle}>Videos</NavLink>
-          <NavLink to="/welcome-note" style={navLinkStyle}>Welcome Note</NavLink>
-          
-          {pageStatus?.pagecontrol && (
-            <NavLink to="/page-control" style={navLinkStyle}>Page Control</NavLink>
-          )}
-          
-          <NavLink to="/subscription-plans" style={navLinkStyle}>Subscription Plans</NavLink>
-          <NavLink to="/users" style={navLinkStyle}>Users</NavLink>
-          <NavLink to="/pending-subscriptions" style={navLinkStyle}>Pending Subscriptions</NavLink>
-          <NavLink to="/upi-id" style={navLinkStyle}>UPI ID</NavLink>
+        <div className="site-name" style={{ fontSize: '20px', fontWeight: 'bold' }}>
+          Mechanic Bano
+        </div>
+
+        {/* Hamburger icon */}
+        <div className="menu-toggle mobile-only" onClick={toggleMenu} aria-label="Toggle navigation menu" role="button" tabIndex={0} onKeyPress={e => e.key === 'Enter' && toggleMenu()}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        {/* Nav links */}
+        <div className={`nav-links desktop-only ${menuOpen ? 'open' : ''}`} style={{ display: 'flex', gap: '15px' }}>
+          <NavLink to="/" activeClassName="active" style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Home</NavLink>
+          <NavLink to="/videos" activeClassName="active" style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Videos</NavLink>
+          <NavLink to="/welcome-note" activeClassName="active" style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Welcome Note</NavLink>
+          <NavLink to="/page-control" activeClassName="active" style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Page Control</NavLink>
+          <NavLink to="/users" activeClassName="active" style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Users</NavLink>
+          <NavLink to="/subscription" activeClassName="active" style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Subscription</NavLink>
+          <NavLink to="/pending-subscriptions" activeClassName="active" style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Pending Subscriptions</NavLink>
+          <NavLink to="/upi" activeClassName="active" style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>UPI ID</NavLink>
+        </div>
+
+        {/* Mobile Nav links (hidden by default) */}
+        <div className={`nav-links mobile-only ${menuOpen ? 'open' : ''}`} style={{ display: menuOpen ? 'flex' : 'none', flexDirection: 'column', gap: '10px' }}>
+          <NavLink to="/" onClick={() => setMenuOpen(false)} style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Home</NavLink>
+          <NavLink to="/videos" onClick={() => setMenuOpen(false)} style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Videos</NavLink>
+          <NavLink to="/welcome-note" onClick={() => setMenuOpen(false)} style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Welcome Note</NavLink>
+          <NavLink to="/page-control" onClick={() => setMenuOpen(false)} style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Page Control</NavLink>
+          <NavLink to="/users" onClick={() => setMenuOpen(false)} style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Users</NavLink>
+          <NavLink to="/subscription" onClick={() => setMenuOpen(false)} style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Subscription</NavLink>
+          <NavLink to="/pending-subscriptions" onClick={() => setMenuOpen(false)} style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>Pending Subscriptions</NavLink>
+          <NavLink to="/upi" onClick={() => setMenuOpen(false)} style={({ isActive }) => ({ color: isActive ? '#ffa726' : 'white', textDecoration: 'none' })}>UPI ID</NavLink>
         </div>
       </div>
     </nav>
