@@ -15,16 +15,16 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import PendingSubscriptions from './pages/PendingSubscriptions';
 import UPIManagement from './pages/UPIManagement';
+import { getApiUrl, handleApiError } from './utils/api';
 
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
   const [loading, setLoading] = useState(true);
-  const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchPageStatus = async () => {
     try {
-      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
-      const response = await axios.get(`${baseUrl}/general?type=pagecontrol`);
+      const response = await axios.get(getApiUrl('general?type=pagecontrol'));
+      
       if (response.data && response.data.success) {
         const statusMap = {};
         (response.data.data ?? []).forEach(({ page, enabled }) => {
@@ -42,8 +42,8 @@ export default function App() {
         console.error('Unexpected response:', response);
       }
     } catch (error) {
-      toast.error('Error fetching page control');
-      console.error('Error details:', error.response?.data || error.message);
+      const errorMessage = handleApiError(error, 'Error fetching page control');
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -54,35 +54,31 @@ export default function App() {
   }, []);
 
   if (loading) {
-    return <Spinner />;
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
+        <Spinner />
+      </div>
+    );
   }
 
   return (
     <Router>
       <Navbar pageStatus={pageStatus} />
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        {pageStatus['youtube'] !== false && <Route path="/youtube" element={<YouTubeVideoManagement />} />}
-        {pageStatus['pdf'] !== false && <Route path="/pdf" element={<PDFManagement />} />}
-        {pageStatus['welcome'] !== false && <Route path="/welcome" element={<WelcomeNoteManagement />} />}
-        {pageStatus['site-name'] !== false && <Route path="/sitename" element={<SiteNameManagement />} />}
-        {pageStatus['pagecontrol'] !== false && <Route path="/pagecontrol" element={<PageControlManagement fetchPageStatus={fetchPageStatus} />} />}
-        {pageStatus['subscription'] !== false && <Route path="/subscription" element={<SubscriptionPlans />} />}
-        {pageStatus['user'] !== false && <Route path="/user" element={<UserManagement />} />}
-        {pageStatus['pending-subscriptions'] !== false && <Route path="/pending-subscriptions" element={<PendingSubscriptions />} />}
-        {pageStatus['upi'] !== false && <Route path="/upi" element={<UPIManagement />} />}
-      </Routes>
+      <div style={{ padding: '20px' }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          {pageStatus.videos && <Route path="/videos" element={<YouTubeVideoManagement />} />}
+          {pageStatus.pdfs && <Route path="/pdfs" element={<PDFManagement />} />}
+          {pageStatus.welcome && <Route path="/welcome" element={<WelcomeNoteManagement />} />}
+          {pageStatus.sitename && <Route path="/sitename" element={<SiteNameManagement />} />}
+          <Route path="/pagecontrol" element={<PageControlManagement fetchPageStatus={fetchPageStatus} />} />
+          {pageStatus['subscription-plans'] && <Route path="/subscription-plans" element={<SubscriptionPlans />} />}
+          {pageStatus.users && <Route path="/users" element={<UserManagement />} />}
+          <Route path="/pending-subscriptions" element={<PendingSubscriptions />} />
+          <Route path="/upi" element={<UPIManagement />} />
+        </Routes>
+      </div>
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
     </Router>
   );
 }
