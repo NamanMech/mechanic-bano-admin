@@ -13,6 +13,7 @@ import axios from 'axios';
 import UserManagement from './pages/UserManagement';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import PendingSubscriptions from './pages/PendingSubscriptions'; // Add this import
 
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
@@ -76,6 +77,8 @@ export default function App() {
           <Route path="/pagecontrol" element={<PageControlManagement fetchPageStatus={fetchPageStatus} />} />
           {pageStatus['subscription-plans'] && <Route path="/subscription-plans" element={<SubscriptionPlans />} />}
           {pageStatus.users && <Route path="/users" element={<UserManagement />} />}
+          {/* Add Pending Subscriptions Route */}
+          <Route path="/pending-subscriptions" element={<PendingSubscriptions />} />
         </Routes>
       </div>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
