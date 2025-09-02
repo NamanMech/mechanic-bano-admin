@@ -8,27 +8,30 @@ export default function PageControlManagement({ fetchPageStatus }) {
   const [loading, setLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const loadPages = async () => {
-    try {
-      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
-      const response = await axios.get(`${baseUrl}/general?type=pagecontrol`);
-      
-      if (response.data && response.data.success) {
-        setPages(response.data.data || []);
-      } else if (Array.isArray(response.data)) {
-        setPages(response.data);
-      } else {
-        toast.error('Unexpected response format from server');
-        console.error('Unexpected response:', response);
-      }
-    } catch (err) {
-      toast.error('Error fetching pages. Check console for details.');
-      console.error('Error details:', err.response?.data || err.message);
-      console.error('Full error:', err);
-    } finally {
-      setLoading(false);
+ // Replace the loadPages function with this:
+const loadPages = async () => {
+  try {
+    // Remove any trailing slash from API_URL to avoid double slashes
+    const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+    const response = await axios.get(`${baseUrl}/general?type=pagecontrol`);
+    
+    // Check if response structure matches expected format
+    if (response.data && response.data.success) {
+      setPages(response.data.data || []);
+    } else if (Array.isArray(response.data)) {
+      setPages(response.data);
+    } else {
+      toast.error('Unexpected response format from server');
+      console.error('Unexpected response:', response);
     }
-  };
+  } catch (err) {
+    toast.error('Error fetching pages. Check console for details.');
+    console.error('Error details:', err.response?.data || err.message);
+    console.error('Full error:', err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const togglePageStatus = async (id, currentStatus, pageName) => {
     if (pageName === 'pagecontrol') {
