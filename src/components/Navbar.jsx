@@ -123,6 +123,14 @@ export default function Navbar({ pageStatus }) {
         >
           Pending Subscriptions
         </NavLink>
+        
+        <NavLink
+  to="/upi"
+  style={navLinkStyle}
+  onClick={() => isMobile && setMenuOpen(false)}
+>
+  UPI ID
+</NavLink>
       </nav>
     </header>
   );
