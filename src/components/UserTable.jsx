@@ -15,7 +15,6 @@ export default function UserTable({
   setEditingUserData,
 }) {
   const [exportLoading, setExportLoading] = useState(false);
-
   const exportToCSV = () => {
     setExportLoading(true);
     try {
@@ -41,8 +40,15 @@ export default function UserTable({
     }
   };
 
-  const subscribedCount = users.filter(u => u.isSubscribed).length;
-  const expiredCount = users.filter(u => u.subscriptionEnd ? new Date(u.subscriptionEnd) < new Date() : false).length;
+  const now = new Date();
+
+  const subscribedCount = users.filter(
+    u => u.isSubscribed && (!u.subscriptionEnd || new Date(u.subscriptionEnd) > now)
+  ).length;
+
+  const expiredCount = users.filter(
+    u => !u.isSubscribed || (u.subscriptionEnd && new Date(u.subscriptionEnd) <= now)
+  ).length;
 
   return (
     <div className="table-container">
@@ -67,7 +73,6 @@ export default function UserTable({
             : `Export CSV (${users.length})`}
         </button>
       </div>
-
       {users.length === 0
         ? <div className="no-users-message" role="alert"><p>No users found</p></div>
         : (
@@ -86,9 +91,8 @@ export default function UserTable({
                 {users.map(user => {
                   const isEditing = editingUserEmail === user.email;
                   const daysLeft = user.subscriptionEnd
-                    ? Math.ceil((new Date(user.subscriptionEnd) - new Date()) / (1000 * 60 * 60 * 24))
+                    ? Math.ceil((new Date(user.subscriptionEnd) - now) / (1000 * 60 * 60 * 24))
                     : null;
-
                   let statusClass = '';
                   let displayStatus = '-';
                   if (daysLeft !== null) {
@@ -103,6 +107,8 @@ export default function UserTable({
                       displayStatus = 'Expired';
                     }
                   }
+                  const isActuallySubscribed =
+                    user.isSubscribed && (!user.subscriptionEnd || new Date(user.subscriptionEnd) > now);
 
                   return (
                     <tr key={user._id || user.email} className={isEditing ? 'editing-row' : ''}>
@@ -133,8 +139,8 @@ export default function UserTable({
                         }
                       </td>
                       <td>
-                        <div className="subscription-status" aria-label={`Subscription status: ${user.isSubscribed ? 'Subscribed' : 'Not subscribed'}`}>
-                          {user.isSubscribed
+                        <div className="subscription-status" aria-label={`Subscription status: ${isActuallySubscribed ? 'Subscribed' : 'Not subscribed'}`}>
+                          {isActuallySubscribed
                             ? <span className="status-icon active" title="Subscribed" aria-hidden="true">✔️</span>
                             : <span className="status-icon inactive" title="Not subscribed" aria-hidden="true">❌</span>
                           }
@@ -168,8 +174,7 @@ export default function UserTable({
                                 disabled={processing}
                               >Cancel</button>
                             </div>
-                          )
-                          : (
+                          ) : (
                             <DropdownMenu
                               user={user}
                               onEdit={handleEditClick}
