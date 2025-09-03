@@ -68,7 +68,9 @@ export default function UserManagement() {
     if (!window.confirm('Are you sure you want to expire this subscription?')) return;
     setProcessing(true);
     try {
-      await axios.put(`${getBaseUrl()}/subscription?type=expire&email=${encodeURIComponent(email)}`);
+      await axios.put(
+        `${getBaseUrl()}/subscription?type=expire&email=${encodeURIComponent(email)}`
+      );
       showSuccessToast('Subscription expired successfully');
       await fetchUsers();
     } catch (error) {
@@ -115,24 +117,33 @@ export default function UserManagement() {
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
+  const now = new Date();
+
   // Filter users based on search, status, and date filters
   const filteredUsers = users.filter((user) => {
     if (!user) return false;
     const name = user.name || '';
     const email = user.email || '';
+
     const matchesSearch =
       name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       email.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesStatus =
       filterStatus === 'all' ||
-      (filterStatus === 'subscribed' && user.isSubscribed) ||
-      (filterStatus === 'expired' && !user.isSubscribed);
+      (filterStatus === 'subscribed' &&
+        user.isSubscribed &&
+        (!user.subscriptionEnd || new Date(user.subscriptionEnd) > now)) ||
+      (filterStatus === 'expired' &&
+        (!user.isSubscribed || (user.subscriptionEnd && new Date(user.subscriptionEnd) <= now)));
+
     const subscriptionEnd = user.subscriptionEnd ? new Date(user.subscriptionEnd) : null;
     const matchesDate =
       (!filterStartDate && !filterEndDate) ||
       (subscriptionEnd &&
         (!filterStartDate || subscriptionEnd >= new Date(filterStartDate)) &&
         (!filterEndDate || subscriptionEnd <= new Date(filterEndDate)));
+
     return matchesSearch && matchesStatus && matchesDate;
   });
 
