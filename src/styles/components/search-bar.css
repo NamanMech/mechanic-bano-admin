@@ -1,0 +1,102 @@
+/* search-bar.css */
+
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  background-color: var(--secondary-bg);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-primary);
+  font-family: var(--font-family-base);
+  margin-bottom: var(--spacing-lg);
+  user-select: none;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  flex: 1 1 160px;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input[type="search"],
+.form-group input[type="date"],
+.form-group select {
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input[type="search"]:focus,
+.form-group input[type="date"]:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 5px var(--accent-color);
+}
+
+.btn-edit,
+.cancel-button {
+  margin-top: auto;
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  color: white;
+  font-size: 1rem;
+  user-select: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-edit {
+  background-color: var(--primary);
+}
+
+.btn-edit:hover:not(:disabled),
+.btn-edit:focus:not(:disabled) {
+  background-color: #1561d1;
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(21, 101, 209, 0.5);
+}
+
+.cancel-button {
+  background-color: #888;
+}
+
+.cancel-button:hover:not(:disabled),
+.cancel-button:focus:not(:disabled) {
+  background-color: #666;
+  outline: none;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .search-bar {
+    flex-direction: column;
+  }
+  .form-group {
+    flex: 1 1 100%;
+    min-width: auto;
+  }
+  .btn-edit,
+  .cancel-button {
+    width: 100%;
+  }
+}
