@@ -3,6 +3,7 @@ import axios from 'axios';
 import Spinner from '../components/Spinner';
 import { getApiUrl, handleApiError } from '../utils/api';
 import { toast } from 'react-toastify';
+import '../styles/pages/pending-subscriptions.css';
 
 export default function PendingSubscriptions() {
   const [subscriptions, setSubscriptions] = useState([]);
