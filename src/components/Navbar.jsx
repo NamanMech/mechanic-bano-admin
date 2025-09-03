@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 export default function Navbar({ pageStatus }) {
@@ -17,6 +17,7 @@ export default function Navbar({ pageStatus }) {
         setMenuOpen(false);
       }
     };
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -29,6 +30,7 @@ export default function Navbar({ pageStatus }) {
     borderRadius: '5px',
     backgroundColor: isActive ? '#555' : 'transparent',
     transition: 'background-color 0.3s, color 0.3s',
+    display: 'block',
   });
 
   const pages = [
@@ -49,7 +51,7 @@ export default function Navbar({ pageStatus }) {
       <div className="nav-brand">
         <h2>Mechanic Bano Admin</h2>
       </div>
-      
+
       <button
         aria-controls="primary-navigation"
         aria-expanded={menuOpen}
@@ -60,7 +62,7 @@ export default function Navbar({ pageStatus }) {
       >
         ☰
       </button>
-      
+
       <ul
         id="primary-navigation"
         className="nav-links"
@@ -77,12 +79,19 @@ export default function Navbar({ pageStatus }) {
         }}
       >
         {pages.map(({ name, path, key }) => (
-          <li key={name} style={{ width: isMobile ? '100%' : 'auto', textAlign: isMobile ? 'center' : 'left' }}>
-            <NavLink 
-              to={path} 
-              style={navLinkStyle} 
+          <li
+            key={key}
+            style={{
+              width: isMobile ? '100%' : 'auto',
+              textAlign: isMobile ? 'center' : 'left',
+            }}
+          >
+            <NavLink
+              to={path}
+              style={navLinkStyle}
               onClick={() => setMenuOpen(false)}
               state={{ from: location.pathname }}
+              end={path === '/'}
             >
               {name}
             </NavLink>
