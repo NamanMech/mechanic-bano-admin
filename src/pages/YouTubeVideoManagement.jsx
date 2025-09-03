@@ -12,7 +12,6 @@ export default function YouTubeVideoManagement() {
   const [editingVideo, setEditingVideo] = useState(null);
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // Extract YouTube Video ID from various URL formats
   const extractVideoId = (url) => {
     const youtubeRegex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/;
     const match = url.match(youtubeRegex);
@@ -21,7 +20,6 @@ export default function YouTubeVideoManagement() {
 
   const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
 
-  // Fetch videos from backend
   const fetchVideos = async () => {
     try {
       const response = await axios.get(`${getBaseUrl()}/general?type=youtube`);
@@ -43,16 +41,17 @@ export default function YouTubeVideoManagement() {
     fetchVideos();
   }, []);
 
-  // Handle form submit for add or update video
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     const videoId = extractVideoId(link);
     if (!videoId) {
       toast.error('Invalid YouTube link');
       setLoading(false);
       return;
     }
+
     const cleanedLink = `https://www.youtube.com/embed/${videoId}`;
     const isPremium = category === 'premium';
 
@@ -79,6 +78,7 @@ export default function YouTubeVideoManagement() {
         });
         toast.success('Video added successfully');
       }
+
       setTitle('');
       setDescription('');
       setLink('');
@@ -92,7 +92,6 @@ export default function YouTubeVideoManagement() {
     }
   };
 
-  // Delete selected video
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this video?')) return;
     try {
@@ -105,7 +104,6 @@ export default function YouTubeVideoManagement() {
     }
   };
 
-  // Populate form for editing video
   const handleEdit = (video) => {
     setEditingVideo(video);
     setTitle(video.title);
@@ -114,7 +112,6 @@ export default function YouTubeVideoManagement() {
     setCategory(video.category);
   };
 
-  // Cancel editing mode
   const handleCancelEdit = () => {
     setEditingVideo(null);
     setTitle('');
@@ -125,82 +122,85 @@ export default function YouTubeVideoManagement() {
 
   return (
     <div className="page-container youtube-management">
-      <h1 className="page-title">YouTube Video Management</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="form"
-        aria-label={editingVideo ? 'Edit Video Form' : 'Add Video Form'}
-      >
-        <div className="input-group">
-          <label htmlFor="videoTitle">Video Title</label>
-          <input
-            id="videoTitle"
-            type="text"
-            placeholder="Video Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            disabled={loading}
-          />
-        </div>
-        <div className="input-group">
-          <label htmlFor="videoDescription">Video Description</label>
-          <textarea
-            id="videoDescription"
-            placeholder="Video Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            disabled={loading}
-            rows={4}
-          />
-        </div>
-        <div className="input-group">
-          <label htmlFor="youtubeLink">YouTube Link</label>
-          <input
-            id="youtubeLink"
-            type="url"
-            placeholder="YouTube Link"
-            value={link}
-            onChange={(e) => setLink(e.target.value)}
-            required
-            disabled={loading}
-          />
-        </div>
-        <div className="input-group">
-          <label htmlFor="videoCategory">Category</label>
-          <select
-            id="videoCategory"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            disabled={loading}
-          >
-            <option value="free">Free</option>
-            <option value="premium">Premium</option>
-          </select>
-        </div>
-        <div className="form-actions">
-          <button
-            type="submit"
-            disabled={loading}
-            className="save-button"
-            aria-label={editingVideo ? 'Update Video' : 'Save Video'}
-          >
-            {loading ? 'Saving...' : editingVideo ? 'Update Video' : 'Save'}
-          </button>
-          {editingVideo && (
-            <button
-              type="button"
-              onClick={handleCancelEdit}
-              className="cancel-button"
-              aria-label="Cancel Edit"
+      <div className="section-card">
+        <h1 className="section-title">YouTube Video Management</h1>
+        <form
+          onSubmit={handleSubmit}
+          className="form"
+          aria-label={editingVideo ? 'Edit Video Form' : 'Add Video Form'}
+        >
+          <div className="input-group">
+            <label htmlFor="videoTitle">Video Title</label>
+            <input
+              id="videoTitle"
+              type="text"
+              placeholder="Video Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="videoDescription">Video Description</label>
+            <textarea
+              id="videoDescription"
+              placeholder="Video Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              disabled={loading}
+              rows={4}
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="youtubeLink">YouTube Link</label>
+            <input
+              id="youtubeLink"
+              type="url"
+              placeholder="YouTube Link"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="videoCategory">Category</label>
+            <select
+              id="videoCategory"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
               disabled={loading}
             >
-              Cancel Edit
+              <option value="free">Free</option>
+              <option value="premium">Premium</option>
+            </select>
+          </div>
+          <div className="form-actions">
+            <button
+              type="submit"
+              disabled={loading}
+              className="save-button"
+              aria-label={editingVideo ? 'Update Video' : 'Save Video'}
+            >
+              {loading ? 'Saving...' : editingVideo ? 'Update Video' : 'Save'}
             </button>
-          )}
-        </div>
-      </form>
+            {editingVideo && (
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="cancel-button"
+                aria-label="Cancel Edit"
+                disabled={loading}
+              >
+                Cancel Edit
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
       <h2>Uploaded Videos</h2>
       {videos.length === 0 ? (
         <p className="no-content-message">No videos uploaded yet.</p>
@@ -210,7 +210,11 @@ export default function YouTubeVideoManagement() {
             <div key={video._id} className="video-card">
               <h3 className="video-title">
                 {video.title}{' '}
-                {video.isPremium && <span className="stat-badge premium">Premium</span>}
+                {video.isPremium && (
+                  <span className="stat-badge premium" title="Premium Video">
+                    Premium
+                  </span>
+                )}
               </h3>
               <p className="video-desc">{video.description}</p>
               <p className="video-category">Category: {video.category}</p>
