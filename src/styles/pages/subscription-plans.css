@@ -1,0 +1,199 @@
+/* subscription-plans.css */
+
+.subscription-plans {
+  max-width: 900px;
+  margin: 30px auto 0 auto;
+  padding: var(--spacing-lg);
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  font-family: var(--font-family-base);
+  min-height: calc(100vh - 60px);
+}
+
+.subscription-form {
+  background-color: var(--secondary-bg);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.subscription-form h2 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.subscription-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.subscription-form input[type="text"],
+.subscription-form input[type="number"] {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+  box-sizing: border-box;
+  margin-bottom: var(--spacing-md);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.subscription-form input[type="text"]:focus,
+.subscription-form input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 5px var(--accent-color);
+}
+
+.form-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.form-buttons button {
+  min-width: 120px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-weight: 700;
+  border-radius: var(--border-radius);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  color: white;
+}
+
+.form-buttons button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.form-buttons button:not(:disabled):hover,
+.form-buttons button:not(:disabled):focus {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(21, 101, 209, 0.5);
+  outline: none;
+}
+
+.form-buttons button[type="submit"] {
+  background-color: var(--primary);
+}
+
+.form-buttons button[type="submit"]:hover {
+  background-color: #1561d1;
+}
+
+.form-buttons .btn-cancel {
+  background-color: #888;
+}
+
+.form-buttons .btn-cancel:hover,
+.form-buttons .btn-cancel:focus {
+  background-color: #666;
+}
+
+/* Plans list section */
+
+.plans-list-section h2 {
+  font-weight: 700;
+  margin-bottom: var(--spacing-md);
+  color: var(--accent-color);
+}
+
+.plans-table {
+  width: 100%;
+  background-color: var(--secondary-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.plans-table th,
+.plans-table td {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+  text-align: left;
+}
+
+.plans-table th {
+  background-color: #343434;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-weight: 700;
+  user-select: none;
+}
+
+.plans-table tr:nth-child(odd) td {
+  background-color: #2f2f2f;
+}
+
+.plans-table tr:hover td {
+  background-color: var(--border-color);
+  transition: background-color 0.3s;
+}
+
+/* Table buttons */
+
+.plans-table button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  color: white;
+  user-select: none;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  transition: background-color 0.3s ease;
+  margin-right: var(--spacing-sm);
+}
+
+.plans-table button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+}
+
+.plans-table button:not(:disabled):hover,
+.plans-table button:not(:disabled):focus {
+  outline: none;
+}
+
+.plans-table .btn-danger {
+  background-color: var(--danger);
+}
+
+.plans-table .btn-danger:hover {
+  background-color: #c4242e;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .form-buttons button {
+    width: 100%;
+    margin-top: var(--spacing-sm);
+  }
+
+  .plans-table th, .plans-table td {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+}
