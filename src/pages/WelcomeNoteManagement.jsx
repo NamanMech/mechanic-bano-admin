@@ -10,24 +10,25 @@ export default function WelcomeNoteManagement() {
   const [fetchLoading, setFetchLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // Check if API_URL is correctly configured
+  // Normalize base API URL to avoid trailing slashes issues
+  const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
+
   useEffect(() => {
-    console.log('API URL:', API_URL);
     if (!API_URL) {
       showErrorToast('API URL is not configured');
+    } else {
+      fetchNote();
     }
   }, [API_URL]);
 
   const fetchNote = async () => {
+    setFetchLoading(true);
     try {
-      setFetchLoading(true);
-      const response = await axios.get(`${API_URL}/welcome`, {
+      const response = await axios.get(`${getBaseUrl()}/welcome`, {
         timeout: 10000,
-        headers: {
-          'Content-Type': 'application/json',
-        }
+        headers: { 'Content-Type': 'application/json' }
       });
-      
+
       if (response.data) {
         setTitle(response.data.title || '');
         setMessage(response.data.message || '');
@@ -46,25 +47,15 @@ export default function WelcomeNoteManagement() {
     }
   };
 
-  useEffect(() => {
-    if (API_URL) {
-      fetchNote();
-    }
-  }, [API_URL]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.put(`${API_URL}/welcome`, {
-        title: title.trim(),
-        message: message.trim(),
-      }, {
-        timeout: 10000,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      await axios.put(
+        `${getBaseUrl()}/welcome`,
+        { title: title.trim(), message: message.trim() },
+        { timeout: 10000, headers: { 'Content-Type': 'application/json' } }
+      );
       showSuccessToast('Welcome note updated successfully');
     } catch (error) {
       console.error('Save error:', error);
@@ -97,7 +88,6 @@ export default function WelcomeNoteManagement() {
     <div className="page-container">
       <div className="container">
         <h1 className="page-title">Welcome Note Management</h1>
-        
         <div className="welcome-card">
           <form onSubmit={handleSubmit} className="form" aria-label="Update Welcome Note Form">
             <div className="input-group">
@@ -112,7 +102,6 @@ export default function WelcomeNoteManagement() {
                 disabled={loading}
               />
             </div>
-            
             <div className="input-group">
               <label htmlFor="welcome-message">Welcome Note Message</label>
               <textarea
@@ -125,12 +114,7 @@ export default function WelcomeNoteManagement() {
                 rows={6}
               />
             </div>
-            
-            <button
-              type="submit"
-              className="btn-primary save-button"
-              disabled={loading}
-            >
+            <button type="submit" className="btn-primary save-button" disabled={loading}>
               {loading ? <Spinner /> : 'Update Welcome Note'}
             </button>
           </form>
