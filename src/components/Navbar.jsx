@@ -1,5 +1,6 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import '../styles/components/navbar.css';
 
 export default function Navbar({ pageStatus }) {
   const [menuOpen, setMenuOpen] = useState(false);
