@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import YouTubeVideoManagement from './pages/YouTubeVideoManagement';
@@ -14,23 +14,17 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import PendingSubscriptions from './pages/PendingSubscriptions';
 import UPIManagement from './pages/UPIManagement';
-import { getApiUrl, handleApiError } from './utils/api';
+import { apiRequest, handleApiError } from './utils/api';
 
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
   const [loading, setLoading] = useState(true);
   const [apiStatus, setApiStatus] = useState('checking');
 
-  const fetchPageStatus = async () => {
+  const fetchPageStatus = useCallback(async () => {
     try {
-      const response = await fetch(getApiUrl('general?type=pagecontrol'));
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
+      const data = await apiRequest('GET', 'general?type=pagecontrol');
+
       if (data && data.success) {
         const statusMap = {};
         (data.data || []).forEach(({ page, enabled }) => {
@@ -58,11 +52,11 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchPageStatus();
-  }, []);
+  }, [fetchPageStatus]);
 
   if (loading) {
     return (
