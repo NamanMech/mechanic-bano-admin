@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import '../styles/components/dropdown-menu.css';
 
 export default function DropdownMenu({ user, onEdit, onDelete, onExpire, processing }) {
   const [isOpen, setIsOpen] = useState(false);
