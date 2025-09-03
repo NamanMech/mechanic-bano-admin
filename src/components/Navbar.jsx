@@ -46,6 +46,9 @@ export default function Navbar({ pageStatus }) {
     { name: 'UPI Management', path: '/upi', key: 'upi' },
   ];
 
+  // Filter pages based on pageStatus: show only enabled pages or those without explicit false
+  const visiblePages = pages.filter((page) => pageStatus[page.key] !== false);
+
   return (
     <nav className="navbar" role="navigation" aria-label="Main Navigation">
       <div className="nav-brand">
@@ -78,7 +81,7 @@ export default function Navbar({ pageStatus }) {
           alignItems: 'center',
         }}
       >
-        {pages.map(({ name, path, key }) => (
+        {visiblePages.map(({ name, path, key }) => (
           <li
             key={key}
             style={{
