@@ -120,7 +120,7 @@
 }
 
 .status-approved {
-  background-color: var(--success);
+  background-color: transparent;
   color: #fff;
 }
 
