@@ -1,4 +1,5 @@
 /* base.css */
+
 *,
 *::before,
 *::after {
@@ -17,19 +18,29 @@ body {
   min-height: 100vh;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-md);
-  font-weight: 600;
-  line-height: 1.2;
-}
-
 .container {
   padding: var(--spacing-lg);
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 900px;
+  margin: 30px auto 0 auto;
   background-color: var(--primary-bg);
   min-height: calc(100vh - 60px); /* Adjust for navbar height */
+}
+
+/* Section card wrapper */
+.section-card {
+  background: var(--secondary-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
+}
+
+/* Section titles */
+.section-title {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 /* Utility classes */
@@ -51,4 +62,17 @@ h1, h2, h3, h4, h5, h6 {
 :focus-visible {
   outline: 3px solid var(--accent-color);
   outline-offset: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+  .section-card {
+    padding: var(--spacing-md);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 1.2rem;
+  }
 }
