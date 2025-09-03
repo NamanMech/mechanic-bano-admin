@@ -64,12 +64,13 @@ export default function UserManagement() {
     }
   };
 
+  // UPDATED FUNCTION
   const handleExpire = async (email) => {
     if (!window.confirm('Are you sure you want to expire this subscription?')) return;
     setProcessing(true);
     try {
       await axios.put(
-        `${getBaseUrl()}/subscription?type=expire&email=${encodeURIComponent(email)}`
+        `${getBaseUrl()}/user?email=${encodeURIComponent(email)}&type=expire`
       );
       showSuccessToast('Subscription expired successfully');
       await fetchUsers();
@@ -118,17 +119,14 @@ export default function UserManagement() {
   };
 
   const now = new Date();
-
   // Filter users based on search, status, and date filters
   const filteredUsers = users.filter((user) => {
     if (!user) return false;
     const name = user.name || '';
     const email = user.email || '';
-
     const matchesSearch =
       name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       email.toLowerCase().includes(searchQuery.toLowerCase());
-
     const matchesStatus =
       filterStatus === 'all' ||
       (filterStatus === 'subscribed' &&
@@ -136,14 +134,12 @@ export default function UserManagement() {
         (!user.subscriptionEnd || new Date(user.subscriptionEnd) > now)) ||
       (filterStatus === 'expired' &&
         (!user.isSubscribed || (user.subscriptionEnd && new Date(user.subscriptionEnd) <= now)));
-
     const subscriptionEnd = user.subscriptionEnd ? new Date(user.subscriptionEnd) : null;
     const matchesDate =
       (!filterStartDate && !filterEndDate) ||
       (subscriptionEnd &&
         (!filterStartDate || subscriptionEnd >= new Date(filterStartDate)) &&
         (!filterEndDate || subscriptionEnd <= new Date(filterEndDate)));
-
     return matchesSearch && matchesStatus && matchesDate;
   });
 
@@ -164,14 +160,12 @@ export default function UserManagement() {
         <Spinner message="Loading users..." />
       </div>
     );
-
   if (!users.length)
     return (
       <p className="text-center no-users-message">
         No users found.
       </p>
     );
-
   return (
     <div className="user-management container">
       <UserStats users={users} />
