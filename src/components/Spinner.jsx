@@ -1,5 +1,5 @@
 import React from 'react';
-import './Spinner.css'; // Connected CSS
+import './Spinner.css'; // Assuming you keep separate CSS
 
 export default function Spinner({ message = 'Loading...' }) {
   return (
