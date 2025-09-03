@@ -1,4 +1,6 @@
 import React from 'react';
+import '../styles/components/search-bar.css';
+
 
 export default function SearchBar({
   searchQuery,
