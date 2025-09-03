@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import Spinner from '../components/Spinner'; // Import the Spinner component
+import Spinner from '../components/Spinner';
+import '../styles/pages/site-name-management.css';
 
 export default function SiteNameManagement() {
   const [siteName, setSiteName] = useState('');
