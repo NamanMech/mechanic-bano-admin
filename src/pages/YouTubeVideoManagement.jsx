@@ -124,7 +124,7 @@ export default function YouTubeVideoManagement() {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container youtube-management">
       <h1 className="page-title">YouTube Video Management</h1>
       <form
         onSubmit={handleSubmit}
@@ -143,7 +143,6 @@ export default function YouTubeVideoManagement() {
             disabled={loading}
           />
         </div>
-
         <div className="input-group">
           <label htmlFor="videoDescription">Video Description</label>
           <textarea
@@ -156,7 +155,6 @@ export default function YouTubeVideoManagement() {
             rows={4}
           />
         </div>
-
         <div className="input-group">
           <label htmlFor="youtubeLink">YouTube Link</label>
           <input
@@ -169,7 +167,6 @@ export default function YouTubeVideoManagement() {
             disabled={loading}
           />
         </div>
-
         <div className="input-group">
           <label htmlFor="videoCategory">Category</label>
           <select
@@ -182,7 +179,6 @@ export default function YouTubeVideoManagement() {
             <option value="premium">Premium</option>
           </select>
         </div>
-
         <div className="form-actions">
           <button
             type="submit"
@@ -205,22 +201,20 @@ export default function YouTubeVideoManagement() {
           )}
         </div>
       </form>
-
       <h2>Uploaded Videos</h2>
       {videos.length === 0 ? (
         <p className="no-content-message">No videos uploaded yet.</p>
       ) : (
-        <div className="pdfs-list">
+        <div className="videos-list">
           {videos.map((video) => (
-            <div key={video._id} className="pdf-card">
+            <div key={video._id} className="video-card">
               <h3 className="video-title">
                 {video.title}{' '}
-                {video.isPremium && <span className="stat-badge expired">Premium</span>}
+                {video.isPremium && <span className="stat-badge premium">Premium</span>}
               </h3>
               <p className="video-desc">{video.description}</p>
               <p className="video-category">Category: {video.category}</p>
-
-              <div className="pdf-preview">
+              <div className="video-preview-container">
                 <iframe
                   src={video.embedLink}
                   title={video.title}
@@ -229,8 +223,7 @@ export default function YouTubeVideoManagement() {
                   className="video-preview"
                 />
               </div>
-
-              <div className="pdf-actions">
+              <div className="video-actions">
                 <button
                   onClick={() => handleEdit(video)}
                   className="btn-edit"
