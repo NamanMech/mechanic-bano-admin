@@ -1,0 +1,111 @@
+/* pagination.css */
+
+.pagination-container {
+  max-width: 900px;
+  margin: var(--spacing-lg) auto;
+  color: var(--text-primary);
+  font-family: var(--font-family-base);
+  user-select: none;
+}
+
+.pagination-info {
+  margin-bottom: var(--spacing-sm);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.pagination-btn {
+  background-color: var(--secondary-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-width: 36px;
+  user-select: none;
+}
+
+.pagination-btn:hover,
+.pagination-btn:focus {
+  background-color: var(--primary);
+  color: white;
+  outline: none;
+}
+
+.pagination-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.pagination-btn.active {
+  background-color: var(--accent-color);
+  color: #1e1e1e;
+  border-color: var(--accent-color);
+}
+
+/* Page size selector */
+.page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  justify-content: center;
+  font-weight: 600;
+}
+
+.page-size-selector label {
+  user-select: none;
+}
+
+.page-size-selector select {
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  user-select: none;
+}
+
+.page-size-selector select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 5px var(--accent-color);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .pagination {
+    gap: 4px;
+  }
+
+  .pagination-btn {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    min-width: 32px;
+  }
+
+  .page-size-selector {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.9rem;
+  }
+
+  .page-size-selector select {
+    width: 100px;
+  }
+}
