@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import '../styles/pages/youtube-management.css';
 
 export default function YouTubeVideoManagement() {
   const [videos, setVideos] = useState([]);
