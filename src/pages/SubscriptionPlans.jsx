@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import Spinner from '../components/Spinner';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner';
 
 export default function SubscriptionPlans() {
   const [plans, setPlans] = useState([]);
@@ -12,18 +12,13 @@ export default function SubscriptionPlans() {
   const API_URL = import.meta.env.VITE_API_URL;
   const titleInputRef = useRef();
 
-  // Helper for consistent API base URL
-  const formatApiUrl = (endpoint = '') => {
-    const baseUrl = API_URL.replace(/\/+$/, '');
-    const cleanEndpoint = endpoint.replace(/^\/+/, '');
-    return `${baseUrl}/${cleanEndpoint}`;
-  };
+  const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
 
-  // Fetch plans data
+  // Fetch plans
   const fetchPlans = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(formatApiUrl('/subscription'));
+      const response = await axios.get(`${getBaseUrl()}/subscription`);
       if (response.data) {
         if (Array.isArray(response.data)) {
           setPlans(response.data);
@@ -44,26 +39,27 @@ export default function SubscriptionPlans() {
     }
   };
 
-  // Initial load
   useEffect(() => {
     fetchPlans();
   }, []);
 
-  // Form input change
+  // Handle form input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Submit form: create or update
+  // Handle form submit for create or update
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!form.title.trim() || !form.price || !form.days) {
       toast.error('Please fill all required fields.');
       return;
     }
 
     setSaving(true);
+
     const payload = {
       title: form.title.trim(),
       price: parseFloat(form.price),
@@ -73,10 +69,10 @@ export default function SubscriptionPlans() {
 
     try {
       if (editingId) {
-        await axios.put(formatApiUrl(`/subscription?id=${editingId}`), payload);
+        await axios.put(`${getBaseUrl()}/subscription?id=${editingId}`, payload);
         toast.success('Plan updated successfully!');
       } else {
-        await axios.post(formatApiUrl('/subscription'), payload);
+        await axios.post(`${getBaseUrl()}/subscription`, payload);
         toast.success('Plan created successfully!');
       }
       setForm({ title: '', price: '', days: '', discount: '' });
@@ -94,7 +90,7 @@ export default function SubscriptionPlans() {
     }
   };
 
-  // Edit plan
+  // Edit selected plan
   const handleEdit = (plan) => {
     setForm({
       title: plan.title,
@@ -114,8 +110,9 @@ export default function SubscriptionPlans() {
   // Delete plan
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this plan?')) return;
+
     try {
-      await axios.delete(formatApiUrl(`/subscription?id=${id}`));
+      await axios.delete(`${getBaseUrl()}/subscription?id=${id}`);
       toast.success('Plan deleted successfully!');
       await fetchPlans();
     } catch (error) {
@@ -143,7 +140,6 @@ export default function SubscriptionPlans() {
     <div className="subscription-plans" style={{ maxWidth: 700, margin: '0 auto' }}>
       <form onSubmit={handleSubmit} noValidate style={{ marginBottom: '2rem' }}>
         <h2>{editingId ? 'Edit Subscription Plan' : 'Add Subscription Plan'}</h2>
-
         <label htmlFor="title">Title *</label>
         <input
           id="title"
@@ -156,7 +152,6 @@ export default function SubscriptionPlans() {
           required
           placeholder="Enter plan title"
         />
-
         <label htmlFor="price">Price (₹) *</label>
         <input
           id="price"
@@ -170,7 +165,6 @@ export default function SubscriptionPlans() {
           required
           placeholder="Enter price"
         />
-
         <label htmlFor="days">Duration (Days) *</label>
         <input
           id="days"
@@ -183,7 +177,6 @@ export default function SubscriptionPlans() {
           required
           placeholder="Number of days plan lasts"
         />
-
         <label htmlFor="discount">Discount (%)</label>
         <input
           id="discount"
@@ -197,7 +190,6 @@ export default function SubscriptionPlans() {
           disabled={saving}
           placeholder="Enter discount percentage (optional)"
         />
-
         <div style={{ marginTop: '1rem' }}>
           <button type="submit" disabled={saving}>
             {saving ? (editingId ? 'Updating...' : 'Creating...') : editingId ? 'Update Plan' : 'Create Plan'}
@@ -214,7 +206,6 @@ export default function SubscriptionPlans() {
           )}
         </div>
       </form>
-
       <section>
         <h2>Existing Subscription Plans</h2>
         {plans.length === 0 ? (
@@ -227,7 +218,9 @@ export default function SubscriptionPlans() {
                 <th scope="col">Price (₹)</th>
                 <th scope="col">Days</th>
                 <th scope="col">Discount (%)</th>
-                <th scope="col" style={{ minWidth: '100px' }}>Actions</th>
+                <th scope="col" style={{ minWidth: '100px' }}>
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
