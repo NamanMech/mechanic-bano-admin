@@ -7,7 +7,7 @@ export default function UserForm({
   handleFormSubmit,
   isEditing,
   processing,
-  setIsFormOpen
+  setIsFormOpen,
 }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,7 +19,6 @@ export default function UserForm({
     e.preventDefault();
     const trimmedName = formData.name.trim();
     const trimmedEmail = formData.email.trim();
-
     if (!trimmedName || !trimmedEmail) {
       showWarningToast('Name and Email are required');
       return;
@@ -29,21 +28,29 @@ export default function UserForm({
   };
 
   return (
-    <div className="form-modal-overlay" onClick={() => !processing && setIsFormOpen(false)}>
+    <div
+      className="form-modal-overlay"
+      onClick={() => !processing && setIsFormOpen(false)}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="userFormTitle"
+      tabIndex={-1}
+    >
       <div className="form-container" onClick={(e) => e.stopPropagation()}>
         <div className="form-header">
-          <h2>{isEditing ? 'Edit User' : 'Add New User'}</h2>
-          <button 
-            className="close-button" 
+          <h2 id="userFormTitle">{isEditing ? 'Edit User' : 'Add New User'}</h2>
+          <button
+            className="close-button"
             onClick={() => setIsFormOpen(false)}
             disabled={processing}
             aria-label="Close form"
+            type="button"
           >
             &times;
           </button>
         </div>
-        
-        <form onSubmit={onSubmit} aria-label={isEditing ? "Edit User Form" : "Add User Form"}>
+
+        <form onSubmit={onSubmit} aria-label={isEditing ? 'Edit User Form' : 'Add User Form'}>
           <div className="input-group">
             <label htmlFor="name">Name</label>
             <input
@@ -54,11 +61,11 @@ export default function UserForm({
               value={formData.name}
               onChange={handleChange}
               disabled={processing}
-              aria-label="Name"
+              aria-required="true"
               required
             />
           </div>
-          
+
           <div className="input-group">
             <label htmlFor="email">Email</label>
             <input
@@ -69,23 +76,23 @@ export default function UserForm({
               value={formData.email}
               onChange={handleChange}
               disabled={processing}
-              aria-label="Email"
+              aria-required="true"
               required
             />
           </div>
-          
+
           <div className="form-actions">
-            <button type="submit" className="save-button" disabled={processing}>
+            <button type="submit" className="save-button" disabled={processing} type="submit">
               {processing ? (
                 <span className="button-loading">
-                  <span className="spinner-small"></span>
+                  <span className="spinner-small" aria-hidden="true"></span>
                   {isEditing ? 'Updating...' : 'Adding...'}
                 </span>
               ) : (
                 <span>{isEditing ? 'Update User' : 'Add User'}</span>
               )}
             </button>
-            
+
             <button
               type="button"
               className="cancel-button"
