@@ -52,16 +52,21 @@ export default function Navbar({ pageStatus }) {
       <div className="nav-brand">
         <h2>Mechanic Bano Admin</h2>
       </div>
-      <button
-        aria-controls="primary-navigation"
-        aria-expanded={menuOpen}
-        aria-label="Toggle navigation menu"
-        onClick={() => setMenuOpen(!menuOpen)}
-        className="menu-toggle-button"
-        type="button"
-      >
-        ☰
-      </button>
+
+      {/* Show hamburger button only if menu is closed and is mobile */}
+      {(!menuOpen && isMobile) && (
+        <button
+          aria-controls="primary-navigation"
+          aria-expanded={menuOpen}
+          aria-label="Toggle navigation menu"
+          onClick={() => setMenuOpen(true)}
+          className="menu-toggle-button"
+          type="button"
+        >
+          ☰
+        </button>
+      )}
+
       <ul
         id="primary-navigation"
         className={`nav-links ${menuOpen && isMobile ? 'open' : ''}`}
