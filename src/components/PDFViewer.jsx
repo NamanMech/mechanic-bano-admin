@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
+import '../styles/components/pdf-viewer.css';
+
 
 // Set worker path for PDF.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
