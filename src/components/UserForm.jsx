@@ -49,7 +49,6 @@ export default function UserForm({
             &times;
           </button>
         </div>
-
         <form onSubmit={onSubmit} aria-label={isEditing ? 'Edit User Form' : 'Add User Form'}>
           <div className="input-group">
             <label htmlFor="name">Name</label>
@@ -65,7 +64,6 @@ export default function UserForm({
               required
             />
           </div>
-
           <div className="input-group">
             <label htmlFor="email">Email</label>
             <input
@@ -80,9 +78,8 @@ export default function UserForm({
               required
             />
           </div>
-
           <div className="form-actions">
-            <button type="submit" className="save-button" disabled={processing} type="submit">
+            <button type="submit" className="save-button" disabled={processing}>
               {processing ? (
                 <span className="button-loading">
                   <span className="spinner-small" aria-hidden="true"></span>
@@ -92,7 +89,6 @@ export default function UserForm({
                 <span>{isEditing ? 'Update User' : 'Add User'}</span>
               )}
             </button>
-
             <button
               type="button"
               className="cancel-button"
