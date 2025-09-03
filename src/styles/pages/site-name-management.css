@@ -1,0 +1,96 @@
+/* site-name-management.css */
+
+.site-name-management {
+  max-width: 900px;
+  margin: 30px auto 0 auto;
+  padding: var(--spacing-lg);
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  font-family: var(--font-family-base);
+  min-height: calc(100vh - 60px);
+}
+
+.site-name-management h1 {
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: var(--spacing-md);
+  color: var(--accent-color);
+}
+
+.current-site-name {
+  font-size: 1.1rem;
+  margin-bottom: var(--spacing-lg);
+  user-select: none;
+}
+
+.current-site-name span {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.site-name-form {
+  background-color: var(--secondary-bg);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.site-name-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.site-name-form input[type="text"] {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+  box-sizing: border-box;
+  margin-bottom: var(--spacing-md);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.site-name-form input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 5px var(--accent-color);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover:not(:disabled),
+.btn-primary:focus:not(:disabled) {
+  background-color: #1561d1;
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(21, 96, 215, 0.5);
+}
+
+.btn-primary:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .site-name-management {
+    padding: var(--spacing-md);
+  }
+  .site-name-management h1 {
+    font-size: 1.5rem;
+  }
+}
