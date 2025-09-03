@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DropdownMenu from './DropdownMenu.jsx';
+import '../styles/components/user-table.css';
 
 export default function UserTable({
   users,
