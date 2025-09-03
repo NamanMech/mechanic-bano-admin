@@ -6,7 +6,7 @@ import Spinner from '../components/Spinner';
 export default function SubscriptionPlans() {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ title: '', price: '', days: '', discount: '' });
+  const [form, setForm] = useState({ title: '', price: '', day: '', discount: '' });
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
@@ -48,7 +48,7 @@ export default function SubscriptionPlans() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim() || form.price === '' || form.days === '') {
+    if (!form.title.trim() || form.price === '' || form.day === '') {
       toast.error('Please fill all required fields.');
       return;
     }
@@ -56,7 +56,7 @@ export default function SubscriptionPlans() {
     const payload = {
       title: form.title.trim(),
       price: parseFloat(form.price),
-      days: parseInt(form.days, 10),
+      day: parseInt(form.day, 10),
       discount: parseFloat(form.discount) || 0,
     };
     try {
@@ -68,7 +68,6 @@ export default function SubscriptionPlans() {
         );
         toast.success('Plan updated successfully!');
       } else {
-        // POST request explicitly with JSON.stringify and headers
         await axios({
           method: 'post',
           url: `${getBaseUrl()}/subscription-plans`,
@@ -78,7 +77,7 @@ export default function SubscriptionPlans() {
         toast.success('Plan created successfully!');
       }
 
-      setForm({ title: '', price: '', days: '', discount: '' });
+      setForm({ title: '', price: '', day: '', discount: '' });
       setEditingId(null);
       await fetchPlans();
       if (titleInputRef.current) {
@@ -97,7 +96,7 @@ export default function SubscriptionPlans() {
     setForm({
       title: plan.title,
       price: plan.price.toString(),
-      days: plan.days.toString(),
+      day: plan.days.toString(), // Note: server response uses "days" but we need to send "day"
       discount: plan.discount ? plan.discount.toString() : '',
     });
     setEditingId(plan._id);
@@ -123,7 +122,7 @@ export default function SubscriptionPlans() {
   };
 
   const handleCancelEdit = () => {
-    setForm({ title: '', price: '', days: '', discount: '' });
+    setForm({ title: '', price: '', day: '', discount: '' });
     setEditingId(null);
     if (titleInputRef.current) titleInputRef.current.focus();
   };
@@ -164,13 +163,13 @@ export default function SubscriptionPlans() {
           required
           placeholder="Enter price"
         />
-        <label htmlFor="days">Duration (Days) *</label>
+        <label htmlFor="day">Duration (Days) *</label>
         <input
-          id="days"
+          id="day"
           type="number"
-          name="days"
+          name="day"
           min="1"
-          value={form.days}
+          value={form.day}
           onChange={handleInputChange}
           disabled={saving}
           required
