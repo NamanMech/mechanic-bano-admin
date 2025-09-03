@@ -92,7 +92,6 @@ export default function DropdownMenu({ user, onEdit, onDelete, onExpire, process
           <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       </button>
-
       {isOpen &&
         createPortal(
           <div
