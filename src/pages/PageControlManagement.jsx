@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import '../styles/pages/page-control-management.css';
 import Spinner from '../components/Spinner';
 
 export default function PageControlManagement({ fetchPageStatus }) {
