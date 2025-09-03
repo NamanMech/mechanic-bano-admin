@@ -1,0 +1,89 @@
+/* app.css */
+
+body {
+  margin: 0;
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  font-family: var(--font-family-base);
+  min-height: 100vh;
+}
+
+/* Wrapper for spinner on app loading */
+.spinner-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  user-select: none;
+}
+
+/* Error container for connection errors */
+.error-container {
+  max-width: 600px;
+  margin: 100px auto;
+  background-color: var(--secondary-bg);
+  color: var(--text-primary);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  user-select: none;
+  font-size: 1.1rem;
+}
+
+.error-container h1 {
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  color: var(--accent-color);
+}
+
+.error-container ul {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  padding-left: 20px;
+}
+
+.error-container li {
+  margin-bottom: 6px;
+}
+
+.error-container button.btn-primary {
+  background-color: var(--primary);
+  border: none;
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  user-select: none;
+}
+
+.error-container button.btn-primary:hover:not(:disabled),
+.error-container button.btn-primary:focus:not(:disabled) {
+  background-color: #1561d1;
+  outline: none;
+}
+
+/* Overall admin layout */
+.admin-layout {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  /* Sidebar styles can be added here if needed */
+}
+
+/* Main content area */
+.main-content {
+  flex: 1;
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  background-color: var(--primary-bg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    padding: var(--spacing-md);
+  }
+}
