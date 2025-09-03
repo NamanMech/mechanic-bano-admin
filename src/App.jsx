@@ -15,6 +15,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import PendingSubscriptions from './pages/PendingSubscriptions';
 import UPIManagement from './pages/UPIManagement';
 import { apiRequest, handleApiError } from './utils/api';
+import './styles/app.css';
+
 
 export default function App() {
   const [pageStatus, setPageStatus] = useState({});
