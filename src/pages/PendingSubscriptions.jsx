@@ -14,9 +14,9 @@ export default function PendingSubscriptions() {
   }, []);
 
   const fetchSubscriptions = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(getApiUrl('pending-subscriptions'));
-      
       if (response.data && response.data.success) {
         setSubscriptions(response.data.data || []);
       } else {
@@ -24,36 +24,32 @@ export default function PendingSubscriptions() {
         console.error('Unexpected response:', response);
       }
     } catch (error) {
-      const errorMessage = handleApiError(error, 'Error fetching subscriptions');
-      toast.error(errorMessage);
+      toast.error(handleApiError(error, 'Error fetching subscriptions'));
     } finally {
       setLoading(false);
     }
   };
 
   const approveSubscription = async (id) => {
-    setUpdating(prev => ({ ...prev, [id]: 'approving' }));
-    
+    setUpdating(prev => ({ ...prev, [id]: true }));
     try {
-      // First update the pending subscription status
-      await axios.put(getApiUrl(`pending-subscriptions?id=${id}`), {
-        status: 'approved'
-      });
-      
-      // Then activate the subscription
+      // Update pending subscription status to approved
+      await axios.put(getApiUrl(`pending-subscriptions?id=${id}`), { status: 'approved' });
+
+      // Activate subscription for user
       const subscription = subscriptions.find(sub => sub._id === id);
-      await axios.post(getApiUrl('subscription?type=subscribe'), {
-        email: subscription.email,
-        planId: subscription.planId
-      });
-      
-      // Refresh the list
-      await fetchSubscriptions();
-      
+      if (subscription) {
+        await axios.post(getApiUrl('subscription?type=subscribe'), {
+          email: subscription.email,
+          planId: subscription.planId,
+        });
+      }
+
       toast.success('✅ Subscription approved successfully!');
+      await fetchSubscriptions();
     } catch (error) {
-      const errorMessage = handleApiError(error, 'Error approving subscription');
-      toast.error(errorMessage);
+      toast.error(handleApiError(error, 'Error approving subscription'));
+      console.error(error);
     } finally {
       setUpdating(prev => {
         const newState = { ...prev };
@@ -64,20 +60,15 @@ export default function PendingSubscriptions() {
   };
 
   const rejectSubscription = async (id) => {
-    setUpdating(prev => ({ ...prev, [id]: 'rejecting' }));
-    
+    setUpdating(prev => ({ ...prev, [id]: true }));
     try {
-      await axios.put(getApiUrl(`pending-subscriptions?id=${id}`), {
-        status: 'rejected'
-      });
-      
-      // Refresh the list
-      await fetchSubscriptions();
-      
+      await axios.put(getApiUrl(`pending-subscriptions?id=${id}`), { status: 'rejected' });
+
       toast.success('❌ Subscription rejected');
+      await fetchSubscriptions();
     } catch (error) {
-      const errorMessage = handleApiError(error, 'Error rejecting subscription');
-      toast.error(errorMessage);
+      toast.error(handleApiError(error, 'Error rejecting subscription'));
+      console.error(error);
     } finally {
       setUpdating(prev => {
         const newState = { ...prev };
@@ -87,36 +78,27 @@ export default function PendingSubscriptions() {
     }
   };
 
-  // Function to render status badge
   const renderStatus = (status) => {
     const statusStyles = {
       pending: 'status-badge status-pending',
-      approved: 'status-badge status-approved', 
-      rejected: 'status-badge status-rejected'
+      approved: 'status-badge status-approved',
+      rejected: 'status-badge status-rejected',
     };
-
     const statusText = {
       pending: '⏳ PENDING',
-      approved: '✅ APPROVED', 
-      rejected: '❌ REJECTED'
+      approved: '✅ APPROVED',
+      rejected: '❌ REJECTED',
     };
-
-    return (
-      <span className={statusStyles[status] || statusStyles.pending}>
-        {statusText[status] || status.toUpperCase()}
-      </span>
-    );
+    return <span className={statusStyles[status] || statusStyles.pending}>{statusText[status] || status.toUpperCase()}</span>;
   };
 
-  // Function to render action buttons based on status
   const renderActions = (sub) => {
     const isUpdating = updating[sub._id];
-    
     if (isUpdating) {
       return (
         <div className="updating-indicator">
           <div className="spinner-small"></div>
-          {isUpdating === 'approving' ? ' Approving...' : ' Rejecting...'}
+          Updating...
         </div>
       );
     }
@@ -125,41 +107,25 @@ export default function PendingSubscriptions() {
       case 'pending':
         return (
           <div className="action-buttons">
-            <button 
-              onClick={() => approveSubscription(sub._id)}
-              className="btn-success"
-            >
+            <button onClick={() => approveSubscription(sub._id)} className="btn-success" disabled={!!isUpdating}>
               ✅ Approve
             </button>
-            <button 
-              onClick={() => rejectSubscription(sub._id)}
-              className="btn-danger"
-            >
+            <button onClick={() => rejectSubscription(sub._id)} className="btn-danger" disabled={!!isUpdating}>
               ❌ Reject
             </button>
           </div>
         );
-      
       case 'approved':
-        return (
-          <div className="status-message approved">
-            ✅ Approved Successfully
-          </div>
-        );
-      
+        return <div className="status-message approved">✅ Approved Successfully</div>;
       case 'rejected':
         return (
           <div className="status-message rejected">
             <div>❌ Rejected</div>
-            <button 
-              onClick={() => approveSubscription(sub._id)}
-              className="btn-success small"
-            >
+            <button onClick={() => approveSubscription(sub._id)} className="btn-success small" disabled={!!isUpdating}>
               ✅ Approve Now
             </button>
           </div>
         );
-      
       default:
         return null;
     }
@@ -171,14 +137,11 @@ export default function PendingSubscriptions() {
     <div className="page-container">
       <div className="page-header">
         <h1>Payment Screenshot Management</h1>
-        <button 
-          onClick={fetchSubscriptions}
-          className="btn-primary"
-        >
+        <button onClick={fetchSubscriptions} className="btn-primary" disabled={loading}>
           🔄 Refresh
         </button>
       </div>
-      
+
       {subscriptions.length === 0 ? (
         <div className="empty-state">
           <h3>📷 No Screenshots Found</h3>
@@ -205,19 +168,15 @@ export default function PendingSubscriptions() {
                   </td>
                   <td>
                     <div className="plan-details">
-                      <strong>Plan:</strong> {sub.planTitle || 'N/A'}<br/>
+                      <strong>Plan:</strong> {sub.planTitle || 'N/A'}
+                      <br />
                       <strong>Price:</strong> ₹{sub.planPrice || 'N/A'}
                     </div>
                   </td>
                   <td>
                     {sub.screenshotUrl ? (
                       <div className="screenshot-container">
-                        <a 
-                          href={sub.screenshotUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="screenshot-link"
-                        >
+                        <a href={sub.screenshotUrl} target="_blank" rel="noopener noreferrer" className="screenshot-link">
                           🖼️ View Screenshot
                         </a>
                       </div>
@@ -227,16 +186,13 @@ export default function PendingSubscriptions() {
                   </td>
                   <td>
                     <div className="date-info">
-                      <strong>Date:</strong> {new Date(sub.createdAt).toLocaleDateString('en-IN')}<br/>
+                      <strong>Date:</strong> {new Date(sub.createdAt).toLocaleDateString('en-IN')}
+                      <br />
                       <strong>Time:</strong> {new Date(sub.createdAt).toLocaleTimeString('en-IN')}
                     </div>
                   </td>
-                  <td>
-                    {renderStatus(sub.status)}
-                  </td>
-                  <td>
-                    {renderActions(sub)}
-                  </td>
+                  <td>{renderStatus(sub.status)}</td>
+                  <td>{renderActions(sub)}</td>
                 </tr>
               ))}
             </tbody>
