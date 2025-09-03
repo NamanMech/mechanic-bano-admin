@@ -6,8 +6,8 @@ import Spinner from '../components/Spinner';
 export default function PageControlManagement({ fetchPageStatus }) {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const API_URL = import.meta.env.VITE_API_URL;
 
+  const API_URL = import.meta.env.VITE_API_URL;
   const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
 
   const formatPageName = (page) =>
@@ -19,7 +19,6 @@ export default function PageControlManagement({ fetchPageStatus }) {
     setLoading(true);
     try {
       const response = await axios.get(`${getBaseUrl()}/general?type=pagecontrol`);
-
       if (response.data && response.data.success) {
         setPages(response.data.data || []);
       } else if (Array.isArray(response.data)) {
@@ -45,7 +44,6 @@ export default function PageControlManagement({ fetchPageStatus }) {
       `Are you sure you want to ${currentStatus ? 'disable' : 'enable'} "${formatPageName(pageName)}"?`
     );
     if (!confirmToggle) return;
-
     try {
       await axios.put(`${getBaseUrl()}/general?type=pagecontrol&id=${id}`, {
         enabled: !currentStatus,
@@ -70,65 +68,33 @@ export default function PageControlManagement({ fetchPageStatus }) {
   if (!pages.length) return <p>No pages found or unable to load page data.</p>;
 
   return (
-    <div className="container" style={{ overflowX: 'auto' }}>
-      <table className="custom-table" style={{ width: '100%', minWidth: '300px', borderCollapse: 'collapse' }}>
+    <div className="container table-container">
+      <table className="custom-table">
         <thead>
           <tr>
-            <th style={{ textAlign: 'left', padding: '12px' }}>Page</th>
-            <th style={{ textAlign: 'center', padding: '12px' }}>Status</th>
-            <th style={{ textAlign: 'center', padding: '12px' }}>Action</th>
+            <th>Page</th>
+            <th className="text-center">Status</th>
+            <th className="text-center">Action</th>
           </tr>
         </thead>
         <tbody>
           {pages.map((page) => (
-            <tr key={page._id} style={{ borderBottom: '1px solid #444' }}>
-              <td style={{ padding: '12px' }}>{formatPageName(page.page)}</td>
-              <td style={{ textAlign: 'center', padding: '12px' }}>
-                <span
-                  style={{
-                    color: 'white',
-                    backgroundColor: page.enabled ? '#28a745' : '#dc3545',
-                    padding: '4px 10px',
-                    borderRadius: '12px',
-                    fontWeight: '600',
-                    userSelect: 'none',
-                    display: 'inline-block',
-                    minWidth: '50px',
-                  }}
-                >
+            <tr key={page._id}>
+              <td>{formatPageName(page.page)}</td>
+              <td className="text-center">
+                <span className={`status-badge ${page.enabled ? 'status-approved' : 'status-rejected'}`}>
                   {page.enabled ? 'Enabled' : 'Disabled'}
                 </span>
               </td>
-              <td style={{ textAlign: 'center', padding: '12px' }}>
+              <td className="text-center">
                 {page.page === 'pagecontrol' ? (
-                  <button
-                    disabled
-                    style={{
-                      cursor: 'not-allowed',
-                      backgroundColor: '#6c757d',
-                      color: 'white',
-                      padding: '6px 12px',
-                      borderRadius: '5px',
-                      border: 'none',
-                      fontWeight: '600',
-                    }}
-                    title="This page can't be disabled"
-                  >
+                  <button disabled className="btn-disabled" title="This page can't be disabled">
                     Protected
                   </button>
                 ) : (
                   <button
                     onClick={() => togglePageStatus(page._id, page.enabled, page.page)}
-                    style={{
-                      backgroundColor: page.enabled ? '#dc3545' : '#28a745',
-                      color: 'white',
-                      padding: '6px 12px',
-                      borderRadius: '5px',
-                      border: 'none',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      transition: 'background-color 0.3s ease',
-                    }}
+                    className={`btn-action btn-${page.enabled ? 'disable' : 'enable'}`}
                     aria-label={`${page.enabled ? 'Disable' : 'Enable'} ${formatPageName(page.page)} page`}
                   >
                     {page.enabled ? 'Disable' : 'Enable'}
