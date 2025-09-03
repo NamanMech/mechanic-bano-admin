@@ -26,37 +26,39 @@ export default function UserManagement() {
   const [filterEndDate, setFilterEndDate] = useState('');
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // Fetch users on mount and when filters/search update
+  const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
+
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Reset page to 1 when filters/search change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, filterStatus, filterStartDate, filterEndDate, pageSize]);
 
-  async function fetchUsers() {
+  const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}user`);
-      setUsers(response.data);
+      const response = await axios.get(`${getBaseUrl()}/user`);
+      setUsers(response.data || []);
     } catch (error) {
       showErrorToast('Error fetching users');
+      console.error('Fetch users error:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const handleDelete = async (email) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
     setProcessing(true);
     try {
-      await axios.delete(`${API_URL}user?email=${email}`);
+      await axios.delete(`${getBaseUrl()}/user?email=${encodeURIComponent(email)}`);
       showSuccessToast('User deleted successfully');
-      fetchUsers();
+      await fetchUsers();
     } catch (error) {
       showErrorToast('Error deleting user');
+      console.error('Delete user error:', error.response?.data || error.message);
     } finally {
       setProcessing(false);
     }
@@ -66,11 +68,12 @@ export default function UserManagement() {
     if (!window.confirm('Are you sure you want to expire this subscription?')) return;
     setProcessing(true);
     try {
-      await axios.put(`${API_URL}subscription?type=expire&email=${email}`);
+      await axios.put(`${getBaseUrl()}/subscription?type=expire&email=${encodeURIComponent(email)}`);
       showSuccessToast('Subscription expired successfully');
-      fetchUsers();
+      await fetchUsers();
     } catch (error) {
       showErrorToast('Error expiring subscription');
+      console.error('Expire subscription error:', error.response?.data || error.message);
     } finally {
       setProcessing(false);
     }
@@ -91,18 +94,18 @@ export default function UserManagement() {
       showWarningToast('Name and Email are required');
       return;
     }
-
     setProcessing(true);
     try {
       await axios.put(
-        `${API_URL}user?email=${originalEmail}&type=update`,
+        `${getBaseUrl()}/user?email=${encodeURIComponent(originalEmail)}&type=update`,
         editingFormData
       );
       showSuccessToast('User updated successfully');
-      fetchUsers();
+      await fetchUsers();
       handleCancelInlineEdit();
     } catch (error) {
       showErrorToast('Error updating user');
+      console.error('Update user error:', error.response?.data || error.message);
     } finally {
       setProcessing(false);
     }
@@ -112,7 +115,7 @@ export default function UserManagement() {
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
-  // Filter users by search, status and date
+  // Filter users based on search, status and date filters
   const filteredUsers = users.filter((user) => {
     if (!user) return false;
     const name = user.name || '';
@@ -120,30 +123,27 @@ export default function UserManagement() {
     const matchesSearch =
       name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       email.toLowerCase().includes(searchQuery.toLowerCase());
-
     const matchesStatus =
       filterStatus === 'all' ||
       (filterStatus === 'subscribed' && user.isSubscribed) ||
       (filterStatus === 'expired' && !user.isSubscribed);
-
     const subscriptionEnd = user.subscriptionEnd ? new Date(user.subscriptionEnd) : null;
     const matchesDate =
       (!filterStartDate && !filterEndDate) ||
       (subscriptionEnd &&
         (!filterStartDate || subscriptionEnd >= new Date(filterStartDate)) &&
         (!filterEndDate || subscriptionEnd <= new Date(filterEndDate)));
-
     return matchesSearch && matchesStatus && matchesDate;
   });
 
-  // Sort user list
+  // Sort filtered users by name
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     const nameA = a?.name || '';
     const nameB = b?.name || '';
     return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
   });
 
-  // Pagination calculation
+  // Pagination logic
   const totalPages = Math.ceil(sortedUsers.length / pageSize);
   const displayedUsers = sortedUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -153,14 +153,16 @@ export default function UserManagement() {
         <Spinner message="Loading users..." />
       </div>
     );
-
   if (!users.length)
-    return <p className="text-center" style={{ marginTop: 20 }}>No users found.</p>;
+    return (
+      <p className="text-center" style={{ marginTop: 20 }}>
+        No users found.
+      </p>
+    );
 
   return (
     <div className="user-management" style={{ maxWidth: 1000, margin: '0 auto', padding: '1rem' }}>
       <UserStats users={users} />
-
       <SearchBar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -179,7 +181,6 @@ export default function UserManagement() {
           setFilterEndDate('');
         }}
       />
-
       <UserTable
         users={displayedUsers}
         processing={processing}
@@ -192,7 +193,6 @@ export default function UserManagement() {
         editingFormData={editingFormData}
         setEditingFormData={setEditingFormData}
       />
-
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
