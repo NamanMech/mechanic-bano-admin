@@ -48,7 +48,7 @@ export default function SubscriptionPlans() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.price || !form.days) {
+    if (!form.title.trim() || form.price === '' || form.days === '') {
       toast.error('Please fill all required fields.');
       return;
     }
@@ -63,18 +63,21 @@ export default function SubscriptionPlans() {
       if (editingId) {
         await axios.put(
           `${getBaseUrl()}/subscription-plans?id=${editingId}`,
-          payload,
+          JSON.stringify(payload),
           { headers: { 'Content-Type': 'application/json' } }
         );
         toast.success('Plan updated successfully!');
       } else {
-        await axios.post(
-          `${getBaseUrl()}/subscription-plans`,
-          payload,
-          { headers: { 'Content-Type': 'application/json' } }
-        );
+        // POST request explicitly with JSON.stringify and headers
+        await axios({
+          method: 'post',
+          url: `${getBaseUrl()}/subscription-plans`,
+          data: JSON.stringify(payload),
+          headers: { 'Content-Type': 'application/json' },
+        });
         toast.success('Plan created successfully!');
       }
+
       setForm({ title: '', price: '', days: '', discount: '' });
       setEditingId(null);
       await fetchPlans();
@@ -207,11 +210,7 @@ export default function SubscriptionPlans() {
         {plans.length === 0 ? (
           <p>No subscription plans found.</p>
         ) : (
-          <table
-            className="custom-table"
-            aria-label="Subscription Plans Table"
-            style={{ width: '100%' }}
-          >
+          <table className="custom-table" aria-label="Subscription Plans Table" style={{ width: '100%' }}>
             <thead>
               <tr>
                 <th scope="col">Title</th>
