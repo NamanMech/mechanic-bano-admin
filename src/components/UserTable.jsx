@@ -11,30 +11,23 @@ export default function UserTable({
   handleExpire,
   editingUserEmail,
   editingFormData,
-  setEditingFormData
+  setEditingFormData,
 }) {
   const [exportLoading, setExportLoading] = useState(false);
 
   const exportToCSV = () => {
     setExportLoading(true);
-    
     try {
       const headers = ['Name', 'Email', 'Subscribed', 'Subscription End'];
       const rows = users.map(user => [
-        `"${user.name.replace(/"/g, '""')}"`, // Handle quotes in names
+        `"${(user.name || '').replace(/"/g, '""')}"`, // Escape quotes in names
         user.email,
         user.isSubscribed ? 'Yes' : 'No',
-        user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-'
+        user.subscriptionEnd ? new Date(user.subscriptionEnd).toLocaleDateString() : '-',
       ]);
-      
-      const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.join(','))
-      ].join('\n');
-      
+      const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
-
       const link = document.createElement('a');
       link.href = url;
       link.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
@@ -43,36 +36,38 @@ export default function UserTable({
     } catch (error) {
       console.error('Export failed:', error);
     } finally {
-      setTimeout(() => setExportLoading(false), 500); // Brief delay for smoother UX
+      // Small delay for UX smoothness
+      setTimeout(() => setExportLoading(false), 500);
     }
   };
 
-  // Calculate stats for visual indicators
   const subscribedCount = users.filter(user => user.isSubscribed).length;
-  const expiredCount = users.filter(user => 
-    user.subscriptionEnd && new Date(user.subscriptionEnd) < new Date()
+  const expiredCount = users.filter(user =>
+    user.subscriptionEnd ? new Date(user.subscriptionEnd) < new Date() : false
   ).length;
 
   return (
     <div className="table-container">
       <div className="table-header-actions">
-        <div className="user-stats-quick">
-          <span className="stat-badge subscribed">
+        <div className="user-stats-quick" aria-label="User subscription statistics">
+          <span className="stat-badge subscribed" aria-live="polite" aria-atomic="true">
             Subscribed: {subscribedCount}
           </span>
-          <span className="stat-badge expired">
+          <span className="stat-badge expired" aria-live="polite" aria-atomic="true">
             Expired: {expiredCount}
           </span>
         </div>
-        
-        <button 
-          className={`btn-primary ${exportLoading ? 'button-loading' : ''}`} 
+
+        <button
+          className={`btn-primary ${exportLoading ? 'button-loading' : ''}`}
           onClick={exportToCSV}
           disabled={exportLoading || users.length === 0}
+          aria-label="Export users data to CSV"
+          type="button"
         >
           {exportLoading ? (
             <>
-              <span className="spinner-small"></span>
+              <span className="spinner-small" aria-hidden="true"></span>
               Exporting...
             </>
           ) : (
@@ -82,19 +77,19 @@ export default function UserTable({
       </div>
 
       {users.length === 0 ? (
-        <div className="no-users-message">
+        <div className="no-users-message" role="alert" aria-live="polite">
           <p>No users found</p>
         </div>
       ) : (
         <div className="table-responsive">
-          <table className="custom-table">
+          <table className="custom-table" role="table" aria-label="User list table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Subscription</th>
-                <th>Subscription End</th>
-                <th>Actions</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Subscription</th>
+                <th scope="col">Subscription End</th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -103,10 +98,10 @@ export default function UserTable({
                 const daysLeft = user.subscriptionEnd
                   ? Math.ceil((new Date(user.subscriptionEnd) - new Date()) / (1000 * 60 * 60 * 24))
                   : null;
-                
+
                 let statusClass = '';
                 let displayDaysLeft = '-';
-                
+
                 if (daysLeft !== null) {
                   if (daysLeft > 30) {
                     statusClass = 'status-good';
@@ -121,7 +116,7 @@ export default function UserTable({
                 }
 
                 return (
-                  <tr key={user._id || user.email} className={isEditing ? 'editing-row' : ''}>
+                  <tr key={user._id || user.email} className={isEditing ? 'editing-row' : undefined}>
                     <td>
                       {isEditing ? (
                         <input
@@ -132,6 +127,7 @@ export default function UserTable({
                           }
                           className="edit-input"
                           disabled={processing}
+                          aria-label="Edit user name"
                         />
                       ) : (
                         <div className="user-name">
@@ -149,19 +145,22 @@ export default function UserTable({
                           }
                           className="edit-input"
                           disabled={processing}
+                          aria-label="Edit user email"
                         />
                       ) : (
-                        <div className="user-email">
-                          {user.email}
-                        </div>
+                        <div className="user-email">{user.email}</div>
                       )}
                     </td>
                     <td>
-                      <div className="subscription-status">
+                      <div className="subscription-status" aria-label={`Subscription status: ${user.isSubscribed ? 'Subscribed' : 'Not subscribed'}`}>
                         {user.isSubscribed ? (
-                          <span className="status-icon active" title="Subscribed">✔️</span>
+                          <span className="status-icon active" title="Subscribed" aria-hidden="true">
+                            ✔️
+                          </span>
                         ) : (
-                          <span className="status-icon inactive" title="Not subscribed">❌</span>
+                          <span className="status-icon inactive" title="Not subscribed" aria-hidden="true">
+                            ❌
+                          </span>
                         )}
                       </div>
                     </td>
@@ -172,7 +171,7 @@ export default function UserTable({
                             <div className="subscription-date">
                               {new Date(user.subscriptionEnd).toLocaleDateString()}
                             </div>
-                            <div className={`days-left ${statusClass}`}>
+                            <div className={`days-left ${statusClass}`} aria-label={`Subscription ends in: ${displayDaysLeft}`}>
                               {displayDaysLeft}
                             </div>
                           </>
@@ -188,6 +187,7 @@ export default function UserTable({
                             className="save-button"
                             onClick={() => handleSaveInlineEdit(user.email)}
                             disabled={processing}
+                            type="button"
                           >
                             {processing ? 'Saving...' : 'Save'}
                           </button>
@@ -195,6 +195,7 @@ export default function UserTable({
                             className="cancel-button"
                             onClick={handleCancelInlineEdit}
                             disabled={processing}
+                            type="button"
                           >
                             Cancel
                           </button>
