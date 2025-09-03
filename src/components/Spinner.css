@@ -1,4 +1,3 @@
-/* Spinner.css */
 .spinner-container {
   text-align: center;
   margin: 50px auto;
@@ -24,14 +23,13 @@
   border-radius: 50%;
   border: 4px solid #3498db;
   border-color: #3498db transparent #ffa726 transparent;
-  /* Using your theme's orange color (#ffa726) instead of #e67e22 */
   animation: spinner-dual 1s linear infinite;
 }
 
 .spinner-message {
   margin-top: 18px;
   font-size: 16px;
-  color: #ccc; /* Changed from #333 to fit dark theme */
+  color: #ccc; /* suitable for dark theme */
   font-weight: 500;
 }
 
@@ -45,18 +43,15 @@
   width: 30px;
   height: 30px;
 }
-
 .spinner-ring.small:after {
   width: 26px;
   height: 26px;
   border-width: 3px;
 }
-
 .spinner-ring.large {
   width: 70px;
   height: 70px;
 }
-
 .spinner-ring.large:after {
   width: 66px;
   height: 66px;
