@@ -9,17 +9,16 @@ export default function SiteNameManagement() {
   const [fetching, setFetching] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
 
+  const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
+
   const fetchSiteName = async () => {
+    setFetching(true);
     try {
-      // Remove any trailing slash from API_URL to avoid double slashes
-      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
-      const response = await axios.get(`${baseUrl}/general?type=sitename`);
-      
-      // Check if response structure matches expected format
+      const response = await axios.get(`${getBaseUrl()}/general?type=sitename`);
+
       if (response.data && response.data.success && response.data.data && response.data.data.name) {
         setSiteName(response.data.data.name);
       } else if (response.data && response.data.name) {
-        // Handle case where API returns data directly
         setSiteName(response.data.name);
       } else {
         console.error('Unexpected response structure:', response);
@@ -44,12 +43,10 @@ export default function SiteNameManagement() {
       toast.error('Site name cannot be empty');
       return;
     }
-    
+
     setLoading(true);
     try {
-      // Remove any trailing slash from API_URL to avoid double slashes
-      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
-      await axios.put(`${baseUrl}/general?type=sitename`, { name: siteName.trim() });
+      await axios.put(`${getBaseUrl()}/general?type=sitename`, { name: siteName.trim() });
       toast.success('Site name updated successfully');
     } catch (error) {
       toast.error('Error updating site name');
@@ -67,14 +64,8 @@ export default function SiteNameManagement() {
       <p className="current-site-name">
         Current Site Name: <span>{siteName || '-'}</span>
       </p>
-      <form 
-        onSubmit={handleSubmit} 
-        className="site-name-form"
-        aria-label="Update Site Name form"
-      >
-        <label htmlFor="siteNameInput">
-          Enter New Site Name
-        </label>
+      <form onSubmit={handleSubmit} className="site-name-form" aria-label="Update Site Name form">
+        <label htmlFor="siteNameInput">Enter New Site Name</label>
         <input
           id="siteNameInput"
           type="text"
@@ -84,11 +75,7 @@ export default function SiteNameManagement() {
           required
           disabled={loading}
         />
-        <button 
-          type="submit" 
-          disabled={loading} 
-          className="btn-primary"
-        >
+        <button type="submit" disabled={loading} className="btn-primary">
           {loading ? 'Saving...' : 'Update Site Name'}
         </button>
       </form>
