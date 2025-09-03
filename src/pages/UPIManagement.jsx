@@ -11,7 +11,6 @@ export default function UPIManagement() {
 
   const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
 
-  // Fetch UPI ID from backend
   const fetchUpiId = async () => {
     setLoading(true);
     try {
@@ -29,7 +28,6 @@ export default function UPIManagement() {
     fetchUpiId();
   }, []);
 
-  // Handle form submit for updating UPI ID
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -47,9 +45,9 @@ export default function UPIManagement() {
   if (loading) return <Spinner message="Loading UPI ID..." />;
 
   return (
-    <div className="container">
+    <div className="container upi-management">
       <h1>UPI ID Management</h1>
-      <form onSubmit={handleSubmit} className="form-container" aria-label="Update UPI ID form">
+      <form onSubmit={handleSubmit} className="upi-form" aria-label="Update UPI ID form">
         <div className="form-group">
           <label htmlFor="upiId">UPI ID</label>
           <input
