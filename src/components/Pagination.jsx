@@ -9,19 +9,15 @@ export default function Pagination({
   totalItems 
 }) {
   const pageSizes = [5, 10, 20, 50];
-  const maxVisiblePages = 5; // Maximum number of page buttons to show
+  const maxVisiblePages = 5;
 
-  // Generate page numbers to display
   const getPageNumbers = () => {
     const pages = [];
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    // Adjust if at the end
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
@@ -33,7 +29,7 @@ export default function Pagination({
   const handlePageChange = (page) => setCurrentPage(page);
 
   if (totalPages <= 1 && totalItems <= pageSizes[0]) {
-    return null; // Do not render pagination if unnecessary
+    return null; 
   }
 
   return (
@@ -104,7 +100,7 @@ export default function Pagination({
           value={pageSize}
           onChange={(e) => {
             setPageSize(Number(e.target.value));
-            setCurrentPage(1); // Reset to first page on page size change
+            setCurrentPage(1);
           }}
           aria-label="Select items per page"
         >
