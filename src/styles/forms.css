@@ -1,4 +1,5 @@
 /* forms.css */
+
 input, textarea, select {
   background-color: var(--secondary-bg);
   color: var(--text-primary);
@@ -9,28 +10,30 @@ input, textarea, select {
   width: 100%;
   box-sizing: border-box;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: var(--spacing-md);
 }
 
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 5px var(--primary);
+  box-shadow: 0 0 6px var(--primary);
 }
 
 label {
   display: block;
   color: var(--text-primary);
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   user-select: none;
 }
 
 .form-group {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
 }
 
 .form-actions {
   display: flex;
   gap: var(--spacing-md);
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
