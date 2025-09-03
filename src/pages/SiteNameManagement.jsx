@@ -8,14 +8,12 @@ export default function SiteNameManagement() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
-
   const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
 
   const fetchSiteName = async () => {
     setFetching(true);
     try {
       const response = await axios.get(`${getBaseUrl()}/general?type=sitename`);
-
       if (response.data && response.data.success && response.data.data && response.data.data.name) {
         setSiteName(response.data.data.name);
       } else if (response.data && response.data.name) {
@@ -43,7 +41,6 @@ export default function SiteNameManagement() {
       toast.error('Site name cannot be empty');
       return;
     }
-
     setLoading(true);
     try {
       await axios.put(`${getBaseUrl()}/general?type=sitename`, { name: siteName.trim() });
@@ -59,7 +56,7 @@ export default function SiteNameManagement() {
   if (fetching) return <Spinner message="Loading site name..." />;
 
   return (
-    <div className="container">
+    <div className="container site-name-management">
       <h1>Site Name Management</h1>
       <p className="current-site-name">
         Current Site Name: <span>{siteName || '-'}</span>
