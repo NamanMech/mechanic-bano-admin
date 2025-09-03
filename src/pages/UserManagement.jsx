@@ -5,6 +5,7 @@ import SearchBar from '../components/SearchBar';
 import Pagination from '../components/Pagination';
 import UserTable from '../components/UserTable';
 import UserStats from '../components/UserStats';
+import '../styles/pages/user-management.css';
 import {
   showSuccessToast,
   showErrorToast,
