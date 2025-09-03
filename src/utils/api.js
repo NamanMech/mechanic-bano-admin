@@ -1,3 +1,5 @@
+import axios from 'axios';  // Add this line
+
 export const getApiUrl = (endpoint = '') => {
   const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, '');
   const cleanEndpoint = endpoint.replace(/^\/+/, '');
@@ -20,11 +22,9 @@ export const apiRequest = async (method, endpoint, data = null) => {
         'Content-Type': 'application/json',
       },
     };
-
     if (data) {
       config.data = data;
     }
-
     const response = await axios(config);
     return response.data;
   } catch (error) {
