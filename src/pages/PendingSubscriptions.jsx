@@ -31,13 +31,15 @@ export default function PendingSubscriptions() {
     }
   };
 
+  // UPDATED APPROVE FUNCTION
   const approveSubscription = async (id) => {
     setUpdating(prev => ({ ...prev, [id]: true }));
     try {
       await axios.put(getApiUrl(`pending-subscriptions?id=${id}`), { status: 'approved' });
       const subscription = subscriptions.find(sub => sub._id === id);
       if (subscription) {
-        await axios.post(getApiUrl('subscription?type=subscribe'), {
+        // Updated to call /api/approve
+        await axios.post(getApiUrl('approve'), {
           email: subscription.email,
           planId: subscription.planId,
         });
@@ -127,7 +129,6 @@ export default function PendingSubscriptions() {
   };
 
   if (loading) return <Spinner />;
-
   return (
     <div className="page-container">
       <div className="page-header">
