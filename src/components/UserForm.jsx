@@ -1,5 +1,6 @@
 import React from 'react';
 import { showWarningToast } from '../utils/toastUtils';
+import '../styles/components/user-form.css';
 
 export default function UserForm({
   formData,
