@@ -50,14 +50,12 @@ export default function PDFManagement() {
   const uploadToSupabase = async (fileToUpload) => {
     const allowedTypes = ['application/pdf'];
     const maxSize = 10 * 1024 * 1024; // 10MB
-
     if (!allowedTypes.includes(fileToUpload.type)) {
       throw new Error('Only PDF files are allowed');
     }
     if (fileToUpload.size > maxSize) {
       throw new Error('File size exceeds 10MB limit');
     }
-
     const fileName = `${uuidv4()}-${fileToUpload.name}`;
     const filePath = `pdfs/${fileName}`;
     const { error } = await supabase.storage.from('pdfs').upload(filePath, fileToUpload);
@@ -70,7 +68,6 @@ export default function PDFManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUploadButtonLoading(true);
-
     if (!title.trim()) {
       toast.error('Title is required');
       setUploadButtonLoading(false);
@@ -81,17 +78,15 @@ export default function PDFManagement() {
       setUploadButtonLoading(false);
       return;
     }
-
     try {
       const fileUrl = file ? await uploadToSupabase(file) : editingPdf.originalLink;
       const payload = {
         title: title.trim(),
         originalLink: fileUrl,
-        embedLink: '', // Placeholder if needed
+        embedLink: '', // Placeholder
         category,
         price: category === 'premium' ? parseFloat(price || 0) : 0,
       };
-
       if (editingPdf) {
         await axios.put(`${getBaseUrl()}/general?type=pdf&id=${editingPdf._id}`, payload);
         toast.success('PDF updated successfully');
@@ -165,8 +160,8 @@ export default function PDFManagement() {
   };
 
   return (
-    <div className="pdf-management">
-      <form onSubmit={handleSubmit} style={{ maxWidth: 600, margin: '0 auto' }}>
+    <div className="pdf-management container">
+      <form className="pdf-form" onSubmit={handleSubmit}>
         <h2>{editingPdf ? 'Edit PDF' : 'Upload New PDF'}</h2>
         <label htmlFor="pdf-title">Title</label>
         <input
@@ -201,7 +196,7 @@ export default function PDFManagement() {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               disabled={loading || uploadButtonLoading}
-              required={category === 'premium'}
+              required
             />
           </>
         )}
@@ -214,46 +209,35 @@ export default function PDFManagement() {
           ref={fileInputRef}
           disabled={loading || uploadButtonLoading}
         />
-        <button type="submit" disabled={loading || uploadButtonLoading} style={{ marginTop: '1rem' }}>
-          {uploadButtonLoading ? 'Saving...' : editingPdf ? 'Update PDF' : 'Upload PDF'}
-        </button>
-        {editingPdf && (
-          <button
-            type="button"
-            onClick={handleCancelEdit}
-            disabled={loading || uploadButtonLoading}
-            style={{ marginTop: '1rem', marginLeft: '1rem', backgroundColor: '#888' }}
-          >
-            Cancel
+        <div className="button-group">
+          <button type="submit" disabled={loading || uploadButtonLoading}>
+            {uploadButtonLoading ? 'Saving...' : editingPdf ? 'Update PDF' : 'Upload PDF'}
           </button>
-        )}
+          {editingPdf && (
+            <button type="button" className="btn-cancel" onClick={handleCancelEdit} disabled={loading || uploadButtonLoading}>
+              Cancel
+            </button>
+          )}
+        </div>
       </form>
-      <hr style={{ margin: '2rem 0' }} />
-      <section>
+      <hr className="section-divider" />
+      <section className="pdf-list-section" aria-label="Uploaded PDFs">
         <h2>Uploaded PDFs</h2>
         {loading && !uploadButtonLoading ? (
           <p>Loading...</p>
         ) : pdfs.length === 0 ? (
           <p>No PDFs uploaded yet.</p>
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, maxWidth: 800, margin: '0 auto' }}>
+          <ul className="pdf-list">
             {pdfs.map((pdf) => (
-              <li
-                key={pdf._id || pdf.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '0.5rem 0',
-                  borderBottom: '1px solid var(--border-color)',
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <strong>{pdf.title}</strong> <br />
+              <li key={pdf._id || pdf.id} className="pdf-list-item">
+                <div className="pdf-info">
+                  <strong>{pdf.title}</strong>
+                  <br />
                   Category: {pdf.category}{' '}
                   {pdf.category === 'premium' && pdf.price ? `| Price: ₹${pdf.price.toFixed(2)}` : ''}
                 </div>
-                <div style={{ flexShrink: 0, display: 'flex', gap: '0.5rem' }}>
+                <div className="pdf-actions">
                   <button type="button" onClick={() => handlePreview(pdf.originalLink)} disabled={loading || uploadButtonLoading}>
                     Preview
                   </button>
@@ -270,42 +254,9 @@ export default function PDFManagement() {
         )}
       </section>
       {showViewer && currentPdfUrl && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="pdf-viewer-title"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            height: '100vh',
-            width: '100vw',
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-          }}
-        >
-          <div style={{ position: 'relative', width: '90%', height: '90%', backgroundColor: 'var(--secondary-bg)', borderRadius: '8px', overflow: 'hidden' }}>
-            <button
-              onClick={handleCloseViewer}
-              aria-label="Close PDF viewer"
-              style={{
-                position: 'absolute',
-                top: 10,
-                right: 10,
-                background: 'var(--danger)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '50%',
-                width: 30,
-                height: 30,
-                fontSize: 20,
-                cursor: 'pointer',
-                zIndex: 1001,
-              }}
-            >
+        <div className="pdf-modal" role="dialog" aria-modal="true" aria-labelledby="pdf-viewer-title">
+          <div className="pdf-modal-content">
+            <button className="pdf-modal-close" onClick={handleCloseViewer} aria-label="Close PDF viewer">
               ×
             </button>
             <PDFViewer url={currentPdfUrl} />
