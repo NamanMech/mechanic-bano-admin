@@ -1,0 +1,42 @@
+/* tables.css */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: var(--spacing-lg);
+}
+
+.custom-table {
+  width: 100%;
+  background-color: var(--secondary-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.custom-table th, .custom-table td {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+  text-align: left;
+}
+
+.custom-table th {
+  background-color: #343434;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-weight: 700;
+  user-select: none;
+}
+
+.custom-table tr:nth-child(odd) td {
+  background-color: #2f2f2f;
+}
+
+.custom-table tr:hover td {
+  background-color: var(--border-color);
+  transition: background-color 0.3s;
+}
