@@ -10,7 +10,6 @@ export default function WelcomeNoteManagement() {
   const [fetchLoading, setFetchLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // Normalize base API URL to avoid trailing slashes issues
   const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
 
   useEffect(() => {
@@ -28,7 +27,6 @@ export default function WelcomeNoteManagement() {
         timeout: 10000,
         headers: { 'Content-Type': 'application/json' }
       });
-
       if (response.data) {
         setTitle(response.data.title || '');
         setMessage(response.data.message || '');
@@ -76,7 +74,7 @@ export default function WelcomeNoteManagement() {
       <div className="page-container">
         <div className="container">
           <h1 className="page-title">Welcome Note Management</h1>
-          <div className="welcome-card" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+          <div className="welcome-card loading-spinner">
             <Spinner />
           </div>
         </div>
