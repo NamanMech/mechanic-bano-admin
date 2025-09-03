@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import Spinner from '../components/Spinner'; // Import the Spinner component
+import Spinner from '../components/Spinner';
+import '../styles/pages/subscription-plans.css';
 
 export default function SubscriptionPlans() {
   const [plans, setPlans] = useState([]);
