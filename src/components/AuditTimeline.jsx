@@ -9,7 +9,7 @@ export default function AuditTimeline({ logs }) {
       ) : (
         <ul>
           {logs.map((log) => (
-            <li key={log.id || log.timestamp}>
+            <li key={log.id || log.timestamp} tabIndex="0" aria-live="polite" style={{marginBottom: '0.5rem'}}>
               <strong>{log.action}</strong> — <span>{log.email}</span> at{' '}
               <em>{new Date(log.timestamp).toLocaleString()}</em>
             </li>
