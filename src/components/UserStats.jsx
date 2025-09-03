@@ -2,9 +2,23 @@ import React from 'react';
 import '../styles/components/user-stats.css';
 
 export default function UserStats({ users }) {
+  const now = new Date();
+
+  // Subscribed: isSubscribed true AND ya to subscriptionEnd nahi hai (unlimited), ya aaj ke baad wali hai
+  const subscribed = users.filter(
+    (u) =>
+      u.isSubscribed &&
+      (!u.subscriptionEnd || new Date(u.subscriptionEnd) > now)
+  ).length;
+
+  // Expired: isSubscribed false OR subscriptionEnd date aaj se pehle ya barabar ho
+  const expired = users.filter(
+    (u) =>
+      !u.isSubscribed ||
+      (u.subscriptionEnd && new Date(u.subscriptionEnd) <= now)
+  ).length;
+
   const total = users.length;
-  const subscribed = users.filter((u) => u.isSubscribed).length;
-  const expired = total - subscribed;
   const subscribedPercentage = total > 0 ? Math.round((subscribed / total) * 100) : 0;
   const expiredPercentage = total > 0 ? Math.round((expired / total) * 100) : 0;
 
