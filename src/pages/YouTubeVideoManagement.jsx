@@ -12,17 +12,19 @@ export default function YouTubeVideoManagement() {
   const [editingVideo, setEditingVideo] = useState(null);
   const API_URL = import.meta.env.VITE_API_URL;
 
+  // Extract YouTube Video ID from various URL formats
   const extractVideoId = (url) => {
     const youtubeRegex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/;
     const match = url.match(youtubeRegex);
     return match && match[1] ? match[1] : '';
   };
 
+  const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
+
+  // Fetch videos from backend
   const fetchVideos = async () => {
     try {
-      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
-      const response = await axios.get(`${baseUrl}/general?type=youtube`);
-      
+      const response = await axios.get(`${getBaseUrl()}/general?type=youtube`);
       if (response.data && response.data.success) {
         setVideos(response.data.data || []);
       } else if (Array.isArray(response.data)) {
@@ -41,6 +43,7 @@ export default function YouTubeVideoManagement() {
     fetchVideos();
   }, []);
 
+  // Handle form submit for add or update video
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -52,12 +55,10 @@ export default function YouTubeVideoManagement() {
     }
     const cleanedLink = `https://www.youtube.com/embed/${videoId}`;
     const isPremium = category === 'premium';
-    
+
     try {
-      const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
-      
       if (editingVideo) {
-        await axios.put(`${baseUrl}/general?type=youtube&id=${editingVideo._id}`, {
+        await axios.put(`${getBaseUrl()}/general?type=youtube&id=${editingVideo._id}`, {
           title: title.trim(),
           description: description.trim(),
           embedLink: cleanedLink,
@@ -68,7 +69,7 @@ export default function YouTubeVideoManagement() {
         toast.success('Video updated successfully');
         setEditingVideo(null);
       } else {
-        await axios.post(`${baseUrl}/general?type=youtube`, {
+        await axios.post(`${getBaseUrl()}/general?type=youtube`, {
           title: title.trim(),
           description: description.trim(),
           embedLink: cleanedLink,
@@ -91,20 +92,20 @@ export default function YouTubeVideoManagement() {
     }
   };
 
+  // Delete selected video
   const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this video?')) {
-      try {
-        const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
-        await axios.delete(`${baseUrl}/general?type=youtube&id=${id}`);
-        toast.success('Video deleted successfully');
-        fetchVideos();
-      } catch (error) {
-        toast.error('Error deleting video');
-        console.error('Error details:', error.response?.data || error.message);
-      }
+    if (!window.confirm('Are you sure you want to delete this video?')) return;
+    try {
+      await axios.delete(`${getBaseUrl()}/general?type=youtube&id=${id}`);
+      toast.success('Video deleted successfully');
+      fetchVideos();
+    } catch (error) {
+      toast.error('Error deleting video');
+      console.error('Error details:', error.response?.data || error.message);
     }
   };
 
+  // Populate form for editing video
   const handleEdit = (video) => {
     setEditingVideo(video);
     setTitle(video.title);
@@ -113,6 +114,7 @@ export default function YouTubeVideoManagement() {
     setCategory(video.category);
   };
 
+  // Cancel editing mode
   const handleCancelEdit = () => {
     setEditingVideo(null);
     setTitle('');
@@ -141,7 +143,7 @@ export default function YouTubeVideoManagement() {
             disabled={loading}
           />
         </div>
-        
+
         <div className="input-group">
           <label htmlFor="videoDescription">Video Description</label>
           <textarea
@@ -151,15 +153,15 @@ export default function YouTubeVideoManagement() {
             onChange={(e) => setDescription(e.target.value)}
             required
             disabled={loading}
-            rows="4"
+            rows={4}
           />
         </div>
-        
+
         <div className="input-group">
           <label htmlFor="youtubeLink">YouTube Link</label>
           <input
             id="youtubeLink"
-            type="text"
+            type="url"
             placeholder="YouTube Link"
             value={link}
             onChange={(e) => setLink(e.target.value)}
@@ -167,7 +169,7 @@ export default function YouTubeVideoManagement() {
             disabled={loading}
           />
         </div>
-        
+
         <div className="input-group">
           <label htmlFor="videoCategory">Category</label>
           <select
@@ -180,7 +182,7 @@ export default function YouTubeVideoManagement() {
             <option value="premium">Premium</option>
           </select>
         </div>
-        
+
         <div className="form-actions">
           <button
             type="submit"
@@ -203,7 +205,7 @@ export default function YouTubeVideoManagement() {
           )}
         </div>
       </form>
-      
+
       <h2>Uploaded Videos</h2>
       {videos.length === 0 ? (
         <p className="no-content-message">No videos uploaded yet.</p>
@@ -213,13 +215,11 @@ export default function YouTubeVideoManagement() {
             <div key={video._id} className="pdf-card">
               <h3 className="video-title">
                 {video.title}{' '}
-                {video.isPremium && (
-                  <span className="stat-badge expired">Premium</span>
-                )}
+                {video.isPremium && <span className="stat-badge expired">Premium</span>}
               </h3>
               <p className="video-desc">{video.description}</p>
               <p className="video-category">Category: {video.category}</p>
-              
+
               <div className="pdf-preview">
                 <iframe
                   src={video.embedLink}
@@ -227,9 +227,9 @@ export default function YouTubeVideoManagement() {
                   frameBorder="0"
                   allowFullScreen
                   className="video-preview"
-                ></iframe>
+                />
               </div>
-              
+
               <div className="pdf-actions">
                 <button
                   onClick={() => handleEdit(video)}
