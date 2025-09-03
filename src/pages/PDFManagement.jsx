@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { supabase } from '../utils/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 import PDFViewer from '../components/PDFViewer';
+import '../styles/pages/pdf-management.css';
 
 export default function PDFManagement() {
   const [pdfs, setPdfs] = useState([]);
