@@ -87,6 +87,11 @@ label {
   user-select: none;
 }
 
+/* Form vertical spacing */
+form > * + * {
+  margin-top: var(--spacing-md);
+}
+
 /* ===== BUTTONS ===== */
 button {
   background-color: var(--primary);
@@ -97,48 +102,53 @@ button {
   cursor: pointer;
   font-weight: 700;
   font-size: 15px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   user-select: none;
   white-space: nowrap;
+  box-shadow: none;
 }
-
 button:hover,
 button:focus {
   background-color: #1565c0;
   transform: translateY(-2px);
   outline: none;
+  box-shadow: 0 4px 8px rgba(21, 101, 192, 0.5);
 }
-
 button:disabled,
 button[disabled] {
   background-color: var(--border-color);
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 /* Button variants */
 button.btn-success {
   background-color: var(--success);
 }
-
 button.btn-success:hover,
 button.btn-success:focus {
   background-color: #218838;
+  box-shadow: 0 4px 8px rgba(33, 136, 56, 0.5);
 }
-
 button.btn-danger {
   background-color: var(--danger);
 }
-
 button.btn-danger:hover,
 button.btn-danger:focus {
   background-color: #c82333;
+  box-shadow: 0 4px 8px rgba(200, 35, 51, 0.5);
 }
 
 /* ===== TABLE STYLES ===== */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .custom-table {
   width: 100%;
   background-color: var(--secondary-bg);
@@ -149,6 +159,7 @@ button.btn-danger:focus {
   overflow: hidden;
   margin: var(--spacing-lg) 0;
   box-shadow: var(--shadow-sm);
+  font-size: 14px;
 }
 
 .custom-table th {
@@ -159,6 +170,9 @@ button.btn-danger:focus {
   border-bottom: 2px solid var(--border-color);
   font-weight: 700;
   user-select: none;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .custom-table td {
@@ -190,8 +204,22 @@ button.btn-danger:focus {
   top: 0;
   z-index: 999;
   box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  flex-wrap: nowrap;
 }
 
+/* Nav brand */
+.nav-brand {
+  display: flex;
+  align-items: center;
+}
+
+.nav-brand h2 {
+  margin: 0;
+  color: white;
+  font-size: 1.2rem;
+}
+
+/* Nav links */
 .nav-links {
   display: flex;
   gap: 10px;
@@ -206,6 +234,7 @@ button.btn-danger:focus {
   font-weight: 600;
   transition: background-color 0.3s ease, color 0.3s ease;
   white-space: nowrap;
+  user-select: none;
 }
 
 .nav-links a:hover,
@@ -213,6 +242,35 @@ button.btn-danger:focus {
   background-color: var(--border-color);
   color: var(--accent-color);
   outline-offset: 2px;
+}
+
+/* Mobile hamburger menu button */
+.menu-toggle-button {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background-color: var(--navbar-bg);
+    margin-top: 10px;
+    border-radius: var(--border-radius);
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .menu-toggle-button {
+    display: block;
+  }
 }
 
 /* ===== STATUS STYLES ===== */
@@ -242,6 +300,31 @@ button.btn-danger:focus {
   color: #fff;
 }
 
+/* Additional status-badge styles for PendingSubscriptions */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: bold;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background-color: #ff9800;
+  color: white;
+}
+
+.status-approved {
+  background-color: #4caf50;
+  color: white;
+}
+
+.status-rejected {
+  background-color: #f44336;
+  color: white;
+}
+
 /* ===== LOADING SPINNER ===== */
 .spinner {
   border: 4px solid var(--secondary-bg);
@@ -253,6 +336,24 @@ button.btn-danger:focus {
   margin: 20px auto;
 }
 
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+.spinner-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+/* Spinner Animation */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -270,12 +371,13 @@ button.btn-danger:focus {
 
   input, textarea, select {
     font-size: 16px; /* Prevent zoom on mobile */
+    padding: var(--spacing-md);
   }
 
   .custom-table {
     font-size: 12px;
   }
-  
+
   .custom-table th, .custom-table td {
     padding: 8px;
   }
@@ -312,146 +414,88 @@ button.btn-danger:focus {
   margin-bottom: var(--spacing-md) !important;
 }
 
-/* Pending Subscriptions Styles */
-.page-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.page-header {
+/* ===== Sidebar + Main Layout ===== */
+.admin-layout {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  min-height: 100vh;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 40px;
+.sidebar {
+  width: 250px;
   background-color: var(--secondary-bg);
-  border-radius: 8px;
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
 }
 
-.table-container {
-  overflow-x: auto;
+.main-content {
+  flex-grow: 1;
+  padding: var(--spacing-lg);
+  background-color: var(--primary-bg);
 }
 
-/* Status badges */
-.status-badge {
-  padding: 4px 12px;
-  border-radius: 15px;
-  font-size: 12px;
-  font-weight: bold;
-  display: inline-block;
-  text-transform: uppercase;
+/* ===== Toast Animations ===== */
+.toast-enter {
+  opacity: 0;
+  transform: translateY(-20px);
 }
 
-.status-pending {
-  background-color: #ff9800;
-  color: white;
+.toast-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
 }
 
-.status-approved {
-  background-color: #4caf50;
-  color: white;
+.toast-exit {
+  opacity: 1;
 }
 
-.status-rejected {
-  background-color: #f44336;
-  color: white;
+.toast-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 300ms, transform 300ms;
 }
 
-/* Action buttons */
-.action-buttons {
-  display: flex;
-  gap: 10px;
+/* ===== Accessible Focus ===== */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--accent-color);
+  outline-offset: 2px;
 }
 
-.btn-success, .btn-danger {
-  padding: 8px 15px;
+/* ===== Scrollbar style for table container (optional) ===== */
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+.table-container::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
   border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  color: white;
 }
 
-.btn-success {
-  background: #4caf50;
+/* ===== Other utility and miscellaneous enhancements ===== */
+/* Increase clickable/touch area for mobile */
+button,
+input,
+textarea,
+select {
+  min-height: 40px;
 }
 
-.btn-success:hover {
-  background: #45a049;
+/* Smooth transition for inputs */
+input,
+textarea,
+select {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.btn-danger {
-  background: #f44336;
+/* Zebra striping for long tables */
+.custom-table tr:nth-child(odd) td {
+  background-color: #2f2f2f;
 }
 
-.btn-danger:hover {
-  background: #da190b;
-}
-
-.btn-success.small {
-  padding: 4px 8px;
-  font-size: 12px;
-}
-
-/* Status messages */
-.status-message {
-  text-align: center;
-  font-weight: bold;
-}
-
-.status-message.approved {
-  color: #4caf50;
-}
-
-.status-message.rejected {
-  color: #f44336;
-}
-
-/* Updating indicator */
-.updating-indicator {
-  text-align: center;
-  color: #666;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-
-.spinner-small {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #ccc;
-  border-top: 2px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-}
-
-/* Screenshot link */
-.screenshot-link {
-  display: inline-block;
-  padding: 8px 15px;
-  background-color: #2196f3;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.screenshot-link:hover {
-  background-color: #0b7dda;
-}
-
-.no-screenshot {
-  color: #f44336;
-}
-
-/* Table row status colors */
+/* Status row highlight */
 tr.status-pending td {
   background-color: rgba(255, 152, 0, 0.05);
 }
@@ -462,82 +506,4 @@ tr.status-approved td {
 
 tr.status-rejected td {
   background-color: rgba(244, 67, 54, 0.05);
-}
-
-/* Plan details */
-.plan-details {
-  line-height: 1.4;
-}
-
-/* Date info */
-.date-info {
-  line-height: 1.4;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  text-align: center;
-  padding: 20px;
-}
-
-.error-container h1 {
-  color: #f44336;
-  margin-bottom: 20px;
-}
-
-.error-container ul {
-  text-align: left;
-  margin: 20px 0;
-}
-
-.nav-brand {
-  display: flex;
-  align-items: center;
-}
-
-.nav-brand h2 {
-  margin: 0;
-  color: white;
-  font-size: 1.2rem;
-}
-
-/* Active state for nav items */
-.nav-links a.active {
-  background-color: #ff9800;
-  color: #1e1e1e;
-}
-
-/* Loading states */
-.data-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-}
-
-/* Connection status indicator */
-.connection-status {
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  margin-left: 10px;
-}
-
-.connection-status.connected {
-  background-color: #4caf50;
-  color: white;
-}
-
-.connection-status.error {
-  background-color: #f44336;
-  color: white;
 }
