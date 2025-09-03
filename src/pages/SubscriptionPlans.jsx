@@ -69,10 +69,10 @@ export default function SubscriptionPlans() {
 
     try {
       if (editingId) {
-        await axios.put(`${getBaseUrl()}/subscription?id=${editingId}`, payload);
+        await axios.put(`${getBaseUrl()}/subscription-plans?id=${editingId}`, payload);
         toast.success('Plan updated successfully!');
       } else {
-        await axios.post(`${getBaseUrl()}/subscription`, payload);
+        await axios.post(`${getBaseUrl()}/subscription-plans`, payload);
         toast.success('Plan created successfully!');
       }
       setForm({ title: '', price: '', days: '', discount: '' });
@@ -112,7 +112,7 @@ export default function SubscriptionPlans() {
     if (!window.confirm('Are you sure you want to delete this plan?')) return;
 
     try {
-      await axios.delete(`${getBaseUrl()}/subscription?id=${id}`);
+      await axios.delete(`${getBaseUrl()}/subscription-plans?id=${id}`);
       toast.success('Plan deleted successfully!');
       await fetchPlans();
     } catch (error) {
