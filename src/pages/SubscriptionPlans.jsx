@@ -18,7 +18,7 @@ export default function SubscriptionPlans() {
   const fetchPlans = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${getBaseUrl()}/subscription`);
+      const response = await axios.get(`${getBaseUrl()}/subscription-plans`);
       if (response.data) {
         if (Array.isArray(response.data)) {
           setPlans(response.data);
