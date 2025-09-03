@@ -1,4 +1,6 @@
 import React from 'react';
+import '../styles/components/spinner.css';
+
 
 export default function Spinner({ message = 'Loading...' }) {
   return (
