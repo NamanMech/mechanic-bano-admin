@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-// Set worker path
+// Set worker path for PDF.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 const PDFViewer = ({ url, onClose }) => {
@@ -17,7 +17,7 @@ const PDFViewer = ({ url, onClose }) => {
   const [scale, setScale] = useState(1.5);
   const renderTaskRef = useRef(null);
 
-  // Cancel ongoing render task
+  // Cancel ongoing PDF render task
   const cancelRenderTask = useCallback(() => {
     if (renderTaskRef.current) {
       renderTaskRef.current.cancel();
@@ -25,22 +25,23 @@ const PDFViewer = ({ url, onClose }) => {
     }
   }, []);
 
-  // Load PDF document
+  // Load PDF document when URL changes
   useEffect(() => {
     const loadPDF = async () => {
       setLoading(true);
       cancelRenderTask();
-      
+
       try {
         if (!url) {
           throw new Error('No PDF URL provided');
         }
-        
+
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch PDF');
+
         const buffer = await response.arrayBuffer();
         const pdfData = new Uint8Array(buffer);
-        
+
         const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
         setPdfDoc(pdf);
         setTotalPages(pdf.numPages);
@@ -53,37 +54,37 @@ const PDFViewer = ({ url, onClose }) => {
         setLoading(false);
       }
     };
-    
+
     loadPDF();
-    
+
     return () => {
       cancelRenderTask();
     };
   }, [url, cancelRenderTask]);
 
-  // Render PDF page
+  // Render the current page on the canvas
   useEffect(() => {
     const renderPage = async () => {
       if (!pdfDoc || !canvasRef.current) return;
-      
+
       cancelRenderTask();
-      
+
       try {
         const page = await pdfDoc.getPage(currentPage);
         const viewport = page.getViewport({ scale });
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
-        
-        // Set canvas dimensions
+
+        // Set canvas size to match PDF page size
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        
-        // Render PDF page
+
+        // Start rendering the page
         renderTaskRef.current = page.render({
           canvasContext: context,
-          viewport: viewport
+          viewport,
         });
-        
+
         await renderTaskRef.current.promise;
         renderTaskRef.current = null;
       } catch (err) {
@@ -95,45 +96,45 @@ const PDFViewer = ({ url, onClose }) => {
         }
       }
     };
-    
+
     renderPage();
   }, [pdfDoc, currentPage, scale, cancelRenderTask]);
 
-  // Navigation functions
+  // Navigation controls
   const goToPrevPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
-  
+
   const goToNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
-  
+
   const goToFirstPage = () => {
     setCurrentPage(1);
   };
-  
+
   const goToLastPage = () => {
-    setTotalPages(totalPages);
+    setCurrentPage(totalPages);
   };
-  
-  // Handle page input
+
+  // Handle manual page input
   const handlePageInput = (e) => {
-    const pageNum = parseInt(e.target.value);
+    const pageNum = parseInt(e.target.value, 10);
     if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
       setCurrentPage(pageNum);
     }
   };
-  
-  // Zoom functions
+
+  // Zoom controls with limits
   const zoomIn = () => {
-    setScale(prevScale => Math.min(prevScale + 0.25, 3));
+    setScale((prev) => Math.min(prev + 0.25, 3));
   };
-  
+
   const zoomOut = () => {
-    setScale(prevScale => Math.max(prevScale - 0.25, 0.5));
+    setScale((prev) => Math.max(prev - 0.25, 0.5));
   };
-  
-  // Fullscreen functions
+
+  // Fullscreen toggle logic
   const toggleFullScreen = useCallback(() => {
     if (!document.fullscreenElement) {
       if (containerRef.current.requestFullscreen) {
@@ -152,22 +153,22 @@ const PDFViewer = ({ url, onClose }) => {
     }
   }, []);
 
-  // Handle fullscreen change events
+  // Listen to fullscreen change events to sync state
   useEffect(() => {
     const handleFullScreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
-    
+
     document.addEventListener('fullscreenchange', handleFullScreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
-    
+
     return () => {
       document.removeEventListener('fullscreenchange', handleFullScreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullScreenChange);
     };
   }, []);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts: left/right for page navigation, Esc to exit fullscreen
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowLeft') {
@@ -178,7 +179,7 @@ const PDFViewer = ({ url, onClose }) => {
         toggleFullScreen();
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFullscreen, toggleFullScreen]);
