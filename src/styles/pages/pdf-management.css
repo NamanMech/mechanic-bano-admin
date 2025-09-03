@@ -1,0 +1,273 @@
+/* pdf-management.css */
+
+.pdf-management {
+  max-width: 900px;
+  margin: 30px auto 0 auto;
+  padding: var(--spacing-lg);
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  min-height: calc(100vh - 60px);
+  font-family: var(--font-family-base);
+}
+
+.pdf-form {
+  background-color: var(--secondary-bg);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.pdf-form h2 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.pdf-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pdf-form input[type="text"],
+.pdf-form input[type="number"],
+.pdf-form input[type="file"],
+.pdf-form select {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pdf-form input[type="text"]:focus,
+.pdf-form input[type="number"]:focus,
+.pdf-form input[type="file"]:focus,
+.pdf-form select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 5px var(--accent-color);
+}
+
+.button-group {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.button-group button {
+  min-width: 120px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-weight: 700;
+  border-radius: var(--border-radius);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  color: white;
+}
+
+.button-group button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button-group button:not(:disabled):hover,
+.button-group button:not(:disabled):focus {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(21, 101, 209, 0.5);
+  outline: none;
+}
+
+.button-group button[type="submit"] {
+  background-color: var(--primary);
+}
+
+.button-group button[type="submit"]:hover {
+  background-color: #1561d1;
+}
+
+.button-group .btn-cancel {
+  background-color: #888;
+}
+
+.button-group .btn-cancel:hover,
+.button-group .btn-cancel:focus {
+  background-color: #666;
+}
+
+/* PDF List Section */
+.pdf-list-section h2 {
+  font-weight: 700;
+  margin-bottom: var(--spacing-md);
+  color: var(--accent-color);
+}
+
+.pdf-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pdf-list-item {
+  background-color: var(--secondary-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.pdf-info {
+  flex: 1 1 60%;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.pdf-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  flex: 1 1 35%;
+  justify-content: flex-end;
+}
+
+.pdf-actions button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+  color: white;
+  transition: background-color 0.3s ease;
+  font-size: 0.9rem;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+.pdf-actions button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+}
+
+.pdf-actions button:not(:disabled):hover,
+.pdf-actions button:not(:disabled):focus {
+  outline: none;
+}
+
+.pdf-actions button:nth-child(1) {
+  background-color: var(--primary);
+}
+
+.pdf-actions button:nth-child(1):hover {
+  background-color: #1561d1;
+}
+
+.pdf-actions button:nth-child(2) {
+  background-color: #777;
+}
+
+.pdf-actions button:nth-child(2):hover {
+  background-color: #555;
+}
+
+.pdf-actions .btn-danger {
+  background-color: var(--danger);
+}
+
+.pdf-actions .btn-danger:hover {
+  background-color: #c4242e;
+}
+
+/* Modal window for PDF Viewer */
+.pdf-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(30, 30, 30, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  user-select: none;
+}
+
+.pdf-modal-content {
+  background-color: var(--secondary-bg);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  width: 90vw;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: auto;
+  position: relative;
+}
+
+.pdf-modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 2rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.3s ease;
+}
+
+.pdf-modal-close:hover,
+.pdf-modal-close:focus {
+  color: var(--accent-color);
+  outline: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pdf-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pdf-info {
+    flex: 1 1 100%;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .pdf-actions {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .pdf-form {
+    padding: var(--spacing-md);
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .button-group button {
+    width: 100%;
+    margin-top: var(--spacing-sm);
+    min-width: auto;
+  }
+}
