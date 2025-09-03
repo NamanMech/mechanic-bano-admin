@@ -33,10 +33,7 @@ export default function PendingSubscriptions() {
   const approveSubscription = async (id) => {
     setUpdating(prev => ({ ...prev, [id]: true }));
     try {
-      // Update pending subscription status to approved
       await axios.put(getApiUrl(`pending-subscriptions?id=${id}`), { status: 'approved' });
-
-      // Activate subscription for user
       const subscription = subscriptions.find(sub => sub._id === id);
       if (subscription) {
         await axios.post(getApiUrl('subscription?type=subscribe'), {
@@ -44,7 +41,6 @@ export default function PendingSubscriptions() {
           planId: subscription.planId,
         });
       }
-
       toast.success('✅ Subscription approved successfully!');
       await fetchSubscriptions();
     } catch (error) {
@@ -63,7 +59,6 @@ export default function PendingSubscriptions() {
     setUpdating(prev => ({ ...prev, [id]: true }));
     try {
       await axios.put(getApiUrl(`pending-subscriptions?id=${id}`), { status: 'rejected' });
-
       toast.success('❌ Subscription rejected');
       await fetchSubscriptions();
     } catch (error) {
@@ -102,7 +97,6 @@ export default function PendingSubscriptions() {
         </div>
       );
     }
-
     switch (sub.status) {
       case 'pending':
         return (
@@ -141,7 +135,6 @@ export default function PendingSubscriptions() {
           🔄 Refresh
         </button>
       </div>
-
       {subscriptions.length === 0 ? (
         <div className="empty-state">
           <h3>📷 No Screenshots Found</h3>
