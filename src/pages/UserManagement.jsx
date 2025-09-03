@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Spinner from '../components/Spinner.jsx';
-import SearchBar from '../components/SearchBar.jsx';
-import Pagination from '../components/Pagination.jsx';
-import UserTable from '../components/UserTable.jsx';
-import UserStats from '../components/UserStats.jsx';
+import Spinner from '../components/Spinner';
+import SearchBar from '../components/SearchBar';
+import Pagination from '../components/Pagination';
+import UserTable from '../components/UserTable';
+import UserStats from '../components/UserStats';
 import {
   showSuccessToast,
   showErrorToast,
@@ -25,7 +25,6 @@ export default function UserManagement() {
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
   const API_URL = import.meta.env.VITE_API_URL;
-
   const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
 
   useEffect(() => {
@@ -115,7 +114,7 @@ export default function UserManagement() {
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
-  // Filter users based on search, status and date filters
+  // Filter users based on search, status, and date filters
   const filteredUsers = users.filter((user) => {
     if (!user) return false;
     const name = user.name || '';
@@ -149,19 +148,20 @@ export default function UserManagement() {
 
   if (loading)
     return (
-      <div className="spinner-container" style={{ padding: '40px 0', textAlign: 'center' }}>
+      <div className="spinner-container">
         <Spinner message="Loading users..." />
       </div>
     );
+
   if (!users.length)
     return (
-      <p className="text-center" style={{ marginTop: 20 }}>
+      <p className="text-center no-users-message">
         No users found.
       </p>
     );
 
   return (
-    <div className="user-management" style={{ maxWidth: 1000, margin: '0 auto', padding: '1rem' }}>
+    <div className="user-management container">
       <UserStats users={users} />
       <SearchBar
         searchQuery={searchQuery}
