@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
 import { showSuccessToast, showErrorToast } from '../utils/toastUtils';
+import '../styles/pages/welcome-note-management.css';
 
 export default function WelcomeNoteManagement() {
   const [title, setTitle] = useState('');
