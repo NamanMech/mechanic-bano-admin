@@ -9,7 +9,6 @@ export default function Navbar({ pageStatus }) {
   useLayoutEffect(() => {
     const checkScreenSize = () => window.innerWidth <= 768;
     setIsMobile(checkScreenSize());
-
     const handleResize = () => {
       const mobile = checkScreenSize();
       setIsMobile(mobile);
@@ -17,7 +16,6 @@ export default function Navbar({ pageStatus }) {
         setMenuOpen(false);
       }
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -46,7 +44,6 @@ export default function Navbar({ pageStatus }) {
     { name: 'UPI Management', path: '/upi', key: 'upi' },
   ];
 
-  // Filter pages based on pageStatus: show only enabled pages or those without explicit false
   const visiblePages = pages.filter((page) => pageStatus[page.key] !== false);
 
   return (
@@ -54,7 +51,6 @@ export default function Navbar({ pageStatus }) {
       <div className="nav-brand">
         <h2>Mechanic Bano Admin</h2>
       </div>
-
       <button
         aria-controls="primary-navigation"
         aria-expanded={menuOpen}
@@ -65,30 +61,13 @@ export default function Navbar({ pageStatus }) {
       >
         ☰
       </button>
-
       <ul
         id="primary-navigation"
-        className="nav-links"
-        style={{
-          display: isMobile ? (menuOpen ? 'flex' : 'none') : 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: '10px',
-          margin: 0,
-          padding: 0,
-          listStyle: 'none',
-          width: isMobile ? '100%' : 'auto',
-          justifyContent: isMobile ? 'center' : 'flex-start',
-          alignItems: 'center',
-        }}
+        className={`nav-links ${menuOpen && isMobile ? 'open' : ''}`}
+        data-mobile={isMobile ? 'true' : 'false'}
       >
         {visiblePages.map(({ name, path, key }) => (
-          <li
-            key={key}
-            style={{
-              width: isMobile ? '100%' : 'auto',
-              textAlign: isMobile ? 'center' : 'left',
-            }}
-          >
+          <li key={key} className="nav-item">
             <NavLink
               to={path}
               style={navLinkStyle}
