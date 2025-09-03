@@ -1,0 +1,42 @@
+/* user-management.css */
+
+.user-management {
+  max-width: 900px;
+  margin: 30px auto 0 auto;
+  padding: var(--spacing-lg);
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  font-family: var(--font-family-base);
+  min-height: calc(100vh - 60px);
+}
+
+/* Centered message for no users */
+.no-users-message {
+  margin-top: var(--spacing-lg);
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  user-select: none;
+  text-align: center;
+}
+
+/* Spinner container */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+/* Utility text-center class */
+.text-center {
+  text-align: center;
+}
+
+/* You can also add styles here for UserStats, SearchBar, UserTable, Pagination if needed */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .user-management {
+    padding: var(--spacing-md);
+  }
+}
