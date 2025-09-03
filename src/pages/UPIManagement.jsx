@@ -9,14 +9,14 @@ export default function UPIManagement() {
   const [saving, setSaving] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
 
-  useEffect(() => {
-    fetchUpiId();
-  }, []);
+  const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
 
+  // Fetch UPI ID from backend
   const fetchUpiId = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}general?type=upi`);
-      setUpiId(response.data.data.upiId || '');
+      const response = await axios.get(`${getBaseUrl()}/general?type=upi`);
+      setUpiId(response.data?.data?.upiId || '');
     } catch (error) {
       toast.error('Error fetching UPI ID');
       console.error('Error details:', error.response?.data || error.message);
@@ -25,11 +25,16 @@ export default function UPIManagement() {
     }
   };
 
+  useEffect(() => {
+    fetchUpiId();
+  }, []);
+
+  // Handle form submit for updating UPI ID
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
-      await axios.put(`${API_URL}general?type=upi`, { upiId });
+      await axios.put(`${getBaseUrl()}/general?type=upi`, { upiId });
       toast.success('UPI ID updated successfully!');
     } catch (error) {
       toast.error('Error updating UPI ID');
@@ -39,12 +44,12 @@ export default function UPIManagement() {
     }
   };
 
-  if (loading) return <Spinner />;
+  if (loading) return <Spinner message="Loading UPI ID..." />;
 
   return (
     <div className="container">
       <h1>UPI ID Management</h1>
-      <form onSubmit={handleSubmit} className="form-container">
+      <form onSubmit={handleSubmit} className="form-container" aria-label="Update UPI ID form">
         <div className="form-group">
           <label htmlFor="upiId">UPI ID</label>
           <input
@@ -54,6 +59,7 @@ export default function UPIManagement() {
             value={upiId}
             onChange={(e) => setUpiId(e.target.value)}
             required
+            disabled={saving}
           />
         </div>
         <button type="submit" disabled={saving} className="btn-primary">
