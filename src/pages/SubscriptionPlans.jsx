@@ -13,7 +13,6 @@ export default function SubscriptionPlans() {
   const titleInputRef = useRef();
   const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
 
-  // Fetch plans
   const fetchPlans = async () => {
     setLoading(true);
     try {
@@ -42,13 +41,11 @@ export default function SubscriptionPlans() {
     fetchPlans();
   }, []);
 
-  // Handle form input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submit for create or update
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim() || !form.price || !form.days) {
@@ -93,7 +90,6 @@ export default function SubscriptionPlans() {
     }
   };
 
-  // Edit selected plan
   const handleEdit = (plan) => {
     setForm({
       title: plan.title,
@@ -110,7 +106,6 @@ export default function SubscriptionPlans() {
     }, 100);
   };
 
-  // Delete plan
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this plan?')) return;
     try {
@@ -124,7 +119,6 @@ export default function SubscriptionPlans() {
     }
   };
 
-  // Cancel editing
   const handleCancelEdit = () => {
     setForm({ title: '', price: '', days: '', discount: '' });
     setEditingId(null);
@@ -213,7 +207,11 @@ export default function SubscriptionPlans() {
         {plans.length === 0 ? (
           <p>No subscription plans found.</p>
         ) : (
-          <table className="custom-table" aria-label="Subscription Plans Table" style={{ width: '100%' }}>
+          <table
+            className="custom-table"
+            aria-label="Subscription Plans Table"
+            style={{ width: '100%' }}
+          >
             <thead>
               <tr>
                 <th scope="col">Title</th>
