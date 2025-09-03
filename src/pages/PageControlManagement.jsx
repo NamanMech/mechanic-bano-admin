@@ -19,6 +19,7 @@ export default function PageControlManagement({ fetchPageStatus }) {
     setLoading(true);
     try {
       const response = await axios.get(`${getBaseUrl()}/general?type=pagecontrol`);
+
       if (response.data && response.data.success) {
         setPages(response.data.data || []);
       } else if (Array.isArray(response.data)) {
@@ -40,20 +41,16 @@ export default function PageControlManagement({ fetchPageStatus }) {
       toast.warning("This page can't be disabled");
       return;
     }
-
     const confirmToggle = window.confirm(
       `Are you sure you want to ${currentStatus ? 'disable' : 'enable'} "${formatPageName(pageName)}"?`
     );
-
     if (!confirmToggle) return;
 
     try {
       await axios.put(`${getBaseUrl()}/general?type=pagecontrol&id=${id}`, {
         enabled: !currentStatus,
       });
-      toast.success(
-        `"${formatPageName(pageName)}" ${currentStatus ? 'disabled' : 'enabled'} successfully`
-      );
+      toast.success(`"${formatPageName(pageName)}" ${currentStatus ? 'disabled' : 'enabled'} successfully`);
       await loadPages();
       if (fetchPageStatus && typeof fetchPageStatus === 'function') {
         await fetchPageStatus();
@@ -70,8 +67,7 @@ export default function PageControlManagement({ fetchPageStatus }) {
 
   if (loading) return <Spinner />;
 
-  if (pages.length === 0)
-    return <p>No pages found or unable to load page data.</p>;
+  if (!pages.length) return <p>No pages found or unable to load page data.</p>;
 
   return (
     <div className="container" style={{ overflowX: 'auto' }}>
@@ -88,37 +84,20 @@ export default function PageControlManagement({ fetchPageStatus }) {
             <tr key={page._id} style={{ borderBottom: '1px solid #444' }}>
               <td style={{ padding: '12px' }}>{formatPageName(page.page)}</td>
               <td style={{ textAlign: 'center', padding: '12px' }}>
-                {page.enabled ? (
-                  <span
-                    style={{
-                      color: 'white',
-                      backgroundColor: '#28a745',
-                      padding: '4px 10px',
-                      borderRadius: '12px',
-                      fontWeight: '600',
-                      userSelect: 'none',
-                      display: 'inline-block',
-                      minWidth: '50px',
-                    }}
-                  >
-                    Enabled
-                  </span>
-                ) : (
-                  <span
-                    style={{
-                      color: 'white',
-                      backgroundColor: '#dc3545',
-                      padding: '4px 10px',
-                      borderRadius: '12px',
-                      fontWeight: '600',
-                      userSelect: 'none',
-                      display: 'inline-block',
-                      minWidth: '50px',
-                    }}
-                  >
-                    Disabled
-                  </span>
-                )}
+                <span
+                  style={{
+                    color: 'white',
+                    backgroundColor: page.enabled ? '#28a745' : '#dc3545',
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                    fontWeight: '600',
+                    userSelect: 'none',
+                    display: 'inline-block',
+                    minWidth: '50px',
+                  }}
+                >
+                  {page.enabled ? 'Enabled' : 'Disabled'}
+                </span>
               </td>
               <td style={{ textAlign: 'center', padding: '12px' }}>
                 {page.page === 'pagecontrol' ? (
@@ -150,9 +129,7 @@ export default function PageControlManagement({ fetchPageStatus }) {
                       cursor: 'pointer',
                       transition: 'background-color 0.3s ease',
                     }}
-                    aria-label={`${
-                      page.enabled ? 'Disable' : 'Enable'
-                    } ${formatPageName(page.page)} page`}
+                    aria-label={`${page.enabled ? 'Disable' : 'Enable'} ${formatPageName(page.page)} page`}
                   >
                     {page.enabled ? 'Disable' : 'Enable'}
                   </button>
