@@ -1,4 +1,5 @@
 import React from 'react';
+import '../styles/components/audit-timeline.css';
 
 export default function AuditTimeline({ logs }) {
   return (
