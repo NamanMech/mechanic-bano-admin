@@ -24,7 +24,6 @@ export default function App() {
   const fetchPageStatus = useCallback(async () => {
     try {
       const data = await apiRequest('GET', 'general?type=pagecontrol');
-
       if (data && data.success) {
         const statusMap = {};
         (data.data || []).forEach(({ page, enabled }) => {
@@ -60,7 +59,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
+      <div className="spinner-wrapper" style={{ marginTop: '100px' }}>
         <Spinner />
       </div>
     );
@@ -86,19 +85,22 @@ export default function App() {
   return (
     <Router>
       <Navbar pageStatus={pageStatus} />
-      <div style={{ padding: '20px' }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/videos" element={<YouTubeVideoManagement />} />
-          <Route path="/pdfs" element={<PDFManagement />} />
-          <Route path="/welcome" element={<WelcomeNoteManagement />} />
-          <Route path="/sitename" element={<SiteNameManagement />} />
-          <Route path="/pagecontrol" element={<PageControlManagement fetchPageStatus={fetchPageStatus} />} />
-          <Route path="/subscription-plans" element={<SubscriptionPlans />} />
-          <Route path="/users" element={<UserManagement />} />
-          <Route path="/pending-subscriptions" element={<PendingSubscriptions />} />
-          <Route path="/upi" element={<UPIManagement />} />
-        </Routes>
+      <div className="admin-layout">
+        {/* Sidebar can be added here with class 'sidebar' if you have */}
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/videos" element={<YouTubeVideoManagement />} />
+            <Route path="/pdfs" element={<PDFManagement />} />
+            <Route path="/welcome" element={<WelcomeNoteManagement />} />
+            <Route path="/sitename" element={<SiteNameManagement />} />
+            <Route path="/pagecontrol" element={<PageControlManagement fetchPageStatus={fetchPageStatus} />} />
+            <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+            <Route path="/users" element={<UserManagement />} />
+            <Route path="/pending-subscriptions" element={<PendingSubscriptions />} />
+            <Route path="/upi" element={<UPIManagement />} />
+          </Routes>
+        </div>
       </div>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
     </Router>
