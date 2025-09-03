@@ -6,6 +6,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  color: var(--text-secondary);
+  user-select: none;
 }
 
 .spinner-ring {
@@ -21,37 +23,41 @@
   height: 46px;
   margin: 2px;
   border-radius: 50%;
-  border: 4px solid #3498db;
-  border-color: #3498db transparent #ffa726 transparent;
+  border: 4px solid var(--primary);
+  border-color: var(--primary) transparent var(--accent-color) transparent;
   animation: spinner-dual 1s linear infinite;
 }
 
 .spinner-message {
   margin-top: 18px;
   font-size: 16px;
-  color: #ccc; /* suitable for dark theme */
   font-weight: 500;
+  color: var(--text-secondary);
 }
 
+/* Animation */
 @keyframes spinner-dual {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Additional size variants */
+/* Size variants */
 .spinner-ring.small {
   width: 30px;
   height: 30px;
 }
+
 .spinner-ring.small:after {
   width: 26px;
   height: 26px;
   border-width: 3px;
 }
+
 .spinner-ring.large {
   width: 70px;
   height: 70px;
 }
+
 .spinner-ring.large:after {
   width: 66px;
   height: 66px;
@@ -61,6 +67,6 @@
 /* Dark theme integration */
 @media (prefers-color-scheme: dark) {
   .spinner-ring:after {
-    border-color: #1e88e5 transparent #ffa726 transparent;
+    border-color: var(--primary) transparent var(--accent-color) transparent;
   }
 }
