@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import Spinner from '../components/Spinner';
+import Spinner from '../components/Spinner'; // Import the Spinner component
 
 export default function SubscriptionPlans() {
   const [plans, setPlans] = useState([]);
@@ -11,9 +11,10 @@ export default function SubscriptionPlans() {
   const [saving, setSaving] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
   const titleInputRef = useRef();
+
   const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
 
-  // Fetch plans from backend
+  // Fetch plans
   const fetchPlans = async () => {
     setLoading(true);
     try {
@@ -42,13 +43,13 @@ export default function SubscriptionPlans() {
     fetchPlans();
   }, []);
 
-  // Handle form input changes
+  // Handle form changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Submit form for create/update
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim() || form.price === '' || form.days === '') {
@@ -71,10 +72,7 @@ export default function SubscriptionPlans() {
         );
         toast.success('Plan updated successfully!');
       } else {
-        await axios({
-          method: 'post',
-          url: `${getBaseUrl()}/subscription-plans`,
-          data: JSON.stringify(payload),
+        await axios.post(`${getBaseUrl()}/subscription-plans`, JSON.stringify(payload), {
           headers: { 'Content-Type': 'application/json' },
         });
         toast.success('Plan created successfully!');
@@ -94,7 +92,7 @@ export default function SubscriptionPlans() {
     }
   };
 
-  // Edit existing plan
+  // Edit plan
   const handleEdit = (plan) => {
     setForm({
       title: plan.title,
@@ -111,7 +109,7 @@ export default function SubscriptionPlans() {
     }, 100);
   };
 
-  // Delete existing plan
+  // Delete plan
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this plan?')) return;
     try {
@@ -125,7 +123,7 @@ export default function SubscriptionPlans() {
     }
   };
 
-  // Cancel editing mode
+  // Cancel editing
   const handleCancelEdit = () => {
     setForm({ title: '', price: '', days: '', discount: '' });
     setEditingId(null);
@@ -134,14 +132,14 @@ export default function SubscriptionPlans() {
 
   if (loading)
     return (
-      <div className="spinner-container" style={{ padding: '40px 0', textAlign: 'center' }}>
+      <div className="spinner-container">
         <Spinner message="Loading plans..." />
       </div>
     );
 
   return (
-    <div className="subscription-plans" style={{ maxWidth: 700, margin: '0 auto' }}>
-      <form onSubmit={handleSubmit} noValidate style={{ marginBottom: '2rem' }}>
+    <div className="subscription-plans container">
+      <form onSubmit={handleSubmit} noValidate className="subscription-form">
         <h2>{editingId ? 'Edit Subscription Plan' : 'Add Subscription Plan'}</h2>
         <label htmlFor="title">Title *</label>
         <input
@@ -193,7 +191,7 @@ export default function SubscriptionPlans() {
           disabled={saving}
           placeholder="Enter discount percentage (optional)"
         />
-        <div style={{ marginTop: '1rem' }}>
+        <div className="form-buttons">
           <button type="submit" disabled={saving}>
             {saving ? (editingId ? 'Updating...' : 'Creating...') : editingId ? 'Update Plan' : 'Create Plan'}
           </button>
@@ -202,26 +200,26 @@ export default function SubscriptionPlans() {
               type="button"
               onClick={handleCancelEdit}
               disabled={saving}
-              style={{ marginLeft: '1rem', backgroundColor: '#888' }}
+              className="btn-cancel"
             >
               Cancel
             </button>
           )}
         </div>
       </form>
-      <section>
+      <section className="plans-list-section">
         <h2>Existing Subscription Plans</h2>
         {plans.length === 0 ? (
           <p>No subscription plans found.</p>
         ) : (
-          <table className="custom-table" aria-label="Subscription Plans Table" style={{ width: '100%' }}>
+          <table className="custom-table plans-table" aria-label="Subscription Plans Table">
             <thead>
               <tr>
-                <th scope="col">Title</th>
-                <th scope="col">Price (₹)</th>
-                <th scope="col">Days</th>
-                <th scope="col">Discount (%)</th>
-                <th scope="col" style={{ minWidth: '100px' }}>Actions</th>
+                <th>Title</th>
+                <th>Price (₹)</th>
+                <th>Days</th>
+                <th>Discount (%)</th>
+                <th style={{ minWidth: '120px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -239,7 +237,6 @@ export default function SubscriptionPlans() {
                       type="button"
                       onClick={() => handleDelete(plan._id)}
                       disabled={saving}
-                      style={{ marginLeft: '0.5rem' }}
                       className="btn-danger"
                     >
                       Delete
