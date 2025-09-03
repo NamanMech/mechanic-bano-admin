@@ -26,7 +26,6 @@ export default function UserStats({ users }) {
             <p className="stat-number">{total}</p>
           </div>
         </div>
-
         <div className="stat-card subscribed-users" tabIndex={0} aria-describedby="subscribedUsersDesc">
           <div className="stat-icon" aria-hidden="true">
             {/* Subscribed icon SVG */}
@@ -38,23 +37,14 @@ export default function UserStats({ users }) {
           <div className="stat-content">
             <h4 id="subscribedUsersDesc">Subscribed</h4>
             <p className="stat-number">{subscribed}</p>
-            <div className="stat-progress">
+            <div className="stat-progress" role="progressbar" aria-valuenow={subscribedPercentage} aria-valuemin="0" aria-valuemax="100" aria-label={`${subscribedPercentage}% of users are subscribed`}>
               <div className="progress-bar">
-                <div 
-                  className="progress-fill subscribed-fill" 
-                  style={{width: `${subscribedPercentage}%`}}
-                  aria-valuenow={subscribedPercentage}
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                  role="progressbar"
-                  aria-label={`${subscribedPercentage}% of users are subscribed`}
-                ></div>
+                <div className="progress-fill subscribed-fill" style={{width: `${subscribedPercentage}%`}}></div>
               </div>
               <span className="percentage">{subscribedPercentage}%</span>
             </div>
           </div>
         </div>
-
         <div className="stat-card expired-users" tabIndex={0} aria-describedby="expiredUsersDesc">
           <div className="stat-icon" aria-hidden="true">
             {/* Expired icon SVG */}
@@ -67,17 +57,9 @@ export default function UserStats({ users }) {
           <div className="stat-content">
             <h4 id="expiredUsersDesc">Expired</h4>
             <p className="stat-number">{expired}</p>
-            <div className="stat-progress">
+            <div className="stat-progress" role="progressbar" aria-valuenow={expiredPercentage} aria-valuemin="0" aria-valuemax="100" aria-label={`${expiredPercentage}% of users have expired subscriptions`}>
               <div className="progress-bar">
-                <div 
-                  className="progress-fill expired-fill" 
-                  style={{width: `${expiredPercentage}%`}}
-                  aria-valuenow={expiredPercentage}
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                  role="progressbar"
-                  aria-label={`${expiredPercentage}% of users have expired subscriptions`}
-                ></div>
+                <div className="progress-fill expired-fill" style={{width: `${expiredPercentage}%`}}></div>
               </div>
               <span className="percentage">{expiredPercentage}%</span>
             </div>
