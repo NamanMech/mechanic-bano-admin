@@ -9,7 +9,7 @@ export default function UPIManagement() {
   const [qrCode, setQrCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploadingQr, setUploadingQr] = useState(false);
+  const [qrFile, setQrFile] = useState(null);
   const API_URL = import.meta.env.VITE_API_URL;
 
   const getBaseUrl = () => (API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL);
@@ -32,7 +32,7 @@ export default function UPIManagement() {
     fetchUpiData();
   }, []);
 
-  const handleQrUpload = async (e) => {
+  const handleQrUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -41,33 +41,40 @@ export default function UPIManagement() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('type', 'qr_code');
-
-    setUploadingQr(true);
-    try {
-      const response = await axios.post(`${getBaseUrl()}/upload`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      setQrCode(response.data.url);
-      toast.success('QR code uploaded successfully!');
-    } catch (error) {
-      toast.error('Error uploading QR code');
-      console.error('Error details:', error.response?.data || error.message);
-    } finally {
-      setUploadingQr(false);
-    }
+    setQrFile(file);
+    
+    // Preview the image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setQrCode(e.target.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
+    
     try {
-      await axios.put(`${getBaseUrl()}/general?type=upi`, { upiId, qrCode });
+      const formData = new FormData();
+      formData.append('upiId', upiId);
+      
+      if (qrFile) {
+        formData.append('qrCodeFile', qrFile);
+      } else if (qrCode && !qrCode.startsWith('data:image')) {
+        // If qrCode is a URL (from previous upload), keep it
+        formData.append('qrCode', qrCode);
+      }
+
+      await axios.put(`${getBaseUrl()}/general?type=upi`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
       toast.success('UPI data updated successfully!');
+      setQrFile(null); // Reset file state
+      fetchUpiData(); // Refetch data to get the updated QR code URL
     } catch (error) {
       toast.error('Error updating UPI data');
       console.error('Error details:', error.response?.data || error.message);
@@ -96,15 +103,14 @@ export default function UPIManagement() {
         </div>
         
         <div className="form-group">
-          <label htmlFor="qrCode">QR Code</label>
+          <label htmlFor="qrCodeFile">QR Code</label>
           <input
-            id="qrCode"
+            id="qrCodeFile"
             type="file"
             accept="image/*"
             onChange={handleQrUpload}
-            disabled={uploadingQr || saving}
+            disabled={saving}
           />
-          {uploadingQr && <div className="upload-status">Uploading QR code...</div>}
         </div>
         
         {qrCode && (
@@ -114,7 +120,7 @@ export default function UPIManagement() {
           </div>
         )}
         
-        <button type="submit" disabled={saving || uploadingQr} className="btn-primary">
+        <button type="submit" disabled={saving} className="btn-primary">
           {saving ? 'Saving...' : 'Save UPI Data'}
         </button>
       </form>
